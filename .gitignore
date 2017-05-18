@@ -1,3 +1,11 @@
+#other
+cmd komanda.txt
+dist/*
+!dist/Serial tool.zip
+!dist/source.zip
+*.ui
+*setup.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -11,7 +19,6 @@ __pycache__/
 env/
 build/
 develop-eggs/
-dist/
 downloads/
 eggs/
 .eggs/
