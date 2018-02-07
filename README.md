@@ -3,7 +3,7 @@ Serial tool for developing comunication with embeded projects, custom protocols 
 
 Compatible with python v3 and PyQt5.
 
-Windows build: http://sourceforge.net/p/serial-tool
+Windows build: http://sourceforge.net/p/serial-tool  
 More: http://damogranlabs.com/2017/05/serial-tool/
 
 ---
