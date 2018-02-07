@@ -1,10 +1,11 @@
 #other
 cmd komanda.txt
-dist/*
-!dist/Serial tool.zip
-!dist/source.zip
 *.ui
-*setup.py
+damogranlabs.ico
+damogranlabs.png
+*.code-workspace
+to_exe.*
+build/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

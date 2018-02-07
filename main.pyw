@@ -5,14 +5,14 @@ Created on Mon Mar 06 22:30:20 2017
 @author: domen
 """
 
+__version__ = 1.2
+
 import sys
 import time
 import string
 import serial
 
-import sip
-sip.setapi('QString', 2)
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 from gui import Ui_root
 from serial_setup_dialog import Ui_SerialSetupDialog
@@ -21,25 +21,23 @@ import communication
 import filedialog
 import log
 
-
 RECEIVE_DATA_CHECKOUT = 400 #ms
-MAX_BUFF_LEN = 1000
 
-
+##############################################################################
 OK = 0
 ERROR = 1
 NUM_OF_COMMANDS_PER_SEQUENCE = 5
 
 ##############################################################################
-class SerialSetupDialog(QtGui.QDialog):
+class SerialSetupDialog(QtWidgets.QDialog):
     def __init__(self, gui):
-        QtGui.QDialog.__init__(self)
+        QtWidgets.QDialog.__init__(self)
         
         self.ui = Ui_SerialSetupDialog()
         self.ui.setupUi(self)
         self.gui = gui
         
-        QtCore.QObject.connect(self.ui.confirm, QtCore.SIGNAL("clicked()"), self.confirm_configuration)
+        self.ui.confirm.clicked.connect(self.confirm_configuration)
                 
         self.xon_xoff = False
         self.rts_cts = False
@@ -119,9 +117,9 @@ class SerialSetupDialog(QtGui.QDialog):
 
 #############################################################################   
 #############################################################################
-class Gui(QtGui.QMainWindow):  #self = gui
+class Gui(QtWidgets.QMainWindow):  #self = gui
     def __init__(self, parent=None):
-        QtGui.QMainWindow.__init__(self, parent)
+        QtWidgets.QMainWindow.__init__(self, parent)
         self.ui = Ui_root()
         self.ui.setupUi(self)
         
@@ -199,39 +197,38 @@ class Gui(QtGui.QMainWindow):  #self = gui
 ##############################################################################
     def connect_to_gui(self):
         #save/load dialog
-        QtCore.QObject.connect(self.ui.file_new_configuration, QtCore.SIGNAL("triggered()"), self.show_serial_setup_dialog)
-        QtCore.QObject.connect(self.ui.file_save_configuration, QtCore.SIGNAL("triggered()"), self.filedialog.save_configuration)
-        QtCore.QObject.connect(self.ui.file_load_configuration, QtCore.SIGNAL("triggered()"), self.filedialog.load_configuration)
-        QtCore.QObject.connect(self.ui.file_about, QtCore.SIGNAL("triggered()"), self.filedialog.print_about)
+        self.ui.file_new_configuration.triggered.connect(self.show_serial_setup_dialog)
+        self.ui.file_save_configuration.triggered.connect(self.filedialog.save_configuration)
+        self.ui.file_load_configuration.triggered.connect(self.filedialog.load_configuration)
+        self.ui.file_about.triggered.connect(self.filedialog.print_about)
         
-        QtCore.QObject.connect(self.ui.setup_serial, QtCore.SIGNAL("triggered()"),self.serial_setup_dialog.show)
-        QtCore.QObject.connect(self.ui.setup_clear_log, QtCore.SIGNAL("triggered()"), lambda: log.clear_log(self))
-        QtCore.QObject.connect(self.ui.setup_hex_output, QtCore.SIGNAL("triggered()"),self._set_hex_output)
-        QtCore.QObject.connect(self.ui.setup_ascii_output, QtCore.SIGNAL("triggered()"), self._set_ascii_output)
+        self.ui.setup_serial.triggered.connect(self.serial_setup_dialog.show)
+        self.ui.setup_clear_log.triggered.connect(lambda: log.clear_log(self))
+        self.ui.setup_hex_output.triggered.connect(self._set_hex_output)
+        self.ui.setup_ascii_output.triggered.connect(self._set_ascii_output)
         
         # SERIAL PORT setup
-        QtCore.QObject.connect(self.ui.com_port_refresh, QtCore.SIGNAL("clicked()"), self.refresh_ports)
-        QtCore.QObject.connect(self.ui.com_port_connect, QtCore.SIGNAL("clicked()"), self.connect)
+        self.ui.com_port_refresh.clicked.connect(self.refresh_ports)
+        self.ui.com_port_connect.clicked.connect(self.connect)
         
-        QtCore.QObject.connect(self.ui.send_1, QtCore.SIGNAL("clicked()"), lambda: self.send_data(1))
-        QtCore.QObject.connect(self.ui.send_2, QtCore.SIGNAL("clicked()"), lambda: self.send_data(2))
-        QtCore.QObject.connect(self.ui.send_3, QtCore.SIGNAL("clicked()"), lambda: self.send_data(3))
-        QtCore.QObject.connect(self.ui.send_4, QtCore.SIGNAL("clicked()"), lambda: self.send_data(4))
-        QtCore.QObject.connect(self.ui.send_5, QtCore.SIGNAL("clicked()"), lambda: self.send_data(5))
-        QtCore.QObject.connect(self.ui.send_6, QtCore.SIGNAL("clicked()"), lambda: self.send_data(6))
-        QtCore.QObject.connect(self.ui.send_7, QtCore.SIGNAL("clicked()"), lambda: self.send_data(7))
-        QtCore.QObject.connect(self.ui.send_8, QtCore.SIGNAL("clicked()"), lambda: self.send_data(8))
+        self.ui.send_1.clicked.connect(lambda: self.send_data(1))
+        self.ui.send_2.clicked.connect(lambda: self.send_data(2))
+        self.ui.send_3.clicked.connect(lambda: self.send_data(3))
+        self.ui.send_4.clicked.connect(lambda: self.send_data(4))
+        self.ui.send_5.clicked.connect(lambda: self.send_data(5))
+        self.ui.send_6.clicked.connect(lambda: self.send_data(6))
+        self.ui.send_7.clicked.connect(lambda: self.send_data(7))
+        self.ui.send_8.clicked.connect(lambda: self.send_data(8))
         
-        QtCore.QObject.connect(self.ui.send_sequence_1, QtCore.SIGNAL("clicked()"), lambda: self.send_data_sequence(1))
-        QtCore.QObject.connect(self.ui.send_sequence_2, QtCore.SIGNAL("clicked()"), lambda: self.send_data_sequence(2))
-        QtCore.QObject.connect(self.ui.send_sequence_3, QtCore.SIGNAL("clicked()"), lambda: self.send_data_sequence(3))
+        self.ui.send_sequence_1.clicked.connect(lambda: self.send_data_sequence(1))
+        self.ui.send_sequence_2.clicked.connect(lambda: self.send_data_sequence(2))
+        self.ui.send_sequence_3.clicked.connect(lambda: self.send_data_sequence(3))
         
         self.receive_data_timer = QtCore.QTimer(self)
         self.receive_data_timer.setInterval(RECEIVE_DATA_CHECKOUT)
-        QtCore.QObject.connect(self.receive_data_timer,  QtCore.SIGNAL("timeout()"), self.receive_data)
+        self.receive_data_timer.timeout.connect(self.receive_data)
         self.receive_data_timer.start()
  
-
 ##############################################################################        
     def show_serial_setup_dialog(self):
         self.serial_setup_dialog.show()
@@ -310,28 +307,7 @@ class Gui(QtGui.QMainWindow):  #self = gui
 
 ##############################################################################    
     def receive_data(self):
-        if self.comm.is_connected:
-            data_to_read = self.comm.data_to_read()
-            
-            if data_to_read > 0:
-                data = []
-                for i in range(data_to_read):
-                    b = ord(self.comm.serial_port.read())
-                    data.append(b)
-                
-                if self.hex_ascii == False:  #HEX
-                    data_hex = ', '.join(hex(b) for b in data)
-                    log.log_data(self, '\tRX: [%s]\n' %data_hex)
-                
-                else: #ASCII
-                    data_ascii = []
-                    for d in data:
-                        if d == 0:
-                            data_ascii.append('\'' + '0' + '\'')
-                        else:
-                            data_ascii.append('\'' + chr(d) + '\'')
-                    data_ascii = ', '.join(data_ascii)
-                    log.log_data(self, '\tRX (ASCII): [%s]\n' %data_ascii)
+        self.comm.serial_read(self.hex_ascii)
 
 
 ##############################################################################    
@@ -400,7 +376,7 @@ class Gui(QtGui.QMainWindow):  #self = gui
 ##############################################################################    
 def main():
     
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     
     gui = Gui()    #self = gui
     

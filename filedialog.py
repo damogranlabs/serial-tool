@@ -11,26 +11,22 @@ import sys
 import glob
 import time
 import serial
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 import log
 
 ABOUT_TEXT = """
-    Serial tool v1.0
-    21.4.2017
+    Serial tool v1.2
+    7.2.2017
     Domen Jurkovic @ Damogran Labs
     
     http://damogranlabs.com/
-    https://github.com/damogranlabs
+    https://github.com/damogranlabs/serial-tool
+    http://sourceforge.net/p/serial-tool
     
     Report bugs: domen.jurkovic@damogranlabs.com
-    
     RX interval: 400ms
 """
-
-
-
-
 
 OK = 0
 ERROR = 1
@@ -76,7 +72,8 @@ class FileDialog():
     
 ##############################################################################
     def save_configuration(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self.gui, "Save configuration", "C:/", "Configuration files (*.txt)");
+        filename = QtWidgets.QFileDialog.getSaveFileName(self.gui, "Save configuration", "C:/", "Configuration files (*.txt)")
+        filename = filename[0]  # first field is filepath/name
         
         data = {}
         for i in range(1, 9):
@@ -120,7 +117,9 @@ class FileDialog():
     
 ##############################################################################
     def load_configuration(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self.gui, "Open configuration", "C:/", "Configuration files (*.txt)");
+        filename = QtWidgets.QFileDialog.getOpenFileName(self.gui, "Open configuration", "C:/", "Configuration files (*.txt)")
+        filename = filename[0]  # first field is filepath/name
+        
         status, data = self._get(filename)
         
         if status == OK:

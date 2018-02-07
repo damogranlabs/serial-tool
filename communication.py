@@ -10,14 +10,14 @@ import glob
 import time
 import serial
 import string
-from PyQt4 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui
 
 import log
 
 COM_PORT_NOT_CONNECTED = "not connected"
 COM_PORT_CONNECTED = "CONNECTED"
 
-SERIAL_READ_WRITE_TIMEOUT = 100
+SERIAL_READ_WRITE_TIMEOUT = 300
 
 OK = 0
 ERROR = 1
@@ -60,7 +60,7 @@ class Communication():
                 pass
         
         #set combo box (list) items (list available SERIAL PORTs)
-        self.gui.ui.com_port_selector.addItems(result)
+        self.gui.ui.com_port_selector.addItems(list(reversed(result)))
         log.log_data(self.gui, "Serial port refresh request.")
         
                 
@@ -112,7 +112,6 @@ class Communication():
                 self.is_connected = True
                 self.gui.ui.com_port_selector.setEnabled(False)
                 self.gui.ui.baud_rate_selector.setEnabled(False)
-                self.gui.ui.com_port_connect.setEnabled(False)
                 
                 self.gui.ui.connection_state.setText(COM_PORT_CONNECTED)
                 log.log_data(self.gui, "Serial port connected.")
@@ -120,7 +119,6 @@ class Communication():
                 self.is_connected = False
                 self.gui.ui.com_port_selector.setEnabled(True)
                 self.gui.ui.baud_rate_selector.setEnabled(True)
-                self.gui.ui.com_port_connect.setEnabled(True)
                 
                 self.gui.ui.connection_state.setText(COM_PORT_NOT_CONNECTED)
                 log.log_data(self.gui, "Serial port not connected.")
@@ -137,16 +135,9 @@ class Communication():
         self.is_connected  = False
         self.gui.ui.com_port_selector.setEnabled(True)
         self.gui.ui.baud_rate_selector.setEnabled(True)
-        self.gui.ui.com_port_connect.setEnabled(True)
         self.gui.ui.connection_state.setText(COM_PORT_NOT_CONNECTED)
         log.log_data(self.gui, "Serial port closed.")
 
-##############################################################################    
-    def data_to_read(self):
-        if self.serial_port.is_open:
-            return self.serial_port.in_waiting
-        else:
-            return 0
         
 ##############################################################################    
     def serial_flush_input(self):
@@ -211,19 +202,33 @@ class Communication():
             return ERROR
 
 ##############################################################################
-    def serial_read(self, size):
+    def serial_read(self, hex_or_ascii):
         try:
-            data = self.serial_port.read(size)
+            if self.is_connected:
+                data = self.serial_port.read_all()
+                
+                if len(data) > 0:
+                    if hex_or_ascii == False:  #HEX
+                        data_hex = ', '.join(hex(d) for d in data)
+                        log.log_data(self.gui, '\tRX: [%s]\n' %data_hex)
+                    
+                    else: #ASCII
+                        data_ascii = []
+                        for d in data:
+                            if d < 128:
+                                data_ascii.append(chr(d))
+                            
+                            else:
+                                data_ascii.append(str(d))
+                                                
+                        data_ascii = ', '.join(data_ascii)
 
-            if len(data) == size:
-                return (OK, data)   # serial read succeded
-            else:   #error - data size is not as expected
-                log.log_data(self.gui, '! serial_read() data size error!')
-                log.log_data(self.gui, '%s instead of %s bytes read.' %(len(data), size), )
-                return (ERROR, 0)
+                        log.log_data(self.gui, "\tRX (ASCII): [%s]\n" %data_ascii)
             
         except Exception as e:
-            log.log_data(self.gui, '!!! !!! !!! SERIAL READ ERROR: %s' %e)
+            log.log_error(self.gui, "!!! !!! !!! SERIAL READ ERROR:")
+            log.log_error(self.gui, "%s" %str(e))
+
             self.gui.ui.statusbar.showMessage('!!! SERIAL READ ERROR!')
 
             self.serial_flush_output()
