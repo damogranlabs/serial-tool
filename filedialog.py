@@ -16,8 +16,8 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import log
 
 ABOUT_TEXT = """
-    Serial tool v1.2
-    7.2.2017
+    Serial tool v1.3
+    3.11.2018
     Domen Jurkovic @ Damogran Labs
     
     http://damogranlabs.com/

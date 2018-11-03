@@ -1,11 +1,13 @@
 # -*- coding:utf-8 -*-
 """
-Created on Mon Mar 06 22:30:20 2017
+Serial Tool by Damogran Labs
+http://damogranlabs.com/2017/05/serial-tool/
+https://github.com/damogranlabs/serial-tool
 
-@author: domen
+Windows build: http://sourceforge.net/p/serial-tool  
 """
 
-__version__ = 1.2
+__version__ = 1.3
 
 import sys
 import time

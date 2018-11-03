@@ -1,11 +1,7 @@
 #other
-cmd komanda.txt
-*.ui
-damogranlabs.ico
-damogranlabs.png
 *.code-workspace
-to_exe.*
 build/
+Serial Tool LOG/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

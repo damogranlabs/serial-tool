@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'serial_setup_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.9.2
+# Created by: PyQt5 UI code generator 5.11.3
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -18,7 +18,10 @@ class Ui_SerialSetupDialog(object):
         sizePolicy.setHeightForWidth(SerialSetupDialog.sizePolicy().hasHeightForWidth())
         SerialSetupDialog.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("damogranlabs.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
         SerialSetupDialog.setWindowIcon(icon)
         self.verticalLayout = QtWidgets.QVBoxLayout(SerialSetupDialog)
         self.verticalLayout.setObjectName("verticalLayout")
@@ -159,3 +162,4 @@ class Ui_SerialSetupDialog(object):
         self.label_5.setText(_translate("SerialSetupDialog", "Hardware flow control:"))
         self.flow_rts_cts.setText(_translate("SerialSetupDialog", "RTS/CTS"))
 
+import icons_rc
