@@ -16,10 +16,10 @@ Example video: https://www.youtube.com/watch?v=l7cXWDq-Eac
 ## Windows build
 Executable (zip ~ 50MB) is available on Source Forge: http://sourceforge.net/p/serial-tool  
 
-![Serial Tool 1](./screenshots/1.png)
-![Serial Tool 2](./screenshots/2.png)
-![Serial Tool 3](./screenshots/3.png)
-![Serial Tool 4](./screenshots/blank.png)
+![Serial Tool 1](screenshots/1.png)
+![Serial Tool 2](screenshots/2.png)
+![Serial Tool 3](screenshots/3.png)
+![Serial Tool 4](screenshots/blank.png)
 
 ---
 ### Changelog:  
