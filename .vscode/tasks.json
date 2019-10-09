@@ -1,0 +1,40 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Open QtDesigner",
+            "type": "process",
+            "command": "C:/Python3.7_64x/Lib/site-packages/pyqt5_tools/Qt/bin/designer.exe",
+            "args": [
+                "gui.ui"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "ui -> py",
+            "type": "process",
+            "command": "generatePyFromUi.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Generate .exe",
+            "type": "process",
+            "command": "to_exe.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run SerialTool.bat",
+            "type": "process",
+            "command": "SerialTool.bat",
+            "problemMatcher": []
+        },
+        {
+            "label": "Run SerialTool.exe (build)",
+            "type": "process",
+            "command": "build/exe.win32-3.6/Serial Tool.exe",
+            "problemMatcher": []
+        }
+    ]
+}

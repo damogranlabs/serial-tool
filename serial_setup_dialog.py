@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'serial_setup_dialog.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_SerialSetupDialog(object):
     def setupUi(self, SerialSetupDialog):
@@ -161,5 +163,4 @@ class Ui_SerialSetupDialog(object):
         self.flow_xon_xoff.setText(_translate("SerialSetupDialog", "XON/XOFF"))
         self.label_5.setText(_translate("SerialSetupDialog", "Hardware flow control:"))
         self.flow_rts_cts.setText(_translate("SerialSetupDialog", "RTS/CTS"))
-
 import icons_rc

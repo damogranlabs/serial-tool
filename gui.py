@@ -2,11 +2,13 @@
 
 # Form implementation generated from reading ui file 'gui.ui'
 #
-# Created by: PyQt5 UI code generator 5.11.3
+# Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
 
+
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Ui_root(object):
     def setupUi(self, root):
@@ -694,6 +696,7 @@ class Ui_root(object):
         self.verticalLayout.addLayout(self.gridLayout_3)
         self.data_log = QtWidgets.QTextEdit(self.centralwidget)
         self.data_log.setUndoRedoEnabled(False)
+        self.data_log.setTabStopWidth(20)
         self.data_log.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
         self.data_log.setObjectName("data_log")
         self.verticalLayout.addWidget(self.data_log)
@@ -746,6 +749,9 @@ class Ui_root(object):
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.ToolTipText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0, 128))
+        brush.setStyle(QtCore.Qt.NoBrush)
+        palette.setBrush(QtGui.QPalette.Active, QtGui.QPalette.PlaceholderText, brush)
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.WindowText, brush)
@@ -791,6 +797,9 @@ class Ui_root(object):
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.ToolTipText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0, 128))
+        brush.setStyle(QtCore.Qt.NoBrush)
+        palette.setBrush(QtGui.QPalette.Inactive, QtGui.QPalette.PlaceholderText, brush)
         brush = QtGui.QBrush(QtGui.QColor(127, 127, 127))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.WindowText, brush)
@@ -836,6 +845,9 @@ class Ui_root(object):
         brush = QtGui.QBrush(QtGui.QColor(0, 0, 0))
         brush.setStyle(QtCore.Qt.SolidPattern)
         palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.ToolTipText, brush)
+        brush = QtGui.QBrush(QtGui.QColor(0, 0, 0, 128))
+        brush.setStyle(QtCore.Qt.NoBrush)
+        palette.setBrush(QtGui.QPalette.Disabled, QtGui.QPalette.PlaceholderText, brush)
         self.statusbar.setPalette(palette)
         font = QtGui.QFont()
         font.setPointSize(10)
@@ -860,7 +872,7 @@ class Ui_root(object):
         self.setup_clear_log.setObjectName("setup_clear_log")
         self.setup_hex_output = QtWidgets.QAction(root)
         self.setup_hex_output.setCheckable(True)
-        self.setup_hex_output.setChecked(True)
+        self.setup_hex_output.setChecked(False)
         self.setup_hex_output.setObjectName("setup_hex_output")
         self.setup_ascii_output = QtWidgets.QAction(root)
         self.setup_ascii_output.setCheckable(True)
@@ -869,6 +881,10 @@ class Ui_root(object):
         self.setup_serial.setObjectName("setup_serial")
         self.file_about = QtWidgets.QAction(root)
         self.file_about.setObjectName("file_about")
+        self.setup_string_output = QtWidgets.QAction(root)
+        self.setup_string_output.setCheckable(True)
+        self.setup_string_output.setChecked(True)
+        self.setup_string_output.setObjectName("setup_string_output")
         self.menuFile.addAction(self.file_new_configuration)
         self.menuFile.addAction(self.file_save_configuration)
         self.menuFile.addAction(self.file_load_configuration)
@@ -876,6 +892,7 @@ class Ui_root(object):
         self.menuFile.addAction(self.file_about)
         self.menuSetup.addAction(self.setup_serial)
         self.menuSetup.addSeparator()
+        self.menuSetup.addAction(self.setup_string_output)
         self.menuSetup.addAction(self.setup_hex_output)
         self.menuSetup.addAction(self.setup_ascii_output)
         self.menuSetup.addSeparator()
@@ -1123,8 +1140,10 @@ class Ui_root(object):
         self.file_new_configuration.setText(_translate("root", "New configuration"))
         self.setup_clear_log.setText(_translate("root", "Clear log"))
         self.setup_hex_output.setText(_translate("root", "HEX output"))
+        self.setup_hex_output.setToolTip(_translate("root", "HEX output (list)"))
         self.setup_ascii_output.setText(_translate("root", "ASCII output"))
+        self.setup_ascii_output.setToolTip(_translate("root", "ASCII output  (list)"))
         self.setup_serial.setText(_translate("root", "Serial setup"))
         self.file_about.setText(_translate("root", "About"))
-
+        self.setup_string_output.setText(_translate("root", "String output"))
 import icons_rc

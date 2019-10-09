@@ -1783,6 +1783,9 @@
       <property name="undoRedoEnabled">
        <bool>false</bool>
       </property>
+      <property name="tabStopWidth">
+       <number>20</number>
+      </property>
       <property name="textInteractionFlags">
        <set>Qt::LinksAccessibleByKeyboard|Qt::LinksAccessibleByMouse|Qt::TextBrowserInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
       </property>
@@ -1932,6 +1935,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </active>
      <inactive>
       <colorrole role="WindowText">
@@ -2063,6 +2075,15 @@
       <colorrole role="ToolTipText">
        <brush brushstyle="SolidPattern">
         <color alpha="255">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
          <red>0</red>
          <green>0</green>
          <blue>0</blue>
@@ -2206,6 +2227,15 @@
         </color>
        </brush>
       </colorrole>
+      <colorrole role="PlaceholderText">
+       <brush brushstyle="NoBrush">
+        <color alpha="128">
+         <red>0</red>
+         <green>0</green>
+         <blue>0</blue>
+        </color>
+       </brush>
+      </colorrole>
      </disabled>
     </palette>
    </property>
@@ -2240,6 +2270,7 @@
     </property>
     <addaction name="setup_serial"/>
     <addaction name="separator"/>
+    <addaction name="setup_string_output"/>
     <addaction name="setup_hex_output"/>
     <addaction name="setup_ascii_output"/>
     <addaction name="separator"/>
@@ -2273,10 +2304,13 @@
     <bool>true</bool>
    </property>
    <property name="checked">
-    <bool>true</bool>
+    <bool>false</bool>
    </property>
    <property name="text">
     <string>HEX output</string>
+   </property>
+   <property name="toolTip">
+    <string>HEX output (list)</string>
    </property>
   </action>
   <action name="setup_ascii_output">
@@ -2285,6 +2319,9 @@
    </property>
    <property name="text">
     <string>ASCII output</string>
+   </property>
+   <property name="toolTip">
+    <string>ASCII output  (list)</string>
    </property>
   </action>
   <action name="setup_serial">
@@ -2295,6 +2332,17 @@
   <action name="file_about">
    <property name="text">
     <string>About</string>
+   </property>
+  </action>
+  <action name="setup_string_output">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>String output</string>
    </property>
   </action>
  </widget>
