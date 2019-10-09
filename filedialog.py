@@ -1,9 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on Fri Apr 14 21:26:12 2017
-
-@author: domen
-"""
 import json
 import os
 import sys
@@ -15,16 +10,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import log
 
 ABOUT_TEXT = """
-    Serial tool v1.3
-    3.11.2018
+    Serial tool v1.4
+    10.10.2019
     Domen Jurkovic @ Damogran Labs
     
     http://damogranlabs.com/
     https://github.com/damogranlabs/serial-tool
     http://sourceforge.net/p/serial-tool
-    
-    Report bugs: domen.jurkovic@damogranlabs.com
-    RX interval: 400ms
 """
 
 OK = 0
