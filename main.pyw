@@ -32,9 +32,9 @@ NUM_OF_COMMANDS_PER_SEQUENCE = 5
 
 ##############################################################################
 class OutputRepresentation:
-    STRING = 0
-    HEX_LIST = 1
-    ASCII_LIST = 2
+    STRING = 'string'
+    HEX_LIST = 'hex_list'
+    ASCII_LIST = 'ascii_list'
 
 
 ##############################################################################

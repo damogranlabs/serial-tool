@@ -32,6 +32,8 @@ OK = 0
 ERROR = 1
 
 # json
+STR_TEMPLATE_OUTPUT_REPRESENTATION = 'serial'
+
 STR_TEMPLATE_DATA = "_data"
 STR_TEMPLATE_NOTE = "_note"
 STR_TEMPLATE_DELAY = "_delay"
@@ -105,6 +107,9 @@ class FileDialog():
         data[STR_TEMPLATE_SER_STOPBITS] = self.gui.serial_setup_dialog.stopbits
         data[STR_TEMPLATE_SER_XONXOFF] = str(self.gui.serial_setup_dialog.xon_xoff)
 
+        # output representation
+        data[STR_TEMPLATE_OUTPUT_REPRESENTATION] = self.gui.output_representation
+
         status = self._put(data, filename)
         if status == OK:
             log.log_data(self.gui, "Save configuration done: %s" % filename)
@@ -118,6 +123,10 @@ class FileDialog():
         status, data = self._get(filename)
 
         if status == OK:
+            # output representation
+            if STR_TEMPLATE_OUTPUT_REPRESENTATION in data:  # backward compatibility
+                self.gui.set_output_representation(data[STR_TEMPLATE_OUTPUT_REPRESENTATION])
+
             # MANUAL DATA SEND
             for i in range(1, 9):
                 # DATA
