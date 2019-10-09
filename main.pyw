@@ -194,6 +194,7 @@ class Gui(QtWidgets.QMainWindow):  # self = gui
 
         self.comm = communication.Communication(self)
         self.filedialog = filedialog.FileDialog(self)
+        self._configuration_file_path = None
 
         self.set_output_representation(OutputRepresentation.STRING)
         self.connect_to_gui()

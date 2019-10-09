@@ -69,7 +69,7 @@ class FileDialog():
         log.log_data(self.gui, "New configuration request.")
 
     def save_configuration(self):
-        file_path = self.get_file_path()
+        file_path = self.get_file_path(self.gui._configuration_file_path)
 
         data = {}
         for i in range(1, 9):
@@ -115,8 +115,7 @@ class FileDialog():
             log.log_data(self.gui, "Save configuration ERROR: %s" % file_path)
 
     def load_configuration(self):
-        file_path = self.get_file_path()
-
+        file_path = self.get_file_path(self.gui._configuration_file_path)
         status, data = self._get(file_path)
 
         if status == OK:
@@ -192,10 +191,12 @@ class FileDialog():
 
         return status
 
-    def get_file_path(self):
-        userRootPath = os.path.normpath(os.path.expanduser('~/'))
-        fileQuery = QtWidgets.QFileDialog.getOpenFileName(self.gui, "Open configuration", userRootPath, "Configuration files (*.txt)")
-        return fileQuery[0]  # first field is filepath/name
+    def get_file_path(self, initial_path=None):
+        if initial_path is None:
+            initial_path = os.path.normpath(os.path.expanduser('~/'))
+        fileQuery = QtWidgets.QFileDialog.getOpenFileName(self.gui, "Open configuration", initial_path, "Configuration files (*.txt)")
+        self.gui._configuration_file_path = fileQuery[0]
+        return self.gui._configuration_file_path  # first field is filepath/name
 
     def print_about(self):
         log.clear_log(self.gui)
