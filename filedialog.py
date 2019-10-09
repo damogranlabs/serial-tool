@@ -6,7 +6,6 @@ Created on Fri Apr 14 21:26:12 2017
 """
 import json
 import os
-
 import sys
 import glob
 import time
@@ -70,8 +69,7 @@ class FileDialog():
         log.log_data(self.gui, "New configuration request.")
 
     def save_configuration(self):
-        filename = QtWidgets.QFileDialog.getSaveFileName(self.gui, "Save configuration", "C:/", "Configuration files (*.txt)")
-        filename = filename[0]  # first field is filepath/name
+        file_path = self.get_file_path()
 
         data = {}
         for i in range(1, 9):
@@ -110,17 +108,16 @@ class FileDialog():
         # output representation
         data[STR_TEMPLATE_OUTPUT_REPRESENTATION] = self.gui.output_representation
 
-        status = self._put(data, filename)
+        status = self._put(data, file_path)
         if status == OK:
-            log.log_data(self.gui, "Save configuration done: %s" % filename)
+            log.log_data(self.gui, "Save configuration done: %s" % file_path)
         else:
-            log.log_data(self.gui, "Save configuration ERROR: %s" % filename)
+            log.log_data(self.gui, "Save configuration ERROR: %s" % file_path)
 
     def load_configuration(self):
-        filename = QtWidgets.QFileDialog.getOpenFileName(self.gui, "Open configuration", "C:/", "Configuration files (*.txt)")
-        filename = filename[0]  # first field is filepath/name
+        file_path = self.get_file_path()
 
-        status, data = self._get(filename)
+        status, data = self._get(file_path)
 
         if status == OK:
             # output representation
@@ -163,37 +160,42 @@ class FileDialog():
             self.gui.serial_setup_dialog.xon_xoff = data[STR_TEMPLATE_SER_XONXOFF]
             self.gui.serial_setup_dialog.set_gui_data()
 
-            log.log_data(self.gui, "Load configuration: %s" % filename)
+            log.log_data(self.gui, "Load configuration: %s" % file_path)
         else:
-            log.log_data(self.gui, "Load configuration FAILED: %s" % filename)
+            log.log_data(self.gui, "Load configuration FAILED: %s" % file_path)
 
-    def _get(self, filename):
+    def _get(self, file_path):
         returndata = {}
         try:
-            fd = open(filename, 'r')
+            fd = open(file_path, 'r')
             text = fd.read()
             fd.close()
             returndata = json.loads(text)
             status = OK
 
         except:
-            log.log_data(self.gui, "COULD NOT LOAD FILE: %s" % filename)
+            log.log_data(self.gui, "COULD NOT LOAD FILE: %s" % file_path)
             status = ERROR
 
         return (status, returndata)
 
-    def _put(self, data, filename):
+    def _put(self, data, file_path):
         try:
             jsondata = json.dumps(data, indent=4, skipkeys=True, sort_keys=True)
-            fd = open(filename, 'w')
+            fd = open(file_path, 'w')
             fd.write(jsondata)
             fd.close()
             status = OK
         except:
-            log.log_data(self.gui, "COULD NOT WRITE TO %s" % filename)
+            log.log_data(self.gui, "COULD NOT WRITE TO %s" % file_path)
             status = ERROR
 
         return status
+
+    def get_file_path(self):
+        userRootPath = os.path.normpath(os.path.expanduser('~/'))
+        fileQuery = QtWidgets.QFileDialog.getOpenFileName(self.gui, "Open configuration", userRootPath, "Configuration files (*.txt)")
+        return fileQuery[0]  # first field is filepath/name
 
     def print_about(self):
         log.clear_log(self.gui)
