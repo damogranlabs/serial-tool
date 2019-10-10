@@ -33,7 +33,7 @@ from cx_Freeze import Executable, setup
 SCRIPT = "main.pyw"  # main script to build to .exe
 APP_NAME = "Serial Tool"    # also output name of .exe file
 DESCRIPTION = "Serial port communication tool"
-VERSION = "1.3"
+VERSION = "1.4"
 GUI = True  # if true, this is GUI based app - no console is displayed
 ICON = 'serialtool_icon.ico'  # your icon or None
 
