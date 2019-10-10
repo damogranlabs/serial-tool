@@ -7,7 +7,7 @@ Serial Tool is a utility tool for embedded projects that allows you to set up pr
 *  Send sequence of data slots, set up delay between different serial writes
 *  Save/load data to configuration file
 *  Read all available data
-*  Display RX data in HEX or ASCII 
+*  Display RX data in string, HEX or ASCII 
 *  Compatible with python v3 and PyQt5.
   
 More: http://damogranlabs.com/2017/05/serial-tool/  
@@ -23,6 +23,13 @@ Executable (zip ~ 50MB) is available on Source Forge: http://sourceforge.net/p/s
 
 ---
 ### Changelog:  
+**v1.4 (10.10.2019):**
+- Python 3.7
+- added string output representation
+- improv: output representation storred to config file
+- added VS Code workspace files
+- improv: changed default save/load config path.
+
 **v1.3 (3.11.2018):**
 - updated icons, minor GUI updates
 - added utility scripts and .bat files
