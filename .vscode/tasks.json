@@ -24,13 +24,19 @@
         {
             "label": "Generate .exe",
             "type": "process",
-            "command": "src/to_exe.py",
+            "command": "python",
+            "args": [
+                "${workspaceFolder}/src/to_exe.py"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src"
+            },
             "problemMatcher": []
         },
         {
             "label": "Run Serial Tool.exe (build)",
             "type": "process",
-            "command": "build/SerialTool.exe",
+            "command": "${workspaceFolder}/build/SerialTool.exe",
             "problemMatcher": []
         }
     ]
