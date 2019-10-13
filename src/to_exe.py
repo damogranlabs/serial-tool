@@ -53,7 +53,10 @@ executable_options = {
         'include_files': ['gui/images/SerialTool.png', ICON],
 
         # amount of data displayed while freezing
-        'silent': [True]
+        'silent': [True],
+
+        # output directory
+        "build_exe": '..\\build'
     }
 }
 
@@ -85,8 +88,8 @@ setup(
 ##############################################################################
 print("\n")
 
-cwd = os.getcwd()
-build_path = os.path.join(cwd, 'build')
+thisScriptDir = os.path.dirname(os.path.abspath(__file__))
+build_path = os.path.normpath(os.path.join(thisScriptDir, '..', 'build'))
 
 # check if zip already exists, if it does, delete it
 zip_name = APP_NAME + ".zip"

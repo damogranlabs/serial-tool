@@ -30,7 +30,7 @@
         {
             "label": "Run Serial Tool.exe (build)",
             "type": "process",
-            "command": "build/exe.win-amd64-3.7/SerialTool.exe",
+            "command": "build/SerialTool.exe",
             "problemMatcher": []
         }
     ]
