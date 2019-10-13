@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui.ui'
+# Form implementation generated from reading ui file 'ui/gui.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -27,10 +27,7 @@ class Ui_root(object):
         root.setFont(font)
         root.setAcceptDrops(False)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.On)
-        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Active, QtGui.QIcon.On)
-        icon.addPixmap(QtGui.QPixmap(":/icons/SerialTool.png"), QtGui.QIcon.Selected, QtGui.QIcon.On)
+        icon.addPixmap(QtGui.QPixmap(":/img/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         root.setWindowIcon(icon)
         root.setIconSize(QtCore.QSize(16, 16))
         root.setAnimated(True)
@@ -974,7 +971,7 @@ class Ui_root(object):
 
     def retranslateUi(self, root):
         _translate = QtCore.QCoreApplication.translate
-        root.setWindowTitle(_translate("root", "Serial tool"))
+        root.setWindowTitle(_translate("root", "Serial Tool"))
         self.baud_rate_selector.setItemText(0, _translate("root", "115200"))
         self.baud_rate_selector.setItemText(1, _translate("root", "38400"))
         self.baud_rate_selector.setItemText(2, _translate("root", "19200"))
@@ -1146,4 +1143,4 @@ class Ui_root(object):
         self.setup_serial.setText(_translate("root", "Serial setup"))
         self.file_about.setText(_translate("root", "About"))
         self.setup_string_output.setText(_translate("root", "String output"))
-import icons_rc
+from gui import icons_rc

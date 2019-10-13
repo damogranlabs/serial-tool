@@ -29,13 +29,15 @@ import shutil
 
 from cx_Freeze import Executable, setup
 
+sys.argv.append("build")  # no need to pass script command line arguments
+
 # EDIT according to your project
 SCRIPT = "main.pyw"  # main script to build to .exe
-APP_NAME = "Serial Tool"    # also output name of .exe file
-DESCRIPTION = "Serial port communication tool"
+APP_NAME = "SerialTool"    # also output name of .exe file
+DESCRIPTION = "Serial Port Utility Tool"
 VERSION = "1.4"
 GUI = True  # if true, this is GUI based app - no console is displayed
-ICON = 'serialtool_icon.ico'  # your icon or None
+ICON = 'gui/images/serialtool_icon.ico'  # your icon or None
 
 CREATE_ZIP = True  # set to True if you wish to create a zip once build is generated
 
@@ -48,7 +50,7 @@ executable_options = {
         'excludes': ['wx', 'gtk', 'PyQt4', 'Tkinter'],
 
         # add your files (like images, ...)
-        'include_files': ['SerialTool.png', ICON],
+        'include_files': ['gui/images/SerialTool.png', ICON],
 
         # amount of data displayed while freezing
         'silent': [True]
@@ -78,8 +80,7 @@ setup(
     version=VERSION,
     description=DESCRIPTION,
     options=executable_options,
-    executables=[exe]
-)
+    executables=[exe])
 # end of cx_freeze stuff
 ##############################################################################
 print("\n")

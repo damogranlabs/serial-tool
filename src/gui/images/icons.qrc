@@ -1,0 +1,6 @@
+<RCC>
+  <qresource prefix="img">
+    <file>SerialTool.png</file>
+    <file>serialtool_icon.ico</file>
+  </qresource>
+</RCC>

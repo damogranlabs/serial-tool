@@ -1,5 +1,4 @@
 #other
-*.code-workspace
 build/
 Serial Tool LOG/
 

@@ -16,8 +16,8 @@ import time
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from gui import Ui_root
-from serial_setup_dialog import Ui_SerialSetupDialog
+from gui.gui import Ui_root
+from gui.serial_setup_dialog import Ui_SerialSetupDialog
 
 import communication
 import filedialog

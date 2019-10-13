@@ -21,6 +21,10 @@ Executable (zip ~ 50MB) is available on Source Forge: http://sourceforge.net/p/s
 ![Serial Tool 3](screenshots/3.PNG)
 ![Serial Tool 4](screenshots/blank.PNG)
 
+## VS Code workspace
+Run different actions (build `.exe`, convert `.ui` to `.py`, run `.exe`, ...) by usage of VS Code workspace tasks and debug by using appropriate launch configuration.
+
+
 ---
 ### Changelog:  
 **v1.4 (10.10.2019):**

@@ -20,11 +20,8 @@
    <string>Serial Setup Dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
-    <normaloff>:/icons/SerialTool.png</normaloff>
-    <normalon>:/icons/SerialTool.png</normalon>
-    <activeon>:/icons/SerialTool.png</activeon>
-    <selectedon>:/icons/SerialTool.png</selectedon>:/icons/SerialTool.png</iconset>
+   <iconset resource="../images/icons.qrc">
+    <normaloff>:/img/SerialTool.png</normaloff>:/img/SerialTool.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -285,7 +282,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="../images/icons.qrc"/>
  </resources>
  <connections/>
  <buttongroups>

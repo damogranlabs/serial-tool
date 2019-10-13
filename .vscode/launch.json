@@ -8,13 +8,15 @@
             "name": "Debug main.pyw",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/main.pyw",
+            "cwd": "${workspaceFolder}/src",
+            "program": "${workspaceFolder}/src/main.pyw",
             "console": "integratedTerminal"
         },
         {
             "name": "Current file",
             "type": "python",
             "request": "launch",
+            "cwd": "${fileDirname}",
             "program": "${file}",
             "console": "integratedTerminal"
         }
