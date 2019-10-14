@@ -27,6 +27,10 @@ Run different actions (build `.exe`, convert `.ui` to `.py`, run `.exe`, ...) by
 
 ---
 ### Changelog:  
+**v1.5 (14.10.2019):**
+- improv: restructured repository
+- fix: new configuration load
+
 **v1.4 (10.10.2019):**
 - Python 3.7
 - added string output representation

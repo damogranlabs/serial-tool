@@ -35,7 +35,7 @@ sys.argv.append("build")  # no need to pass script command line arguments
 SCRIPT = "main.pyw"  # main script to build to .exe
 APP_NAME = "SerialTool"    # also output name of .exe file
 DESCRIPTION = "Serial Port Utility Tool"
-VERSION = "1.4"
+VERSION = "1.5"
 GUI = True  # if true, this is GUI based app - no console is displayed
 ICON = 'gui/images/serialtool_icon.ico'  # your icon or None
 

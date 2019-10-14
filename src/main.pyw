@@ -7,7 +7,7 @@ https://github.com/damogranlabs/serial-tool
 Windows build: http://sourceforge.net/p/serial-tool  
 """
 
-__version__ = 1.4
+__version__ = 1.5
 
 import serial
 import string
