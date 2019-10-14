@@ -201,7 +201,7 @@ class Gui(QtWidgets.QMainWindow):  # self = gui
 
     def connect_to_gui(self):
         # save/load dialog
-        self.ui.file_new_configuration.triggered.connect(self.show_serial_setup_dialog)
+        self.ui.file_new_configuration.triggered.connect(self.filedialog.new_configuration)
         self.ui.file_save_configuration.triggered.connect(self.filedialog.save_configuration)
         self.ui.file_load_configuration.triggered.connect(self.filedialog.load_configuration)
         self.ui.file_about.triggered.connect(self.filedialog.print_about)
