@@ -8,7 +8,8 @@
             "type": "process",
             "command": "C:/Python3.7_64x/Lib/site-packages/pyqt5_tools/Qt/bin/designer.exe",
             "args": [
-                "${workspaceFolder}/src/gui.ui"
+                "${workspaceFolder}/src/gui/ui/gui.ui",
+                "${workspaceFolder}/src/gui/ui/serialSetupDialog.ui"
             ],
             "problemMatcher": []
         },

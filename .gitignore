@@ -1,6 +1,10 @@
 #other
 build/
+log/
 Serial Tool LOG/
+.vscode/.*
+tests/
+.pytest*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
