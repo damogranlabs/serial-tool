@@ -8,9 +8,9 @@ This is a template file to build (freeze) python script to windows executable.
 Setup:
 1. Copy this script (to_exe.py) and bat file (to_exe.bat) to your project folder
 2. Edit to_exe.py. Also, finetune includes & excludes
-    Optinally, edit to_exe.bat:
+    Optionally, edit to_exe.bat:
         - change "build" command to bdist_msi or other cx_freeze build options
-        - remove pause at the end to close terminal immediatelly
+        - remove pause at the end to close terminal immediately
 3. Run/re-run to_exe.bat script everytime build mus be updated
 
 Steps this script does:
@@ -37,9 +37,9 @@ APP_NAME = "SerialTool"    # also output name of .exe file
 DESCRIPTION = "Serial Port Utility Tool"
 VERSION = "2"
 GUI = True  # if true, this is GUI based app - no console is displayed
-ICON = 'gui/images/serialtool_icon.ico'  # your icon or None
+ICON = 'gui/images/SerialTool.ico'  # your icon or None
 
-CREATE_ZIP = False  # set to True if you wish to create a zip once build is generated
+CREATE_ZIP = True  # set to True if you wish to create a zip once build is generated
 
 executable_options = {
     'build_exe': {
@@ -50,16 +50,7 @@ executable_options = {
         'excludes': ['wx', 'gtk', 'PyQt4', 'Tkinter'],
 
         # add your files (like images, ...)
-        # 'include_files': [ICON,
-        #                  'gui/images/SerialTool.png',
-        #                  'gui/images/serialtool_icon.ico',
-        #                  'gui/images/icon-delete.png',
-        #                  'gui/images/icon-save.png',
-        #                  'gui/images/refresh.png',
-        #                  'gui/images/settings.png',
-        #                  'gui/images/icon-save-raw.png',
-        #                  'gui/images/down-arrow.png',
-        #                  'gui/images/external-link.png'],
+        # 'include_files': [ICON],
 
         # amount of data displayed while freezing
         'silent': [True],
@@ -79,6 +70,12 @@ if GUI:
 else:
     base = None
 
+# clear directory at the beginning
+thisScriptDir = os.path.dirname(os.path.abspath(__file__))
+build_path = os.path.normpath(os.path.join(thisScriptDir, '..', 'build'))
+if os.path.exists(build_path):
+    shutil.rmtree(build_path)
+
 # http://cx-freeze.readthedocs.io/en/latest/distutils.html#cx-freeze-executable
 exe = Executable(
     script=SCRIPT,
@@ -94,34 +91,34 @@ setup(
     options=executable_options,
     executables=[exe])
 
-# end of cx_freeze stuff
-##############################################################################
-print("\n")
-
-thisScriptDir = os.path.dirname(os.path.abspath(__file__))
-build_path = os.path.normpath(os.path.join(thisScriptDir, '..', 'build'))
-
-# check if zip already exists, if it does, delete it
-zip_name = APP_NAME + ".zip"
-zip_path = os.path.join(build_path, zip_name)
-if os.path.exists(zip_path):
-    os.remove(zip_path)
-    print("Zip already exist in \\build subfolder, deleted")
-
-# check if there is anything in \build subfolder
-if os.listdir(build_path):
-    print("Distribution created in \\build subfolder")
+if os.path.exists(build_path):
+    items = os.listdir(build_path)
+    if items:
+        if f"{APP_NAME}.exe" in items:
+            print("Distribution created in \\build subfolder")
+        else:
+            print(f"'build' subfolder exists, but {APP_NAME}.exe can't be found")
+            sys.exit(1)
+    else:
+        print(f"'build' subfolder exists, but is emtpy.")
+        sys.exit(1)
 else:
-    print("Empty \\build subfolder, was build successfull?")
+    print("Build failed - no 'build' subfolder was created.")
     sys.exit(1)
-
-if not CREATE_ZIP:
-    print("\nBuild finished.")
-    sys.exit(0)
+# end of cx_freeze stuff
 
 ##############################################################################
 # distribuition created in \build subfolder, create zip
 # create zip file in the root folder
+if not CREATE_ZIP:
+    print("\nBuild finished.")
+    sys.exit(0)
+else:
+    print("\Creating a zip of a project...")
+
+zip_name = APP_NAME + ".zip"
+zip_path = os.path.join(build_path, zip_name)
+
 root_zip_path = shutil.make_archive(APP_NAME, 'zip', build_path)
 print("Zip created")
 
