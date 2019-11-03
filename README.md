@@ -1,60 +1,38 @@
 # Serial Tool
-Serial Tool is a utility tool for embedded projects that allows you to set up predefined data and send it to your device over chosen serial port with few extra features.
+Serial Tool is a utility for developing, debugging and validating serial communication with PC. Great for data verification, custom protocols for embedded systems and other simple projects that include serial communication such as UART or RS232 (with appropriate hardware interface, like USB to UART converter).  
+
+Original project website: http://damogranlabs.com/2017/05/serial-tool/
 
 ## Features
-*  Data types: bytes, characters, integers, arrays
-*  Add notes to each data slot
-*  Send sequence of data slots, set up delay between different serial writes
-*  Save/load data to configuration file
-*  Read all available data
-*  Display RX data in string, HEX or ASCII 
-*  Compatible with python v3 and PyQt5.
+* Data types: integers, HEX numbers, characters, strings.
+* Data/sequence field verification on the fly.
+* User notes for each data channel.
+* Sequence generator: multiple blocks of (data channel, delay, repeat number).
+* Asynchronous read of all available received data.
+* Different data output representation modes: strings, integers, HEX, ASCII.
+* Log window display customization.
+* Log window/raw data export capability.
+* Save/load current settings to a configuration file.
   
-More: http://damogranlabs.com/2017/05/serial-tool/  
-Example video: https://www.youtube.com/watch?v=l7cXWDq-Eac
-
 ## Windows build
-Executable (zip ~ 50MB) is available on Source Forge: http://sourceforge.net/p/serial-tool  
-
-![Serial Tool 1](screenshots/1.PNG)
-![Serial Tool 2](screenshots/2.PNG)
-![Serial Tool 3](screenshots/3.PNG)
-![Serial Tool 4](screenshots/blank.PNG)
+Standalone windows executable (zip ~ 50MB) is available on [Source Forge](http://sourceforge.net/p/serial-tool).  
+[![Download Serial Tool](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/serial-tool/files/latest/download)  
 
 ## VS Code workspace
-Run different actions (build `.exe`, convert `.ui` to `.py`, run `.exe`, ...) by usage of VS Code workspace tasks and debug by using appropriate launch configuration.
+For those who wish to take a look under the hood and/or contribute, VS Code workspace is available. Use tasks to speed up common actions like: build `.exe`, convert `.ui` to `.py`, run `.exe`, ...  
 
 
----
-### Changelog:  
-**v1.5 (14.10.2019):**
-- improv: restructured repository
-- fix: new configuration load
+## Screenshots
+New, default blank configuration:  
+![Blank (initial) configuration](screenshots/blankConfiguration.png)  
+Example configuration with user notes:  
+![Example configuration](screenshots/exampleConfiguration.png)  
+Example configuration and explanation of data/sequence field validator:  
+![Data and sequence validator](screenshots/dataAndSeqExplanation.png)  
+Serial port settings, which are also a part of configuration file settings:  
+![Serial port settings dialog](screenshots/communicationDialog.png)  
+Log/save/export window settings:  
+![Log buttons explanation](screenshots/buttonsExplanation.png)  
+Configurations can be stored and recalled:  
+![List of recently used configurations](screenshots/recenlyUsedConfigurations.png)  
 
-**v1.4 (10.10.2019):**
-- Python 3.7
-- added string output representation
-- improv: output representation storred to config file
-- added VS Code workspace files
-- improv: changed default save/load config path.
-
-**v1.3 (3.11.2018):**
-- updated icons, minor GUI updates
-- added utility scripts and .bat files
-- added screenshots
-
-
-**v1.2 (7.2.2018):**
-- port to Python v3.6 and PyQt5
-- improv: updated hex/ascii log writeout
-- improv: added cx_freeze distribution (see sourceforge)
-- fix: buttons blackout
-- improv: icon
-
-**v1.1 (25.6.2017):**
-- fix: minor bug fixes and code formatting
-- fix: updated serial methods (read, write, in_waiting)
-- improv: py2exe distribution added
-
-**v1.0 - initial release (24.4.2017)**
-- python v2.7, pyqt4
