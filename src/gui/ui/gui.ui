@@ -1428,7 +1428,7 @@
       <item>
        <widget class="QToolButton" name="PB_clearLog">
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clear log window&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Clear log window (Ctrl+Shift+C)&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>...</string>
@@ -1442,6 +1442,9 @@
           <width>14</width>
           <height>14</height>
          </size>
+        </property>
+        <property name="shortcut">
+         <string>Ctrl+Shift+C</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonIconOnly</enum>

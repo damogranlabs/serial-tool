@@ -3,6 +3,7 @@ Serial setup dialog window handler.
 """
 import sys
 import time
+from functools import partial
 
 import serial
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -54,8 +55,8 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.RB_stopBitsGroup.setId(self.ui.RB_stopBits_two, serial.STOPBITS_TWO)
 
         # OK/cancel buttons
-        self.ui.PB_OK.clicked.connect(lambda: self.onExit(True))
-        self.ui.PB_cancel.clicked.connect(lambda: self.onExit(False))
+        self.ui.PB_OK.clicked.connect(partial(self.onExit, True))
+        self.ui.PB_cancel.clicked.connect(partial(self.onExit, False))
 
     def showDialog(self):
         """

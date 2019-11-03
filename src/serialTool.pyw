@@ -26,6 +26,7 @@ from gui.serialSetupDialog import Ui_SerialSetupDialog
 
 __version__ = 2.0  # software version
 
+
 class Gui(QtWidgets.QMainWindow):
     sigError = QtCore.pyqtSignal(str, str)
     sigClose = QtCore.pyqtSignal()
@@ -145,7 +146,6 @@ class Gui(QtWidgets.QMainWindow):
         self.commHandler.sigConnectionSuccessfull.connect(self.onConnectEvent)
         self.commHandler.sigConnectionClosed.connect(self.onDisconnectEvent)
         self.commHandler.sigDataReceived.connect(self.onDataReceiveEvent)
-        
 
     def connectDataUpdateSignalsToSlots(self):
         self.dataModel.sigSerialSettingsUpdate.connect(self.onSerialSettingsUpdate)
@@ -246,7 +246,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         for seqIndex, seqWorker in enumerate(self._seqSendWorkers):
             try:
-                if seqWorker is not None: 
+                if seqWorker is not None:
                     seqWorker.sigSequenceStopRequest.emit()
             except Exception as err:
                 errorMsg = f"Unable to stop sequence {seqIndex+1} thread."
@@ -616,7 +616,7 @@ class Gui(QtWidgets.QMainWindow):
         Deinit serial port, close GUI.
         """
         self.commHandler.deinitPort()
-        
+
         self.close()
 
     ################################################################################################
@@ -742,9 +742,9 @@ class Gui(QtWidgets.QMainWindow):
 
             thread = QtCore.QThread(self)
             worker = communication.SerialDataSequenceTransmitterThread(self.commHandler.portHandler,
-                                                                    channel,
-                                                                    self.dataModel.parsedDataFields,
-                                                                    self.dataModel.parsedSeqFields)
+                                                                       channel,
+                                                                       self.dataModel.parsedDataFields,
+                                                                       self.dataModel.parsedSeqFields)
             worker.sigSequenceTransmittFinished.connect(self.onSendSequenceFinishEvent)
             worker.sigDataSendEvent.connect(self.onSequenceSendEvent)
 
@@ -757,7 +757,7 @@ class Gui(QtWidgets.QMainWindow):
             self._seqThreads[channel].start()
         else:
             self._seqSendWorkers[channel].sigSequenceStopRequest.emit()
-            msg = f"Sequence {channel} stop request!"
+            msg = f"Sequence {channel+1} stop request!"
             self.writeToLogWindow(msg, LOG_COLOR_WARNING)
 
     ################################################################################################
@@ -1137,7 +1137,7 @@ class Gui(QtWidgets.QMainWindow):
         try:
             import ptvsd
             ptvsd.debug_this_thread()
-        except: 
+        except:
             pass
 
         try:
@@ -1150,10 +1150,10 @@ class Gui(QtWidgets.QMainWindow):
 
             self.sigError.emit(errorMsg, LOG_COLOR_ERROR)
             log.error(errorMsg)
-            
+
             self.stopAllSeqThreads()
             self.commHandler.deinitPort()
-                        
+
         except Exception as err:
             log.error(f"Error in exception handling function.\n{err}")
             self.sigClose.emit()

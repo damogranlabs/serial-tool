@@ -9,7 +9,7 @@
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}/src",
-            "program": "${workspaceFolder}/src/main.pyw",
+            "program": "${workspaceFolder}/src/serialTool.pyw",
             "console": "integratedTerminal"
         },
         {
