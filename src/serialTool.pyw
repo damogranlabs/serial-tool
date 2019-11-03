@@ -914,7 +914,7 @@ class Gui(QtWidgets.QMainWindow):
                         dataPart = dataPart.strip('0x')
                         if len(dataPart) % 2:
                             dataPart = '0' + dataPart
-                        hexNumbers = bytearray.fromhex(dataPart)
+                        hexNumbers = list(bytearray.fromhex(dataPart))
                         dataList.extend(hexNumbers)
                         continue
 
