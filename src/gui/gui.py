@@ -945,7 +945,7 @@ class Ui_root(object):
         self.PB_refreshCommPortsList.setText(_translate("root", "..."))
         self.DD_commPortSelector.setToolTip(_translate("root", "<html><head/><body><p>Select serial communication port</p></body></html>"))
         self.DD_commPortSelector.setWhatsThis(_translate("root", "<html><head/><body><p><br/></p></body></html>"))
-        self.label.setText(_translate("root", "Data syntax: numbers ( -128 ... + 127, 0 ... 255), HEX (0xd, 0x4B1D), strings (\"!\", \"my string!\"). Separate with \';\'."))
+        self.label.setText(_translate("root", "Data syntax: numbers ( -128 ... +255), HEX (0xd, 0x4B1D), strings (\"!\", \"my string!\"). Separate with \';\'."))
         self.TI_data2.setPlaceholderText(_translate("root", "Channel 2 data"))
         self.TI_data8.setPlaceholderText(_translate("root", "Channel 8 data"))
         self.PB_send2.setText(_translate("root", "SEND"))

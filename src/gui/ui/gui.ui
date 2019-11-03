@@ -270,7 +270,7 @@
        <string notr="true">color: rgb(53, 53, 53);</string>
       </property>
       <property name="text">
-       <string>Data syntax: numbers ( -128 ... + 127, 0 ... 255), HEX (0xd, 0x4B1D), strings (&quot;!&quot;, &quot;my string!&quot;). Separate with ';'.</string>
+       <string>Data syntax: numbers ( -128 ... +255), HEX (0xd, 0x4B1D), strings (&quot;!&quot;, &quot;my string!&quot;). Separate with ';'.</string>
       </property>
      </widget>
     </item>
