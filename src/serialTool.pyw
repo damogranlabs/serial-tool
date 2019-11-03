@@ -72,7 +72,7 @@ class Gui(QtWidgets.QMainWindow):
         self.uiSeqSendButtons = [self.ui.PB_sendSequence1,
                                  self.ui.PB_sendSequence2,
                                  self.ui.PB_sendSequence3]
-        self._seqThreads: [QtCore.QThread()] = [None] * NUM_OF_SEQ_CHANNELS
+        self._seqThreads: [QtCore.QThread] = [None] * NUM_OF_SEQ_CHANNELS
         self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS
 
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationString, OutputRepresentation.STRING)
@@ -86,7 +86,7 @@ class Gui(QtWidgets.QMainWindow):
         # prepare data and port handlers
         self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
         self.commHandler: communication.SerialToolPortHandler = communication.SerialToolPortHandler()
-        self.cfgHandler = cfgHandler.ConfigurationHandler(self.dataModel)
+        self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(self.dataModel)
 
         # init app and gui
         self.connectGuiSignalsToSlots()
