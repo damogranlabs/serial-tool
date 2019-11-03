@@ -50,16 +50,16 @@ executable_options = {
         'excludes': ['wx', 'gtk', 'PyQt4', 'Tkinter'],
 
         # add your files (like images, ...)
-        'include_files': [ICON,
-                          'gui/images/SerialTool.png',
-                          'gui/images/serialtool_icon.ico',
-                          'gui/images/icon-delete.png',
-                          'gui/images/icon-save.png',
-                          'gui/images/refresh.png',
-                          'gui/images/settings.png',
-                          'gui/images/icon-save-raw.png',
-                          'gui/images/down-arrow.png',
-                          'gui/images/external-link.png'],
+        # 'include_files': [ICON,
+        #                  'gui/images/SerialTool.png',
+        #                  'gui/images/serialtool_icon.ico',
+        #                  'gui/images/icon-delete.png',
+        #                  'gui/images/icon-save.png',
+        #                  'gui/images/refresh.png',
+        #                  'gui/images/settings.png',
+        #                  'gui/images/icon-save-raw.png',
+        #                  'gui/images/down-arrow.png',
+        #                  'gui/images/external-link.png'],
 
         # amount of data displayed while freezing
         'silent': [True],

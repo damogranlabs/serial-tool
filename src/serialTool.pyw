@@ -1164,12 +1164,12 @@ class Gui(QtWidgets.QMainWindow):
 ################################################################################################
 def getDefaultLogFolderPath() -> str:
     """
-    Return path to a default log folder.
+    Return path to a default Serial Tool Appdata folder: %APPDATA%/<SERIAL_TOOL_APPDATA_FOLDER_NAME>
     """
-    rootFolder = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    folderPath = os.path.join(rootFolder, LOG_FOLDER_NAME)
+    appdataPath = os.environ["APPDATA"]
+    serialToolFolderPath = os.path.join(appdataPath, SERIAL_TOOL_APPDATA_FOLDER_NAME)
 
-    return folderPath
+    return serialToolFolderPath
 
 
 def getRecentlyUsedCfgFilePath() -> str:
