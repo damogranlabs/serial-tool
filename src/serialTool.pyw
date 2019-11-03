@@ -93,7 +93,6 @@ class Gui(QtWidgets.QMainWindow):
         self.connectDataUpdateSignalsToSlots()
         self.connectExecutionSignalsToSlots()
 
-        # TODO load previous configuration?
         self.initGuiState()
 
         self.raise_()
