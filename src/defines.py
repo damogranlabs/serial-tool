@@ -131,6 +131,8 @@ RECENTLY_USED_CFG_FILE_NAME = "_recentlyUsedConfigurations.txt"
 
 ###################################################################################################
 # other settings
+APPLICATION_NAME = "Serial Tool"
+
 DEFAULT_FONT_STYLE = "font-size: 10pt;"
 NUM_OF_MAX_RECENTLY_USED_CFG_GUI = 8
 
