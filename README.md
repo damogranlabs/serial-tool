@@ -15,8 +15,7 @@ Original project website: http://damogranlabs.com/2017/05/serial-tool/
 * Save/load current settings to a configuration file.
   
 ## Windows build
-Standalone windows executable (zip ~ 50MB) is available on [Source Forge](http://sourceforge.net/p/serial-tool).  
-[![Download Serial Tool](https://a.fsdn.com/con/app/sf-download-button)](https://sourceforge.net/projects/serial-tool/files/latest/download)  
+See [releases page](https://github.com/damogranlabs/serial-tool/releases) for a windows executable (zip ~ 50MB)  
 
 ## VS Code workspace
 For those who wish to take a look under the hood and/or contribute, VS Code workspace is available. Use tasks to speed up common actions like: build `.exe`, convert `.ui` to `.py`, run `.exe`, ...  
