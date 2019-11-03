@@ -1,7 +1,7 @@
 <RCC>
   <qresource prefix="images">
     <file>SerialTool.png</file>
-    <file>serialtool_icon.ico</file>
+    <file>SerialTool.ico</file>
     <file>icon-delete.png</file>
     <file>icon-save.png</file>
     <file>refresh.png</file>
