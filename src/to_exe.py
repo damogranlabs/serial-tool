@@ -32,14 +32,14 @@ from cx_Freeze import Executable, setup
 sys.argv.append("build")  # no need to pass script command line arguments
 
 # EDIT according to your project
-SCRIPT = "main.pyw"  # main script to build to .exe
+SCRIPT = "serialTool.pyw"  # main script to build to .exe
 APP_NAME = "SerialTool"    # also output name of .exe file
 DESCRIPTION = "Serial Port Utility Tool"
 VERSION = "2"
 GUI = True  # if true, this is GUI based app - no console is displayed
 ICON = 'gui/images/serialtool_icon.ico'  # your icon or None
 
-CREATE_ZIP = True  # set to True if you wish to create a zip once build is generated
+CREATE_ZIP = False  # set to True if you wish to create a zip once build is generated
 
 executable_options = {
     'build_exe': {
@@ -52,11 +52,14 @@ executable_options = {
         # add your files (like images, ...)
         'include_files': [ICON,
                           'gui/images/SerialTool.png',
+                          'gui/images/serialtool_icon.ico',
                           'gui/images/icon-delete.png',
-                          'gui/images/refresh.png',
                           'gui/images/icon-save.png',
+                          'gui/images/refresh.png',
+                          'gui/images/settings.png',
                           'gui/images/icon-save-raw.png',
-                          'gui/images/settings.png']
+                          'gui/images/down-arrow.png',
+                          'gui/images/external-link.png'],
 
         # amount of data displayed while freezing
         'silent': [True],
@@ -90,6 +93,7 @@ setup(
     description=DESCRIPTION,
     options=executable_options,
     executables=[exe])
+
 # end of cx_freeze stuff
 ##############################################################################
 print("\n")

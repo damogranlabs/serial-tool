@@ -3,14 +3,11 @@ Main application window GUI handler.
 """
 import logging
 import os
-import re
 import sys
-import time
 import traceback
 import webbrowser
 from functools import partial
 
-import serial
 import serial.serialutil as serialUtil
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
@@ -19,7 +16,7 @@ import cfgHandler
 import dataModel
 import logHandler as log
 import serComm
-import serialTool
+import communication
 import setupDialog
 from defines import *
 
@@ -75,7 +72,7 @@ class Gui(QtWidgets.QMainWindow):
                                  self.ui.PB_sendSequence2,
                                  self.ui.PB_sendSequence3]
         self._seqThreads: [QtCore.QThread()] = [None] * NUM_OF_SEQ_CHANNELS
-        self._seqSendWorkers: [serialTool.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS
+        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS
 
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationString, OutputRepresentation.STRING)
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationIntList, OutputRepresentation.INT_LIST)
@@ -87,7 +84,7 @@ class Gui(QtWidgets.QMainWindow):
 
         # prepare data and port handlers
         self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
-        self.commHandler: serialTool.SerialToolPortHandler = serialTool.SerialToolPortHandler()
+        self.commHandler: communication.SerialToolPortHandler = communication.SerialToolPortHandler()
         self.cfgHandler = cfgHandler.ConfigurationHandler(self.dataModel)
 
         # init app and gui
@@ -115,42 +112,22 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.PB_refreshCommPortsList.clicked.connect(self.refreshPortsList)
         self.ui.PB_commPortCtrl.clicked.connect(self.onPortHandlerButton)
 
-        # data fields
-        self.ui.TI_data1.textChanged.connect(lambda: self.onDataFieldChange(0))
-        self.ui.TI_data2.textChanged.connect(lambda: self.onDataFieldChange(1))
-        self.ui.TI_data3.textChanged.connect(lambda: self.onDataFieldChange(2))
-        self.ui.TI_data4.textChanged.connect(lambda: self.onDataFieldChange(3))
-        self.ui.TI_data5.textChanged.connect(lambda: self.onDataFieldChange(4))
-        self.ui.TI_data6.textChanged.connect(lambda: self.onDataFieldChange(5))
-        self.ui.TI_data7.textChanged.connect(lambda: self.onDataFieldChange(6))
-        self.ui.TI_data8.textChanged.connect(lambda: self.onDataFieldChange(7))
+        # data note data send and button fields
+        for index, dataField in enumerate(self.uiDataFields):
+            dataField.textChanged.connect(partial(self.onDataFieldChange, index))
 
-        self.ui.PB_send1.clicked.connect(lambda: self.onSendDataButton(0))
-        self.ui.PB_send2.clicked.connect(lambda: self.onSendDataButton(1))
-        self.ui.PB_send3.clicked.connect(lambda: self.onSendDataButton(2))
-        self.ui.PB_send4.clicked.connect(lambda: self.onSendDataButton(3))
-        self.ui.PB_send5.clicked.connect(lambda: self.onSendDataButton(4))
-        self.ui.PB_send6.clicked.connect(lambda: self.onSendDataButton(5))
-        self.ui.PB_send7.clicked.connect(lambda: self.onSendDataButton(6))
-        self.ui.PB_send8.clicked.connect(lambda: self.onSendDataButton(7))
+        for index, dataSendButton in enumerate(self.uiDataSendButtons):
+            dataSendButton.clicked.connect(partial(self.onSendDataButton, index))
 
-        self.ui.TI_note1.textChanged.connect(lambda: self.onNoteFieldChange(0))
-        self.ui.TI_note2.textChanged.connect(lambda: self.onNoteFieldChange(1))
-        self.ui.TI_note3.textChanged.connect(lambda: self.onNoteFieldChange(2))
-        self.ui.TI_note4.textChanged.connect(lambda: self.onNoteFieldChange(3))
-        self.ui.TI_note5.textChanged.connect(lambda: self.onNoteFieldChange(4))
-        self.ui.TI_note6.textChanged.connect(lambda: self.onNoteFieldChange(5))
-        self.ui.TI_note7.textChanged.connect(lambda: self.onNoteFieldChange(6))
-        self.ui.TI_note8.textChanged.connect(lambda: self.onNoteFieldChange(7))
+        for index, noteField in enumerate(self.uiNoteFields):
+            noteField.textChanged.connect(partial(self.onNoteFieldChange, index))
 
         # sequence fields
-        self.ui.TI_sequence1.textChanged.connect(lambda: self.onSeqFieldChange(0))
-        self.ui.TI_sequence2.textChanged.connect(lambda: self.onSeqFieldChange(1))
-        self.ui.TI_sequence3.textChanged.connect(lambda: self.onSeqFieldChange(2))
+        for index, seqField in enumerate(self.uiSeqFields):
+            seqField.textChanged.connect(partial(self.onSeqFieldChange, index))
 
-        self.ui.PB_sendSequence1.clicked.connect(lambda: self.onSendStopSequenceButton(0))
-        self.ui.PB_sendSequence2.clicked.connect(lambda: self.onSendStopSequenceButton(1))
-        self.ui.PB_sendSequence3.clicked.connect(lambda: self.onSendStopSequenceButton(2))
+        for index, seqSendButton in enumerate(self.uiSeqSendButtons):
+            seqSendButton.clicked.connect(partial(self.onSendStopSequenceButton, index))
 
         # log
         self.ui.PB_clearLog.clicked.connect(self.clearLogWindow)
@@ -764,7 +741,7 @@ class Gui(QtWidgets.QMainWindow):
             self.uiSeqSendButtons[channel].setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {SEQ_ACTIVE_COLOR}")
 
             thread = QtCore.QThread(self)
-            worker = serialTool.SerialDataSequenceTransmitterThread(self.commHandler.portHandler,
+            worker = communication.SerialDataSequenceTransmitterThread(self.commHandler.portHandler,
                                                                     channel,
                                                                     self.dataModel.parsedDataFields,
                                                                     self.dataModel.parsedSeqFields)
@@ -781,7 +758,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             self._seqSendWorkers[channel].sigSequenceStopRequest.emit()
             msg = f"Sequence {channel} stop request!"
-            self.writeToLogWindow(msg)
+            self.writeToLogWindow(msg, LOG_COLOR_WARNING)
 
     ################################################################################################
     # log settings slots

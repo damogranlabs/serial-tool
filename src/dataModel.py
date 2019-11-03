@@ -2,22 +2,11 @@
 This file holds data model for MVC (Viewer/Controller Model) based application.
 https://www.wildcardconsulting.dk/rdkit-gui-browser-with-mvc-using-pyside/
 """
-import sys
-import time
-import re
-
-import serial
-from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore
 
 from defines import *
 
-import serialTool
-
 import serComm
-import setupDialog
-
-from gui.gui import Ui_root
-from gui.serialSetupDialog import Ui_SerialSetupDialog
 
 
 class SerialToolSettings(QtCore.QObject):
