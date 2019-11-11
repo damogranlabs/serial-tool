@@ -1,7 +1,7 @@
 # Serial Tool
 Serial Tool is a utility for developing, debugging and validating serial communication with PC. Great for data verification, custom protocols for embedded systems and other simple projects that include serial communication such as UART or RS232 (with appropriate hardware interface, like USB to UART converter).  
 
-Original project website: http://damogranlabs.com/2017/05/serial-tool/
+Original project [website](https://damogranlabs.com/2019/11/serial-tool-v2/): https://damogranlabs.com/2019/11/serial-tool-v2/
 
 ## Features
 * Data types: integers, HEX numbers, characters, strings.
