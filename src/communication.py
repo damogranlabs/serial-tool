@@ -221,38 +221,3 @@ class SerialToolPortHandler(QtCore.QObject):
     def getReceivedData(self) -> list:
         receivedData = self._rxWatcher.getAllReceivedData()
         self.sigDataReceived.emit(receivedData)
-
-
-def test_controlWithSignals(serialSettings: serComm.SerialCommSettings):
-    # TODO
-    lowLevelInterface = SerialToolPortHandler(serialSettings)
-
-    endAppTimer = QtCore.QTimer(app)
-    endAppTimer.setSingleShot(True)
-    endAppTimer.timeout.connect(app.quit)
-    endAppTimer.start(4000)
-
-    lowLevelInterface.sigInitRequest.emit()  # lowLevelInterface.initPortAndReceiveThread()
-    txData = '123456789'
-    # lowLevelInterface.sigWrite.emit(txData)
-
-    endAppTimer = QtCore.QTimer(app)
-    endAppTimer.setSingleShot(False)
-    endAppTimer.timeout.connect(lambda: lowLevelInterface.writeData(txData))
-    lowLevelInterface.sigWrite.emit(txData)
-    endAppTimer.start(500)
-
-    app.exec_()
-
-    lowLevelInterface.sigDeinitRequest.emit()
-
-
-if __name__ == "__main__":
-    # enable user to run this as a subprocess, thread or command line utility
-    serialSettings = serComm.SerialCommSettings()
-    serialSettings.port = 'COM4'
-    serialSettings.baudrate = 115200
-
-    #app = QtCore.QCoreApplication([])
-
-    # test_controlWithSignals(serialSettings)
