@@ -675,7 +675,11 @@ class Ui_root(object):
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.TE_log = QtWidgets.QTextBrowser(self.centralwidget)
+        self.TE_log.setAcceptDrops(False)
+        self.TE_log.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+        self.TE_log.setLineWrapMode(QtWidgets.QTextEdit.WidgetWidth)
         self.TE_log.setTabStopWidth(20)
+        self.TE_log.setCursorWidth(1)
         self.TE_log.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByKeyboard|QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextBrowserInteraction|QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
         self.TE_log.setOpenExternalLinks(True)
         self.TE_log.setObjectName("TE_log")
@@ -894,7 +898,9 @@ class Ui_root(object):
 
         self.retranslateUi(root)
         QtCore.QMetaObject.connectSlotsByName(root)
-        root.setTabOrder(self.DD_commPortSelector, self.DD_baudrate)
+        root.setTabOrder(self.PB_serialSetup, self.DD_commPortSelector)
+        root.setTabOrder(self.DD_commPortSelector, self.PB_refreshCommPortsList)
+        root.setTabOrder(self.PB_refreshCommPortsList, self.DD_baudrate)
         root.setTabOrder(self.DD_baudrate, self.PB_commPortCtrl)
         root.setTabOrder(self.PB_commPortCtrl, self.TI_data1)
         root.setTabOrder(self.TI_data1, self.TI_note1)
@@ -927,11 +933,17 @@ class Ui_root(object):
         root.setTabOrder(self.PB_sendSequence2, self.TI_sequence3)
         root.setTabOrder(self.TI_sequence3, self.PB_sendSequence3)
         root.setTabOrder(self.PB_sendSequence3, self.PB_clearLog)
-        root.setTabOrder(self.PB_clearLog, self.CB_rxToLog)
+        root.setTabOrder(self.PB_clearLog, self.PB_exportLog)
+        root.setTabOrder(self.PB_exportLog, self.PB_exportRxTxData)
+        root.setTabOrder(self.PB_exportRxTxData, self.CB_rxToLog)
         root.setTabOrder(self.CB_rxToLog, self.CB_txToLog)
         root.setTabOrder(self.CB_txToLog, self.RB_outputRepresentationString)
-        root.setTabOrder(self.RB_outputRepresentationString, self.RB_outputRepresentationHexList)
+        root.setTabOrder(self.RB_outputRepresentationString, self.RB_outputRepresentationIntList)
+        root.setTabOrder(self.RB_outputRepresentationIntList, self.RB_outputRepresentationHexList)
         root.setTabOrder(self.RB_outputRepresentationHexList, self.RB_outputRepresentationAsciiList)
+        root.setTabOrder(self.RB_outputRepresentationAsciiList, self.CB_verboseOutput)
+        root.setTabOrder(self.CB_verboseOutput, self.PB_autoScroll)
+        root.setTabOrder(self.PB_autoScroll, self.TE_log)
 
     def retranslateUi(self, root):
         _translate = QtCore.QCoreApplication.translate
@@ -1022,6 +1034,11 @@ class Ui_root(object):
         self.CB_verboseOutput.setText(_translate("root", "Verbose"))
         self.PB_autoScroll.setToolTip(_translate("root", "<html><head/><body><p>Enable/disable auto scroll</p></body></html>"))
         self.PB_autoScroll.setText(_translate("root", "..."))
+        self.TE_log.setHtml(_translate("root", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:\'MS Shell Dlg 2\'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\"-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\"><br /></p></body></html>"))
         self.menuFile.setTitle(_translate("root", "File"))
         self.PB_fileMenu_recentlyUsedConfigurations.setTitle(_translate("root", "Recently used configurations"))
         self.menuHelp.setTitle(_translate("root", "Help"))

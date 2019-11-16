@@ -24,7 +24,7 @@ from defines import *
 from gui.gui import Ui_root
 from gui.serialSetupDialog import Ui_SerialSetupDialog
 
-__version__ = 2.1  # software version
+__version__ = 2.2  # software version
 
 
 class Gui(QtWidgets.QMainWindow):
@@ -294,23 +294,29 @@ class Gui(QtWidgets.QMainWindow):
             @param msg: message to write to log window.
             @param color: color of displayed text (hex format).
         """
+        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value() # if autoscroll is not in use, set previous location.
+        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End) # always insert at the end of the log window
+        
         msg = f"{msg}\n"
         self.ui.TE_log.setTextColor(QtGui.QColor(color))
         self.ui.TE_log.insertPlainText(msg)
         self.ui.TE_log.setTextColor(QtGui.QColor(LOG_COLOR_NORMAL))
 
         if self.ui.PB_autoScroll.isChecked():
-            self.ui.TE_log.ensureCursorVisible()
+            self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)
+        else:
+            self.ui.TE_log.verticalScrollBar().setValue(currentVerticalScrollBarPos)
 
-        log.debug(f"writeToLogWindow: {msg.strip()}")
+        log.debug(f"writeToLogWindow: {msg.strip()}")   
 
     def writeHtmlToLogWindow(self, msg: str):
         """
         Write HTML content to log window with a given color.
             @param msg: html formatted message to write to log window.
+        NOTE: override autoscroll checkbox setting - always display message.
         """
         msg = f"{msg}<br>"
-        self.ui.TE_log.moveCursor(self.ui.TE_log.verticalScrollBar().maximum())
+        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)
         self.ui.TE_log.insertHtml(msg)
 
         if self.ui.PB_autoScroll.isChecked():
