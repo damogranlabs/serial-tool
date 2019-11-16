@@ -1,4 +1,7 @@
 # Changelog:  
+**v2.2 (16.11.2019):**
+- fix: log window scroll issue on text selection
+  
 **v2.1 (16.11.2019):**
 - fix: RT/TX checkbox, log message exception handler
 - improv: note font more readable (now black)
