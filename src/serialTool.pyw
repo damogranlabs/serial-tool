@@ -24,7 +24,7 @@ from defines import *
 from gui.gui import Ui_root
 from gui.serialSetupDialog import Ui_SerialSetupDialog
 
-__version__ = 2.0  # software version
+__version__ = 2.1  # software version
 
 
 class Gui(QtWidgets.QMainWindow):
@@ -580,7 +580,7 @@ class Gui(QtWidgets.QMainWindow):
 
             self.writeToLogWindow(msg, RX_DATA_LOG_COLOR)
 
-        log.debug("\tEvent: data received: " + str(msg))
+        log.debug("\tEvent: data received: " + str(dataString))
 
     @QtCore.pyqtSlot(int)
     def onSendSequenceFinishEvent(self, channel: int):
@@ -735,7 +735,7 @@ class Gui(QtWidgets.QMainWindow):
         dataString = self.convertDataToChosenFormat(data)
 
         self.dataModel.allRxTxData.append(f"CH{channel}{EXPORT_TX_TAG}{dataString}")
-        if self.dataModel.displayReceivedData:
+        if self.dataModel.displayTransmittedData:
             msg = f"{dataString}"
             if self.dataModel.verboseDisplayMode:
                 msg = f"{TX_TAG} ({TX_CHANNEL_TAG}{channel+1}): {msg}"

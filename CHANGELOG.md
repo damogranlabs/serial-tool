@@ -1,4 +1,8 @@
 # Changelog:  
+**v2.1 (16.11.2019):**
+- fix: RT/TX checkbox, log message exception handler
+- improv: note font more readable (now black)
+
 **v2 (3.11.2019):**
 - REWRITE: v2.0
 - MVC architecture (appropriate use of PyQt signals and slots)
