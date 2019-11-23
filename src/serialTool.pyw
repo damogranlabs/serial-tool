@@ -394,6 +394,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             filePath = os.path.normpath(filePath)
             self.cfgHandler.loadConfiguration(filePath)
+            self.dataModel.configurationFilePath = filePath
             refreshMenu = True
 
         if refreshMenu:
