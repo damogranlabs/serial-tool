@@ -20,7 +20,7 @@
 **v1.4 (10.10.2019):**
 - Python 3.7
 - added string output representation
-- improv: output representation storred to config file
+- improv: output representation stored to config file
 - added VS Code workspace files
 - improv: changed default save/load config path
 
@@ -32,7 +32,7 @@
 
 **v1.2 (7.2.2018):**
 - port to Python v3.6 and PyQt5
-- improv: updated hex/ascii log writeout
+- improv: updated hex/ascii log write-out
 - improv: added cx_freeze distribution (see sourceforge)
 - fix: buttons blackout
 - improv: icon
