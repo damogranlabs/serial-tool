@@ -1,10 +1,10 @@
 """
 This file holds all serial communication utility functions and handlers.
 """
+import asyncio
+import aioserial
 import glob
 import sys
-import threading
-import time
 
 import serial
 import serial.serialutil as serialUtil
@@ -81,7 +81,7 @@ class SerialPortHandler():
         """
         Non-threaded serial port communication class. Holds all needed functions to init, read and write to/from serial port.
         """
-        self._portHandle = serial.Serial()
+        self._portHandle = aioserial.AioSerial()
         self.portSettings: SerialCommSettings = SerialCommSettings()
 
     def getAvailablePorts(self, scanRange: int = 40) -> list:
@@ -117,21 +117,22 @@ class SerialPortHandler():
         try:
             self.closePort()
 
-            self._portHandle.port = serialSettings.port
-            self._portHandle.baudrate = serialSettings.baudrate
-            self._portHandle.bytesize = serialSettings.dataSize
-            self._portHandle.parity = serialSettings.parity
-            self._portHandle.stopbits = serialSettings.stopbits
-            self._portHandle.xonxoff = serialSettings.swFlowControl
-            self._portHandle.rtscts = serialSettings.hwFlowControl
-            self._portHandle.dsrdtr = False  # disable hardware (DSR/DTR) flow control
-            self._portHandle.timeout = serialSettings.readTimeoutMs / 1000
-            self._portHandle.write_timeout = serialSettings.writeTimeoutMs / 1000
+            self._portHandle = aioserial.AioSerial(
+                port=serialSettings.port,
+                baudrate=serialSettings.baudrate,
+                bytesize=serialSettings.dataSize,
+                parity=serialSettings.parity,
+                stopbits=serialSettings.stopbits,
+                xonxoff=serialSettings.swFlowControl,
+                rtscts=serialSettings.hwFlowControl,
+                dsrdtr=False,  # disable hardware (DSR/DTR) flow control
+                timeout=serialSettings.readTimeoutMs / 1000,
+                write_timeout=serialSettings.writeTimeoutMs / 1000)
+
             self.portSettings = serialSettings
 
-            self._portHandle.open()
-
             return True
+
         except Exception as err:
             if raiseException:
                 errorMsg = f"Unable to init serial port with following settings: {serialSettings}"
@@ -223,6 +224,14 @@ class SerialPortHandler():
                 raise Exception(errorMsg)
             else:
                 return numOfBytesWritten
+
+    async def asyncReadData(self) -> bytes:
+        """
+        Asynchronously read data from a serial port and return one byte. Might be an empty byte (b''), which indicates no new received data.
+        Raise exception on error.
+        """
+        byte = await self._portHandle.read_async()  # will wait until one byte will not be received.
+        return byte
 
     def readData(self) -> [int]:
         """

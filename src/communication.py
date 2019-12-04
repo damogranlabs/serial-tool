@@ -1,17 +1,14 @@
 """
 This file holds all serial communication utility functions and handlers.
 """
-import sys
+import asyncio
 import time
 import threading
 
 from PyQt5 import QtCore
-from PyQt5 import QtGui
-from PyQt5 import QtWidgets
 
 from defines import *
 import serComm
-import dataModel
 
 import logHandler as log
 
@@ -22,8 +19,8 @@ class SerialDataReceiverThread(QtCore.QObject):
 
     def __init__(self, portHandler: serComm.SerialPortHandler):
         """
-        This class initialize thread that constantly poll RX buffer and store receive data in a list.
-        On after data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
+        This class initialize thread that read available data with asyncio read and store receive data in a list.
+        On data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
         """
         super().__init__()
 
@@ -37,7 +34,7 @@ class SerialDataReceiverThread(QtCore.QObject):
 
     def run(self):
         """
-        This is the main Receive Data function that is run when thread is started
+        This is the main Receive Data function that is run when thread is started.
         """
         try:
             self._portHandler.isConnected(True)
@@ -50,13 +47,18 @@ class SerialDataReceiverThread(QtCore.QObject):
             self._receiveThreadStopFlag = False
             while not self._receiveThreadStopFlag:
                 try:
-                    if self._portHandler.isReceivedDataAvailable():
+                    byte = asyncio.run(self._portHandler.asyncReadData())  # asynchronously receive 1 byte
+                    if byte == b'':
+                        continue  # nothing received
+                    else:
+                        # receive data available, read all
                         receivedData = self._portHandler.readData()
                         with self._rxDataListLock:
-                            self._receivedData.extend(receivedData)
+                            self._receivedData.append(ord(byte))  # first received byte (async)
+                            self._receivedData.extend(receivedData)  # other data
 
                         if not self._rxNotEmptyNotified:
-                            self._rxNotEmptyNotified = True  # prevent notifying multiple times
+                            self._rxNotEmptyNotified = True  # prevent notifying multiple times for new data
                             self.sigRxNotEmpty.emit()
                 except Exception as err:
                     errorMsg = f"Exception caught in receive thread readData() function:\n{err}"
