@@ -72,8 +72,8 @@ class Gui(QtWidgets.QMainWindow):
         self.uiSeqSendButtons = [self.ui.PB_sendSequence1,
                                  self.ui.PB_sendSequence2,
                                  self.ui.PB_sendSequence3]
-        self._seqThreads: [QtCore.QThread] = [None] * NUM_OF_SEQ_CHANNELS
-        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS
+        self._seqThreads: [QtCore.QThread] = [None] * NUM_OF_SEQ_CHANNELS # threads of sequence handlers
+        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS # actual sequence handlers
 
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationString, OutputRepresentation.STRING)
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationIntList, OutputRepresentation.INT_LIST)
@@ -504,7 +504,9 @@ class Gui(QtWidgets.QMainWindow):
         Connect/disconnect from a port with serial settings.
         """
         if self.ui.PB_commPortCtrl.text() == COMM_PORT_CONNECTED_TEXT:
-            # currently connected, disconnect
+            # currently connected, stop all sequences and disconnect 
+            self.stopAllSeqThreads() # might be a problem with unfinished, blockin sequences
+
             self.commHandler.deinitPort()  # TODO: signal or not?
             msg = f"Disconnect request."
             self.writeToLogWindow(msg, LOG_COLOR_GRAY)
