@@ -137,6 +137,7 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.CB_txToLog.clicked.connect(self.onTxDisplayModeChange)
         self.ui.RB_GROUP_outputRepresentation.buttonClicked.connect(self.onOutputRepresentationModeChange)
         self.ui.CB_verboseOutput.clicked.connect(self.onVerboseDisplayModeChange)
+        self.ui.CB_rxNewLine.clicked.connect(self.onRxNewLineChange)
 
     def connectExecutionSignalsToSlots(self):
         self.sigError.connect(self.writeToLogWindow)
@@ -155,6 +156,8 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel.sigTxDisplayModeUpdate.connect(self.onTxDisplayModeUpdate)
         self.dataModel.sigOutputRepresentationModeUpdate.connect(self.onOutputRepresentationModeUpdate)
         self.dataModel.sigVerboseDisplayModeUpdate.connect(self.onVerboseDisplayModeUpdate)
+        self.dataModel.sigRxNewLineUpdate.connect(self.onRxNewLineUpdate)
+        
 
     def initGuiState(self):
         """
@@ -288,16 +291,19 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_commPortCtrl.setText(COMM_PORT_NOT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_NOT_CONNECTED_COLOR}")
 
-    def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL):
+    def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL, appendNewLine:bool=True):
         """
         Write to log window with a given color.
             @param msg: message to write to log window.
             @param color: color of displayed text (hex format).
+            @param appendNewLine: if True, new line terminator is appended to a message
         """
         currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value() # if autoscroll is not in use, set previous location.
         self.ui.TE_log.moveCursor(QtGui.QTextCursor.End) # always insert at the end of the log window
         
-        msg = f"{msg}\n"
+        if appendNewLine:
+            msg = f"{msg}\n"
+
         self.ui.TE_log.setTextColor(QtGui.QColor(color))
         self.ui.TE_log.insertPlainText(msg)
         self.ui.TE_log.setTextColor(QtGui.QColor(LOG_COLOR_NORMAL))
@@ -584,8 +590,9 @@ class Gui(QtWidgets.QMainWindow):
             msg = f"{dataString}"
             if self.dataModel.verboseDisplayMode:
                 msg = f"\t{RX_TAG}: {msg}"
-
-            self.writeToLogWindow(msg, RX_DATA_LOG_COLOR)
+                self.writeToLogWindow(msg, RX_DATA_LOG_COLOR)
+            else:
+                self.writeToLogWindow(msg, RX_DATA_LOG_COLOR, self.dataModel.rxNewLine)
 
         log.debug("\tEvent: data received: " + str(dataString))
 
@@ -878,6 +885,12 @@ class Gui(QtWidgets.QMainWindow):
         Action to take place once verbose display setting is altered (for example, on load configuration).
         """
         self.ui.CB_verboseOutput.setChecked(self.dataModel.verboseDisplayMode)
+        
+        # 'Verbose' checkbox state and 'RX new line' CB enable/disable state are mutually exclusive
+        if self.dataModel.verboseDisplayMode:
+            self.ui.CB_rxNewLine.setEnabled(False)
+        else:
+            self.ui.CB_rxNewLine.setEnabled(True)
 
     @QtCore.pyqtSlot()
     def onVerboseDisplayModeChange(self):
@@ -885,8 +898,30 @@ class Gui(QtWidgets.QMainWindow):
         Get verbose mode of log RX/TX data.
         """
         self.dataModel.verboseDisplayMode = self.ui.CB_verboseOutput.isChecked()
+        
+        # 'Verbose' checkbox state and 'RX new line' CB enable/disable state are mutually exclusive
+        if self.dataModel.verboseDisplayMode:
+            self.ui.CB_rxNewLine.setEnabled(False)
+        else:
+            self.ui.CB_rxNewLine.setEnabled(True)
 
         return self.dataModel.verboseDisplayMode
+
+    @QtCore.pyqtSlot()
+    def onRxNewLineUpdate(self):
+        """
+        Action to take place once verbRX new line setting is altered (for example, on load configuration).
+        """
+        self.ui.CB_rxNewLine.setChecked(self.dataModel.rxNewLine)
+
+    @QtCore.pyqtSlot()
+    def onRxNewLineChange(self):
+        """
+        Get RX new line settings of log RX/TX data.
+        """
+        self.dataModel.rxNewLine = self.ui.CB_rxNewLine.isChecked()
+
+        return self.dataModel.rxNewLine
 
     ################################################################################################
     # utility functions

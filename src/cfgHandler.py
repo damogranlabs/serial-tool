@@ -38,6 +38,7 @@ class ConfigurationHandler:
         wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_HWFLOWCONTROL] = self.dataModel.serialSettings.hwFlowControl
         wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_READTIMEOUTMS] = self.dataModel.serialSettings.readTimeoutMs
         wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS] = self.dataModel.serialSettings.writeTimeoutMs
+        self.dataModel.setRxNewlineMode(False)
         wData[CFG_TAG_DATA_FIELDS] = {}
         for channelIndex, data in enumerate(self.dataModel.dataFields):
             wData[CFG_TAG_DATA_FIELDS][channelIndex] = data
@@ -51,6 +52,7 @@ class ConfigurationHandler:
         wData[CFG_TAG_TXLOG] = self.dataModel.displayTransmittedData
         wData[CFG_TAG_OUTPUT_REPRESENTATION] = self.dataModel.outputDataRepresentation
         wData[CFG_TAG_VERBOSE_DISPLAY] = self.dataModel.verboseDisplayMode
+        wData[CFG_TAG_RX_NEW_LINE] = self.dataModel.rxNewLine
 
         with open(filePath, 'w+') as fileHandler:
             json.dump(wData, fileHandler, indent=4)
@@ -95,6 +97,7 @@ class ConfigurationHandler:
             self.dataModel.setTxDisplayMode(wData[CFG_TAG_TXLOG])
             self.dataModel.setOutputRepresentationMode(wData[CFG_TAG_OUTPUT_REPRESENTATION])
             self.dataModel.setVerboseDisplayMode(wData[CFG_TAG_VERBOSE_DISPLAY])
+            self.dataModel.setRxNewlineMode(wData[CFG_TAG_RX_NEW_LINE])
 
         except Exception as err:
             errorMsg = f"Unable to load configuration from a file: {filePath}"
@@ -119,6 +122,7 @@ class ConfigurationHandler:
         self.dataModel.setTxDisplayMode(True)
         self.dataModel.setOutputRepresentationMode(OutputRepresentation.STRING)
         self.dataModel.setVerboseDisplayMode(True)
+        self.dataModel.setRxNewlineMode(False)
 
 
 if __name__ == "__main__":
@@ -126,6 +130,6 @@ if __name__ == "__main__":
     filePath = r"D:\Google Drive\Strom\SerialTool\log\exampleConfiguration.json"
     dataModel = dataModel.SerialToolSettings()
 
-    cfgHandler = ConfigurationFilesHandler(dataModel)
+    cfgHandler = ConfigurationHandler(dataModel)
     cfgHandler.saveConfiguration(filePath)
     cfgHandler.loadConfiguration(filePath)

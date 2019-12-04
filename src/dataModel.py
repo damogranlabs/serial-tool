@@ -18,6 +18,7 @@ class SerialToolSettings(QtCore.QObject):
     sigTxDisplayModeUpdate = QtCore.pyqtSignal()
     sigOutputRepresentationModeUpdate = QtCore.pyqtSignal()
     sigVerboseDisplayModeUpdate = QtCore.pyqtSignal()
+    sigRxNewLineUpdate = QtCore.pyqtSignal()
 
     def __init__(self):
         """
@@ -41,6 +42,7 @@ class SerialToolSettings(QtCore.QObject):
         self.displayReceivedData: bool = True
         self.displayTransmittedData: bool = True
         self.verboseDisplayMode: bool = True
+        self.rxNewLine: bool = False
 
     def setSerialSettings(self, serialSettings: serComm.SerialCommSettings):
         """
@@ -108,6 +110,14 @@ class SerialToolSettings(QtCore.QObject):
         """
         self.verboseDisplayMode = isEnabled
         self.sigVerboseDisplayModeUpdate.emit()
+
+    def setRxNewlineMode(self, isEnabled: bool):
+        """
+        Update RX new line field and emit a signal at the end.
+            @param isEnabled: if True, new line is appended to RX data once received..
+        """
+        self.rxNewLine = isEnabled
+        self.sigRxNewLineUpdate.emit()
 
 
 def _dataFieldIndexInRange(dataFieldIndex: int) -> bool:
