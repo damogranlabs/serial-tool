@@ -755,6 +755,8 @@ class Gui(QtWidgets.QMainWindow):
             msg = f"{dataString}"
             if self.dataModel.verboseDisplayMode:
                 msg = f"{TX_TAG} ({TX_CHANNEL_TAG}{channel+1}): {msg}"
+            if not self.dataModel.rxNewLine: # if new line on RX data is disabled, add \n to TX data anyway.
+                msg = f"\n{msg}"
 
             self.writeToLogWindow(msg, TX_DATA_LOG_COLOR)
 

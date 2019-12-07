@@ -1630,7 +1630,7 @@
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, each received data is placed new line. Only applicable if verbose is set to False.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
-         <string>RX \n</string>
+         <string>\n on RX data</string>
         </property>
         <property name="checked">
          <bool>true</bool>

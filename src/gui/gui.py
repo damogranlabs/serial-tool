@@ -658,6 +658,7 @@ class Ui_root(object):
         self.CB_verboseOutput.setObjectName("CB_verboseOutput")
         self.horizontalLayout_2.addWidget(self.CB_verboseOutput)
         self.CB_rxNewLine = QtWidgets.QCheckBox(self.centralwidget)
+        self.CB_rxNewLine.setEnabled(False)
         self.CB_rxNewLine.setChecked(True)
         self.CB_rxNewLine.setObjectName("CB_rxNewLine")
         self.horizontalLayout_2.addWidget(self.CB_rxNewLine)
@@ -1037,7 +1038,7 @@ class Ui_root(object):
         self.CB_verboseOutput.setToolTip(_translate("root", "<html><head/><body><p>Enable verbose output log messages</p></body></html>"))
         self.CB_verboseOutput.setText(_translate("root", "Verbose"))
         self.CB_rxNewLine.setToolTip(_translate("root", "<html><head/><body><p>If checked, each received data is placed new line. Only applicable if verbose is set to False.</p></body></html>"))
-        self.CB_rxNewLine.setText(_translate("root", "RX \\n"))
+        self.CB_rxNewLine.setText(_translate("root", "\\n on RX data"))
         self.PB_autoScroll.setToolTip(_translate("root", "<html><head/><body><p>Enable/disable auto scroll</p></body></html>"))
         self.PB_autoScroll.setText(_translate("root", "..."))
         self.TE_log.setHtml(_translate("root", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
