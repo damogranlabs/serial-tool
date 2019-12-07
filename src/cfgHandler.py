@@ -9,17 +9,18 @@ import threading
 from defines import *
 import dataModel
 import serComm
-
+import logHandler as log
 __version__ = 2.0  # configuration file version (not main software version)
 
 
 class ConfigurationHandler:
-    def __init__(self, data: dataModel.SerialToolSettings):
+    def __init__(self, data: dataModel.SerialToolSettings, signals: dataModel.SharedSignalsContainer):
         """
         This class initialize thread that constantly poll RX buffer and store receive data in a list.
         On after data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
         """
         self.dataModel: dataModel.SerialToolSettings = data
+        self.signals: dataModel.SharedSignalsContainer = signals
 
     def saveConfiguration(self, filePath: str):
         """
@@ -38,7 +39,7 @@ class ConfigurationHandler:
         wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_HWFLOWCONTROL] = self.dataModel.serialSettings.hwFlowControl
         wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_READTIMEOUTMS] = self.dataModel.serialSettings.readTimeoutMs
         wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS] = self.dataModel.serialSettings.writeTimeoutMs
-        self.dataModel.setRxNewlineMode(False)
+
         wData[CFG_TAG_DATA_FIELDS] = {}
         for channelIndex, data in enumerate(self.dataModel.dataFields):
             wData[CFG_TAG_DATA_FIELDS][channelIndex] = data
@@ -48,6 +49,7 @@ class ConfigurationHandler:
         wData[CFG_TAG_SEQ_FIELDS] = {}
         for channelIndex, sequence in enumerate(self.dataModel.seqFields):
             wData[CFG_TAG_SEQ_FIELDS][channelIndex] = sequence
+
         wData[CFG_TAG_RXLOG] = self.dataModel.displayReceivedData
         wData[CFG_TAG_TXLOG] = self.dataModel.displayTransmittedData
         wData[CFG_TAG_OUTPUT_REPRESENTATION] = self.dataModel.outputDataRepresentation
@@ -71,7 +73,6 @@ class ConfigurationHandler:
             raise Exception(errorMsg)
 
         try:
-            # serial settings
             serialSettings = serComm.SerialCommSettings()
             serialSettings.port = wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_PORT]
             serialSettings.baudrate = wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_BAUDRATE]
@@ -83,7 +84,11 @@ class ConfigurationHandler:
             serialSettings.readTimeoutMs = wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_READTIMEOUTMS]
             serialSettings.writeTimeoutMs = wData[CFG_TAG_SERIAL_CFG][CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS]
             self.dataModel.setSerialSettings(serialSettings)
+        except Exception as err:
+            errorMsg = f"Unable to set serial settings from a configuration file: {err}"
+            self.signals.sigWarning.emit(errorMsg, LOG_COLOR_WARNING)
 
+        try:
             for channel, data in wData[CFG_TAG_DATA_FIELDS].items():
                 self.dataModel.setDataField(int(channel), data)
 
@@ -92,18 +97,19 @@ class ConfigurationHandler:
 
             for channel, data in wData[CFG_TAG_SEQ_FIELDS].items():
                 self.dataModel.setSeqField(int(channel), data)
+        except Exception as err:
+            errorMsg = f"Unable to set data/note/sequence settings from a configuration file: {err}"
+            self.signals.sigWarning.emit(errorMsg, LOG_COLOR_WARNING)
 
+        try:
             self.dataModel.setRxDisplayMode(wData[CFG_TAG_RXLOG])
             self.dataModel.setTxDisplayMode(wData[CFG_TAG_TXLOG])
             self.dataModel.setOutputRepresentationMode(wData[CFG_TAG_OUTPUT_REPRESENTATION])
             self.dataModel.setVerboseDisplayMode(wData[CFG_TAG_VERBOSE_DISPLAY])
             self.dataModel.setRxNewlineMode(wData[CFG_TAG_RX_NEW_LINE])
-
         except Exception as err:
-            errorMsg = f"Unable to load configuration from a file: {filePath}"
-            errorMsg += f"\nError:\n{err}"
-            errorMsg += f"\nFile content:\n{wData}"
-            raise Exception(errorMsg)
+            errorMsg = f"Unable to set log settings from a configuration file: {err}"
+            self.signals.sigWarning.emit(errorMsg, LOG_COLOR_WARNING)
 
     def createDefaultConfiguration(self):
         """
@@ -123,13 +129,3 @@ class ConfigurationHandler:
         self.dataModel.setOutputRepresentationMode(OutputRepresentation.STRING)
         self.dataModel.setVerboseDisplayMode(True)
         self.dataModel.setRxNewlineMode(False)
-
-
-if __name__ == "__main__":
-    # test
-    filePath = r"D:\Google Drive\Strom\SerialTool\log\exampleConfiguration.json"
-    dataModel = dataModel.SerialToolSettings()
-
-    cfgHandler = ConfigurationHandler(dataModel)
-    cfgHandler.saveConfiguration(filePath)
-    cfgHandler.loadConfiguration(filePath)

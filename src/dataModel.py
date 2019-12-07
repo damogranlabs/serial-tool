@@ -9,6 +9,13 @@ from defines import *
 import serComm
 
 
+class SharedSignalsContainer:
+    def __init__(self):
+        self.sigWrite = None
+        self.sigWarning = None
+        self.sigError = None
+
+
 class SerialToolSettings(QtCore.QObject):
     sigSerialSettingsUpdate = QtCore.pyqtSignal()
     sigDataFieldUpdate = QtCore.pyqtSignal(int)

@@ -26,11 +26,13 @@ from defines import *
 from gui.gui import Ui_root
 from gui.serialSetupDialog import Ui_SerialSetupDialog
 
-__version__ = "2.2"  # software version
-
+__version__ = "2.3"  # software version
 
 class Gui(QtWidgets.QMainWindow):
+    sigWrite = QtCore.pyqtSignal(str, str)
+    sigWarning = QtCore.pyqtSignal(str, str)
     sigError = QtCore.pyqtSignal(str, str)
+
     sigClose = QtCore.pyqtSignal()
 
     def __init__(self):
@@ -85,10 +87,16 @@ class Gui(QtWidgets.QMainWindow):
         # set up exception handler
         sys.excepthook = self._appExceptionHandler
 
+        self.sharedSignals = dataModel.SharedSignalsContainer()
+        self.sharedSignals.sigWrite = self.sigWrite
+        self.sharedSignals.sigWarning = self.sigWarning
+        self.sharedSignals.sigError = self.sigError
+
         # prepare data and port handlers
         self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
         self.commHandler: communication.SerialToolPortHandler = communication.SerialToolPortHandler()
-        self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(self.dataModel)
+        
+        self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(self.dataModel, self.sharedSignals)
 
         # init app and gui
         self.connectGuiSignalsToSlots()
@@ -143,7 +151,10 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.CB_rxNewLine.clicked.connect(self.onRxNewLineChange)
 
     def connectExecutionSignalsToSlots(self):
+        self.sigWrite.connect(self.writeToLogWindow)
+        self.sigWarning.connect(self.writeToLogWindow)
         self.sigError.connect(self.writeToLogWindow)
+
         self.sigClose.connect(self.onQuitApplicationEvent)
 
         self.commHandler.sigConnectionSuccessfull.connect(self.onConnectEvent)
@@ -294,6 +305,7 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_commPortCtrl.setText(COMM_PORT_NOT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_NOT_CONNECTED_COLOR}")
 
+    @QtCore.pyqtSlot(str, str)
     def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL, appendNewLine:bool=True):
         """
         Write to log window with a given color.
@@ -1213,21 +1225,18 @@ class Gui(QtWidgets.QMainWindow):
         @param tracebackObj: traceback object
         """
         try:
-            import ptvsd
-            ptvsd.debug_this_thread()
-        except:
-            pass
-
-        try:
             errorMsg = "\n * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"
             errorMsg += f"\nUnhandled unexpected exception occurred! Program will try to continue with execution."
             errorMsg += f"\n\tExc. type: {excType}"
             errorMsg += f"\n\tExc. value: {excValue}"
             errorMsg += f"\n\tExc. traceback: {traceback.format_tb(tracebackObj)}"
             errorMsg += "\n\n"
-
-            self.sigError.emit(errorMsg, LOG_COLOR_ERROR)
-            log.error(errorMsg)
+            
+            try:
+                self.sigError.emit(errorMsg, LOG_COLOR_ERROR)
+            except Exception as err:  
+                # at least, log to file if log over signal fails
+                log.error(errorMsg)
 
             self.stopAllSeqThreads()
             self.commHandler.deinitPort()
