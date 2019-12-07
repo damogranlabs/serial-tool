@@ -890,6 +890,8 @@ class Ui_root(object):
         self.PB_helpMenu_checkForUpdate.setObjectName("PB_helpMenu_checkForUpdate")
         self.actionAsd = QtWidgets.QAction(root)
         self.actionAsd.setObjectName("actionAsd")
+        self.PB_helpMenu_openLogFile = QtWidgets.QAction(root)
+        self.PB_helpMenu_openLogFile.setObjectName("PB_helpMenu_openLogFile")
         self.menuFile.addAction(self.PB_fileMenu_newConfiguration)
         self.menuFile.addAction(self.PB_fileMenu_saveConfiguration)
         self.menuFile.addAction(self.PB_fileMenu_loadConfiguration)
@@ -897,6 +899,7 @@ class Ui_root(object):
         self.menuFile.addAction(self.PB_fileMenu_recentlyUsedConfigurations.menuAction())
         self.menuHelp.addAction(self.PB_helpMenu_docs)
         self.menuHelp.addAction(self.PB_helpMenu_about)
+        self.menuHelp.addAction(self.PB_helpMenu_openLogFile)
         self.menuHelp.addAction(self.PB_helpMenu_checkForUpdate)
         self.menuBar.addAction(self.menuFile.menuAction())
         self.menuBar.addAction(self.menuHelp.menuAction())
@@ -1068,4 +1071,5 @@ class Ui_root(object):
         self.PB_helpMenu_docs.setShortcut(_translate("root", "F1"))
         self.PB_helpMenu_checkForUpdate.setText(_translate("root", "Check for update"))
         self.actionAsd.setText(_translate("root", "asd"))
+        self.PB_helpMenu_openLogFile.setText(_translate("root", "Open log file"))
 from gui import icons_rc

@@ -2,11 +2,13 @@
 Main application window GUI handler.
 """
 import logging
+from functools import partial
 import os
 import sys
+import platform
+import subprocess
 import traceback
 import webbrowser
-from functools import partial
 
 import serial.serialutil as serialUtil
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -106,6 +108,7 @@ class Gui(QtWidgets.QMainWindow):
         # help menu
         self.ui.PB_helpMenu_about.triggered.connect(self.onHelpAbout)
         self.ui.PB_helpMenu_docs.triggered.connect(self.onHelpDocs)
+        self.ui.PB_helpMenu_openLogFile.triggered.connect(self.onOpenLog)
 
         # SERIAL PORT setup
         self.ui.PB_serialSetup.clicked.connect(self.setSerialSettingsWithDialog)
@@ -436,6 +439,21 @@ class Gui(QtWidgets.QMainWindow):
         webbrowser.open(LINK_GITHUB_DOCS, new=2)  # new=2 new tab
 
         log.debug("Online docs opened.")
+
+    @QtCore.pyqtSlot()
+    def onOpenLog(self):
+        """
+        Open Serial Tool log file with viewer.
+        """
+        defaultLogger = log.getDefaultLogHandler()
+        filePath = defaultLogger.getLogFilePath()
+
+        if platform.system() == 'Darwin':       # macOS
+            subprocess.call(('open', filePath))
+        elif platform.system() == 'Windows':    # Windows
+            os.startfile(filePath)
+        else:                                   # linux variants
+            subprocess.call(('xdg-open', filePath))
 
     ################################################################################################
     # serial settings slots

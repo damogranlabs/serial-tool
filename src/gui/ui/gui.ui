@@ -2207,6 +2207,7 @@ p, li { white-space: pre-wrap; }
     </property>
     <addaction name="PB_helpMenu_docs"/>
     <addaction name="PB_helpMenu_about"/>
+    <addaction name="PB_helpMenu_openLogFile"/>
     <addaction name="PB_helpMenu_checkForUpdate"/>
    </widget>
    <addaction name="menuFile"/>
@@ -2318,6 +2319,11 @@ p, li { white-space: pre-wrap; }
   <action name="actionAsd">
    <property name="text">
     <string>asd</string>
+   </property>
+  </action>
+  <action name="PB_helpMenu_openLogFile">
+   <property name="text">
+    <string>Open log file</string>
    </property>
   </action>
  </widget>
