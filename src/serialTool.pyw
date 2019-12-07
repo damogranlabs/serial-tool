@@ -313,7 +313,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             self.ui.TE_log.verticalScrollBar().setValue(currentVerticalScrollBarPos)
 
-        log.debug(f"writeToLogWindow: {msg.strip()}")   
+        log.debug(f"[LOG_WINDOW]: {msg.strip()}")   
 
     def writeHtmlToLogWindow(self, msg: str):
         """
