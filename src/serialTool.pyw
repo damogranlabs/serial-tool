@@ -177,6 +177,9 @@ class Gui(QtWidgets.QMainWindow):
         """
         Init GUI once created (check data/sequence fields, ...).
         """
+        #update current window name with version string
+        self.setAplicationWindowName()
+
         self._setMruCfgPaths()
 
         self.cfgHandler.createDefaultConfiguration()
@@ -209,11 +212,17 @@ class Gui(QtWidgets.QMainWindow):
             mruCfgAction.triggered.connect(partial(self.onFileLoadConfiguration, mruCfgFile))
             self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(mruCfgAction)
 
-    def setAplicationWindowName(self, name: str = APPLICATION_NAME):
+    def setAplicationWindowName(self, name: str = None):
         """
         Set main application GUI window name.
             @param name: new name to set.
         """
+        serialToolName = f"{APPLICATION_NAME} v{__version__}"
+        if name is None:
+            name = serialToolName
+        else:
+            name = f"{serialToolName} - {name}"
+        
         self.setWindowTitle(name)
 
     def getSelectedPort(self) -> str:
@@ -385,8 +394,7 @@ class Gui(QtWidgets.QMainWindow):
             msg = f"Configuration saved: {filePath}"
             self.writeToLogWindow(msg, LOG_COLOR_GRAY)
 
-            newWindowName = f"{APPLICATION_NAME} - {filePath}"
-            self.setAplicationWindowName(newWindowName)
+            self.setAplicationWindowName(filePath)
         else:
             log.debug("Save configuration request canceled.")
 
@@ -425,8 +433,7 @@ class Gui(QtWidgets.QMainWindow):
             msg = f"Configuration loaded: {filePath}"
             self.writeToLogWindow(msg, LOG_COLOR_GRAY)
 
-            newWindowName = f"{APPLICATION_NAME} - {filePath}"
-            self.setAplicationWindowName(newWindowName)
+            self.setAplicationWindowName(filePath)
 
     @QtCore.pyqtSlot()
     def onHelpAbout(self):
