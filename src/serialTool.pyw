@@ -443,9 +443,8 @@ class Gui(QtWidgets.QMainWindow):
         aboutLines = []
         aboutLines.append(f"<br>************ Serial Tool v{__version__} ************")
         aboutLines.append(f"Domen Jurkovic @ <a href=\"{LINK_DAMOGRANLABS}\">Damogran Labs</a><br>")  # add extra new line
+        aboutLines.append(f"GitHub (docs, releases): <a href=\"{LINK_GITHUB}\">{LINK_GITHUB}</a>")
         aboutLines.append(f"Homepage: <a href=\"{LINK_HOMEPAGE}\">{LINK_HOMEPAGE}</a>")
-        aboutLines.append(f"GitHub: <a href=\"{LINK_GITHUB}\">{LINK_GITHUB}</a>")
-        aboutLines.append(f"SourceForge: <a href=\"{LINK_SOURCEFORGE}\">{LINK_SOURCEFORGE}</a>")
 
         mergedLines = '<br>'.join(aboutLines)
         self.writeHtmlToLogWindow(mergedLines)
