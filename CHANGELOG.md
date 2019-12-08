@@ -1,4 +1,9 @@
 # Changelog:  
+**v2.3 (8.12.2019):**
+- fix: serial read with asyncio (low CPU usage)
+- improv: added "\n" control on RX data
+- improv: configuration loading with better backward compatibility
+
 **v2.2 (16.11.2019):**
 - fix: log window scroll issue on text selection
   
