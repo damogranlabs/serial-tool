@@ -1528,6 +1528,43 @@
       </item>
       <item>
        <widget class="QCheckBox" name="CB_txToLog">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>79</red>
+              <green>127</green>
+              <blue>215</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>79</red>
+              <green>127</green>
+              <blue>215</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="WindowText">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>120</red>
+              <green>120</green>
+              <blue>120</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
         <property name="toolTip">
          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show transmitted data&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
@@ -1609,31 +1646,43 @@
        </widget>
       </item>
       <item>
-       <widget class="QCheckBox" name="CB_verboseOutput">
-        <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Enable verbose output log messages&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-        </property>
-        <property name="text">
-         <string>Verbose</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
        <widget class="QCheckBox" name="CB_rxNewLine">
         <property name="enabled">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="toolTip">
-         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If checked, each received data is placed new line. Only applicable if verbose is set to False.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Display each received data on a new line.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
         </property>
         <property name="text">
          <string>\n on RX data</string>
         </property>
         <property name="checked">
-         <bool>true</bool>
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QSpinBox" name="SB_rxTimeoutMs">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="toolTip">
+         <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Interval after '\n' is inserted once new data is received. &lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+        </property>
+        <property name="suffix">
+         <string>ms</string>
+        </property>
+        <property name="prefix">
+         <string/>
+        </property>
+        <property name="minimum">
+         <number>10</number>
+        </property>
+        <property name="maximum">
+         <number>9990</number>
+        </property>
+        <property name="singleStep">
+         <number>10</number>
         </property>
        </widget>
       </item>
@@ -1923,7 +1972,6 @@ p, li { white-space: pre-wrap; }
   <tabstop>RB_outputRepresentationIntList</tabstop>
   <tabstop>RB_outputRepresentationHexList</tabstop>
   <tabstop>RB_outputRepresentationAsciiList</tabstop>
-  <tabstop>CB_verboseOutput</tabstop>
   <tabstop>PB_autoScroll</tabstop>
   <tabstop>TE_log</tabstop>
  </tabstops>

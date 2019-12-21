@@ -53,7 +53,6 @@ class ConfigurationHandler:
         wData[CFG_TAG_RXLOG] = self.dataModel.displayReceivedData
         wData[CFG_TAG_TXLOG] = self.dataModel.displayTransmittedData
         wData[CFG_TAG_OUTPUT_REPRESENTATION] = self.dataModel.outputDataRepresentation
-        wData[CFG_TAG_VERBOSE_DISPLAY] = self.dataModel.verboseDisplayMode
         wData[CFG_TAG_RX_NEW_LINE] = self.dataModel.rxNewLine
 
         with open(filePath, 'w+') as fileHandler:
@@ -105,7 +104,6 @@ class ConfigurationHandler:
             self.dataModel.setRxDisplayMode(wData[CFG_TAG_RXLOG])
             self.dataModel.setTxDisplayMode(wData[CFG_TAG_TXLOG])
             self.dataModel.setOutputRepresentationMode(wData[CFG_TAG_OUTPUT_REPRESENTATION])
-            self.dataModel.setVerboseDisplayMode(wData[CFG_TAG_VERBOSE_DISPLAY])
             self.dataModel.setRxNewlineMode(wData[CFG_TAG_RX_NEW_LINE])
         except Exception as err:
             errorMsg = f"Unable to set log settings from a configuration file: {err}"
@@ -127,5 +125,4 @@ class ConfigurationHandler:
         self.dataModel.setRxDisplayMode(True)
         self.dataModel.setTxDisplayMode(True)
         self.dataModel.setOutputRepresentationMode(OutputRepresentation.STRING)
-        self.dataModel.setVerboseDisplayMode(True)
         self.dataModel.setRxNewlineMode(False)

@@ -32,6 +32,7 @@ class SequenceData:
 DEFAULT_BAUDRATE = 115200
 SERIAL_READ_TIMEOUT_MS = 300
 SERIAL_WRITE_TIMEOUT_MS = 300
+DEFAULT_RX_NEWLINE_TIMEOUT_MS = 10
 
 ###################################################################################################
 # links
@@ -110,7 +111,6 @@ CFG_TAG_SEQ_FIELDS = "sequenceFields"
 CFG_TAG_RXLOG = "rxToLog"
 CFG_TAG_TXLOG = "txToLog"
 CFG_TAG_OUTPUT_REPRESENTATION = "outputDataRepresentation"
-CFG_TAG_VERBOSE_DISPLAY = "verboseDataDisplay"
 CFG_TAG_RX_NEW_LINE = "newLineOnRxData"
 
 MAX_NUM_OF_RECENTLY_USED_CFGS = 20

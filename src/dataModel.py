@@ -24,8 +24,8 @@ class SerialToolSettings(QtCore.QObject):
     sigRxDisplayModeUpdate = QtCore.pyqtSignal()
     sigTxDisplayModeUpdate = QtCore.pyqtSignal()
     sigOutputRepresentationModeUpdate = QtCore.pyqtSignal()
-    sigVerboseDisplayModeUpdate = QtCore.pyqtSignal()
     sigRxNewLineUpdate = QtCore.pyqtSignal()
+    sigRxNewLineTimeoutUpdate = QtCore.pyqtSignal()
 
     def __init__(self):
         """
@@ -48,8 +48,8 @@ class SerialToolSettings(QtCore.QObject):
         self.outputDataRepresentation = OutputRepresentation.STRING
         self.displayReceivedData: bool = True
         self.displayTransmittedData: bool = True
-        self.verboseDisplayMode: bool = True
         self.rxNewLine: bool = False
+        self.rxNewLineTimeout: int = DEFAULT_RX_NEWLINE_TIMEOUT_MS
 
     def setSerialSettings(self, serialSettings: serComm.SerialCommSettings):
         """
@@ -110,21 +110,21 @@ class SerialToolSettings(QtCore.QObject):
         self.outputDataRepresentation = outputRepresentation
         self.sigOutputRepresentationModeUpdate.emit()
 
-    def setVerboseDisplayMode(self, isEnabled: bool):
-        """
-        Update verbose log field and emit a signal at the end.
-            @param isEnabled: if True, verbose log data displayed is enabled.
-        """
-        self.verboseDisplayMode = isEnabled
-        self.sigVerboseDisplayModeUpdate.emit()
-
     def setRxNewlineMode(self, isEnabled: bool):
         """
         Update RX new line field and emit a signal at the end.
-            @param isEnabled: if True, new line is appended to RX data once received..
+            @param isEnabled: if True, new line is appended to RX data once received.
         """
         self.rxNewLine = isEnabled
         self.sigRxNewLineUpdate.emit()
+
+    def setRxNewlineTimeout(self, timeoutMs: int):
+        """
+        Update RX new line timeout field and emit a signal at the end.
+            @param timeoutMs: timeout after \n is appended to next RX data (if enabled).
+        """
+        self.rxNewLineTimeout = timeoutMs
+        self.sigRxNewLineTimeoutUpdate.emit()
 
 
 def _dataFieldIndexInRange(dataFieldIndex: int) -> bool:

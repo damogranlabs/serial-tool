@@ -147,8 +147,8 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.CB_rxToLog.clicked.connect(self.onRxDisplayModeChange)
         self.ui.CB_txToLog.clicked.connect(self.onTxDisplayModeChange)
         self.ui.RB_GROUP_outputRepresentation.buttonClicked.connect(self.onOutputRepresentationModeChange)
-        self.ui.CB_verboseOutput.clicked.connect(self.onVerboseDisplayModeChange)
         self.ui.CB_rxNewLine.clicked.connect(self.onRxNewLineChange)
+        self.ui.SB_rxTimeoutMs.valueChanged.connect(self.onRxNewLineTimeoutChange)
 
     def connectExecutionSignalsToSlots(self):
         self.sigWrite.connect(self.writeToLogWindow)
@@ -169,7 +169,6 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel.sigRxDisplayModeUpdate.connect(self.onRxDisplayModeUpdate)
         self.dataModel.sigTxDisplayModeUpdate.connect(self.onTxDisplayModeUpdate)
         self.dataModel.sigOutputRepresentationModeUpdate.connect(self.onOutputRepresentationModeUpdate)
-        self.dataModel.sigVerboseDisplayModeUpdate.connect(self.onVerboseDisplayModeUpdate)
         self.dataModel.sigRxNewLineUpdate.connect(self.onRxNewLineUpdate)
         
 
@@ -315,18 +314,23 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_commPortCtrl.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_NOT_CONNECTED_COLOR}")
 
     @QtCore.pyqtSlot(str, str)
-    def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL, appendNewLine:bool=True):
+    def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL, appendNewLine:bool=True, ensureInNewline:bool=False):
         """
         Write to log window with a given color.
             @param msg: message to write to log window.
             @param color: color of displayed text (hex format).
             @param appendNewLine: if True, new line terminator is appended to a message
+            @param ensureInNewline: if True, additional cursor position check is implemented so given msg is really displayed in new line.
         """
-        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value() # if autoscroll is not in use, set previous location.
-        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End) # always insert at the end of the log window
-        
         if appendNewLine:
             msg = f"{msg}\n"
+
+        if ensureInNewline:
+            if self.ui.TE_log.textCursor().position() != 0:
+                msg = f"\n{msg}"
+
+        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value() # if autoscroll is not in use, set previous location.
+        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End) # always insert at the end of the log window
 
         self.ui.TE_log.setTextColor(QtGui.QColor(color))
         self.ui.TE_log.insertPlainText(msg)
@@ -625,14 +629,9 @@ class Gui(QtWidgets.QMainWindow):
 
         self.dataModel.allRxTxData.append(f"{EXPORT_RX_TAG}{dataString}")
         if self.dataModel.displayReceivedData:
-            msg = f"{dataString}"
-            if self.dataModel.verboseDisplayMode:
-                msg = f"\t{RX_TAG}: {msg}"
-                self.writeToLogWindow(msg, RX_DATA_LOG_COLOR)
-            else:
-                self.writeToLogWindow(msg, RX_DATA_LOG_COLOR, self.dataModel.rxNewLine)
+            self.writeToLogWindow(dataString, RX_DATA_LOG_COLOR, self.dataModel.rxNewLine)
 
-        log.debug("\tEvent: data received: " + str(dataString))
+        log.debug(f"\tEvent: data received: {dataString}")
 
     @QtCore.pyqtSlot(int)
     def onSendSequenceFinishEvent(self, channel: int):
@@ -644,7 +643,7 @@ class Gui(QtWidgets.QMainWindow):
         self.uiSeqSendButtons[channel].setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: None")
         self._seqThreads[channel] = None
 
-        log.debug("\tEvent: sequence " + str(channel + 1) + " finished")
+        log.debug(f"\tEvent: sequence {channel + 1} finished")
 
     @QtCore.pyqtSlot(int, int)
     def onSequenceSendEvent(self, seqChannel: int, dataChannel: int):
@@ -658,13 +657,11 @@ class Gui(QtWidgets.QMainWindow):
 
         self.dataModel.allRxTxData.append(f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{EXPORT_TX_TAG}{dataString}")
         if self.dataModel.displayTransmittedData:
-            msg = f"{dataString}"
-            if self.dataModel.verboseDisplayMode:
-                msg = f"{TX_TAG} ({SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}): {msg}"
+            msg = f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {msg}"
 
             self.writeToLogWindow(msg, TX_DATA_LOG_COLOR)
 
-        log.debug("\tEvent: sequence " + str(seqChannel + 1) + ", data channel " + str(dataChannel + 1) + " send request")
+        log.debug(f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
 
     @QtCore.pyqtSlot(int)
     def stopSequenceRequestEvent(self, channel: int):
@@ -674,7 +671,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         self._seqSendWorkers[channel].sigSequenceStopRequest.emit()
 
-        log.debug("\tEvent: sequence " + str(channel + 1) + " stop request")
+        log.debug(f"\tEvent: sequence {channel + 1} stop request")
 
     @QtCore.pyqtSlot()
     def onQuitApplicationEvent(self):
@@ -788,13 +785,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.dataModel.allRxTxData.append(f"CH{channel}{EXPORT_TX_TAG}{dataString}")
         if self.dataModel.displayTransmittedData:
-            msg = f"{dataString}"
-            if self.dataModel.verboseDisplayMode:
-                msg = f"{TX_TAG} ({TX_CHANNEL_TAG}{channel+1}): {msg}"
-            if not self.dataModel.rxNewLine: # if new line on RX data is disabled, add \n to TX data anyway.
-                msg = f"\n{msg}"
-
-            self.writeToLogWindow(msg, TX_DATA_LOG_COLOR)
+            self.writeToLogWindow(dataString, TX_DATA_LOG_COLOR, ensureInNewline=True)
 
         self.commHandler.sigWrite.emit(data)
 
@@ -916,43 +907,16 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.dataModel.outputDataRepresentation = self.ui.RB_GROUP_outputRepresentation.checkedId()
 
-        # TODO
-        # self.writeToLogWindow("Output representation set to: list of ASCII characters", LOG_COLOR_GRAY)
-
-    @QtCore.pyqtSlot()
-    def onVerboseDisplayModeUpdate(self):
-        """
-        Action to take place once verbose display setting is altered (for example, on load configuration).
-        """
-        self.ui.CB_verboseOutput.setChecked(self.dataModel.verboseDisplayMode)
-        
-        # 'Verbose' checkbox state and 'RX new line' CB enable/disable state are mutually exclusive
-        if self.dataModel.verboseDisplayMode:
-            self.ui.CB_rxNewLine.setEnabled(False)
-        else:
-            self.ui.CB_rxNewLine.setEnabled(True)
-
-    @QtCore.pyqtSlot()
-    def onVerboseDisplayModeChange(self):
-        """
-        Get verbose mode of log RX/TX data.
-        """
-        self.dataModel.verboseDisplayMode = self.ui.CB_verboseOutput.isChecked()
-        
-        # 'Verbose' checkbox state and 'RX new line' CB enable/disable state are mutually exclusive
-        if self.dataModel.verboseDisplayMode:
-            self.ui.CB_rxNewLine.setEnabled(False)
-        else:
-            self.ui.CB_rxNewLine.setEnabled(True)
-
-        return self.dataModel.verboseDisplayMode
-
     @QtCore.pyqtSlot()
     def onRxNewLineUpdate(self):
         """
-        Action to take place once verbRX new line setting is altered (for example, on load configuration).
+        Action to take place once RX new line setting is altered (for example, on load configuration).
         """
         self.ui.CB_rxNewLine.setChecked(self.dataModel.rxNewLine)
+        if self.dataModel.rxNewLine:
+            self.ui.SB_rxTimeoutMs.setEnabled(True)
+        else:
+            self.ui.SB_rxTimeoutMs.setEnabled(False)
 
     @QtCore.pyqtSlot()
     def onRxNewLineChange(self):
@@ -960,8 +924,29 @@ class Gui(QtWidgets.QMainWindow):
         Get RX new line settings of log RX/TX data.
         """
         self.dataModel.rxNewLine = self.ui.CB_rxNewLine.isChecked()
+        if self.dataModel.rxNewLine:
+            self.ui.SB_rxTimeoutMs.setEnabled(True)
+        else:
+            self.ui.SB_rxTimeoutMs.setEnabled(False)
 
         return self.dataModel.rxNewLine
+
+    @QtCore.pyqtSlot()
+    def onRxNewLineTimeoutUpdate(self):
+        """
+        Action to take place once RX new line timeout setting is altered (for example, on load configuration).
+        """
+        self.ui.SB_rxTimeoutMs.setValue(self.dataModel.rxNewLineTimeout)
+
+    @QtCore.pyqtSlot()
+    def onRxNewLineTimeoutChange(self):
+        """
+        Get RX new line settings of log RX/TX data.
+        """
+        self.dataModel.rxNewLineTimeout = self.ui.SB_rxTimeoutMs.value()
+
+        return self.dataModel.rxNewLineTimeout
+        
 
     ################################################################################################
     # utility functions
