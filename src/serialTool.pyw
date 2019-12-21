@@ -1114,7 +1114,7 @@ class Gui(QtWidgets.QMainWindow):
         intList = []
         for number in data:
             intList.append(str(number))
-        intStr = RX_DATA_LIST_SEPARATOR.join(intList)
+        intStr = RX_DATA_LIST_SEPARATOR.join(intList) + RX_DATA_LIST_SEPARATOR
 
         return intStr
 
@@ -1127,7 +1127,7 @@ class Gui(QtWidgets.QMainWindow):
         for number in data:
             hexNumber = "{0:#0{1}x}".format(number, 4)  # format always as 0x** (two fields for data value)
             hexList.append(hexNumber)
-        hexStr = RX_DATA_LIST_SEPARATOR.join(hexList)
+        hexStr = RX_DATA_LIST_SEPARATOR.join(hexList) + RX_DATA_LIST_SEPARATOR
 
         return hexStr
 
@@ -1140,7 +1140,7 @@ class Gui(QtWidgets.QMainWindow):
         asciiList = []
         for number in data:
             asciiList.append(f"'{chr(number)}'")
-        asciiStr = RX_DATA_LIST_SEPARATOR.join(asciiList)
+        asciiStr = RX_DATA_LIST_SEPARATOR.join(asciiList) + RX_DATA_LIST_SEPARATOR
 
         return asciiStr
 
