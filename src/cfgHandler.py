@@ -54,6 +54,7 @@ class ConfigurationHandler:
         wData[CFG_TAG_TXLOG] = self.dataModel.displayTransmittedData
         wData[CFG_TAG_OUTPUT_REPRESENTATION] = self.dataModel.outputDataRepresentation
         wData[CFG_TAG_RX_NEW_LINE] = self.dataModel.rxNewLine
+        wData[CFG_TAG_RX_NEW_LINE_TIMEOUT] = self.dataModel.rxNewLineTimeout
 
         with open(filePath, 'w+') as fileHandler:
             json.dump(wData, fileHandler, indent=4)
@@ -105,6 +106,7 @@ class ConfigurationHandler:
             self.dataModel.setTxDisplayMode(wData[CFG_TAG_TXLOG])
             self.dataModel.setOutputRepresentationMode(wData[CFG_TAG_OUTPUT_REPRESENTATION])
             self.dataModel.setRxNewlineMode(wData[CFG_TAG_RX_NEW_LINE])
+            self.dataModel.setRxNewlineTimeout(wData[CFG_TAG_RX_NEW_LINE_TIMEOUT])
         except Exception as err:
             errorMsg = f"Unable to set log settings from a configuration file: {err}"
             self.signals.sigWarning.emit(errorMsg, LOG_COLOR_WARNING)

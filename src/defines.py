@@ -112,6 +112,7 @@ CFG_TAG_RXLOG = "rxToLog"
 CFG_TAG_TXLOG = "txToLog"
 CFG_TAG_OUTPUT_REPRESENTATION = "outputDataRepresentation"
 CFG_TAG_RX_NEW_LINE = "newLineOnRxData"
+CFG_TAG_RX_NEW_LINE_TIMEOUT = "newLineOnRxTimeout"
 
 MAX_NUM_OF_RECENTLY_USED_CFGS = 20
 
