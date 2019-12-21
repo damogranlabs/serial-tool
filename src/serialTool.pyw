@@ -7,6 +7,7 @@ import os
 import sys
 import platform
 import subprocess
+import time
 import traceback
 import webbrowser
 
@@ -27,6 +28,7 @@ from gui.gui import Ui_root
 from gui.serialSetupDialog import Ui_SerialSetupDialog
 
 __version__ = "2.3"  # software version
+
 
 class Gui(QtWidgets.QMainWindow):
     sigWrite = QtCore.pyqtSignal(str, str)
@@ -76,8 +78,8 @@ class Gui(QtWidgets.QMainWindow):
         self.uiSeqSendButtons = [self.ui.PB_sendSequence1,
                                  self.ui.PB_sendSequence2,
                                  self.ui.PB_sendSequence3]
-        self._seqThreads: [QtCore.QThread] = [None] * NUM_OF_SEQ_CHANNELS # threads of sequence handlers
-        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS # actual sequence handlers
+        self._seqThreads: [QtCore.QThread] = [None] * NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
+        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS  # actual sequence handlers
 
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationString, OutputRepresentation.STRING)
         self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationIntList, OutputRepresentation.INT_LIST)
@@ -96,6 +98,10 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
         self.commHandler: communication.SerialToolPortHandler = communication.SerialToolPortHandler()
         
+        # RX display data newline internal logic
+        self._lastRxEventTimestamp: int = time.time()  # timestamp of a last RX data event
+        self._logDisplayingRxData: bool = False # if true, log window is currently displaying RX data (to be used with '\n on RX data')
+
         self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(self.dataModel, self.sharedSignals)
 
         # init app and gui
@@ -170,7 +176,6 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel.sigTxDisplayModeUpdate.connect(self.onTxDisplayModeUpdate)
         self.dataModel.sigOutputRepresentationModeUpdate.connect(self.onOutputRepresentationModeUpdate)
         self.dataModel.sigRxNewLineUpdate.connect(self.onRxNewLineUpdate)
-        
 
     def initGuiState(self):
         """
@@ -221,7 +226,7 @@ class Gui(QtWidgets.QMainWindow):
             name = serialToolName
         else:
             name = f"{serialToolName} - {name}"
-        
+
         self.setWindowTitle(name)
 
     def getSelectedPort(self) -> str:
@@ -313,8 +318,16 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_commPortCtrl.setText(COMM_PORT_NOT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_NOT_CONNECTED_COLOR}")
 
+    def getRxNewLineTimeoutMs(self) -> int:
+        """
+        Return value from RX new line spinbox timeout setting.
+        """
+        value = self.ui.SB_rxTimeoutMs.value() / 1e3  # (to ms conversion)
+
+        return value
+
     @QtCore.pyqtSlot(str, str)
-    def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL, appendNewLine:bool=True, ensureInNewline:bool=False):
+    def writeToLogWindow(self, msg: str, color: str = LOG_COLOR_NORMAL, appendNewLine: bool = True, ensureInNewline: bool = True):
         """
         Write to log window with a given color.
             @param msg: message to write to log window.
@@ -322,6 +335,8 @@ class Gui(QtWidgets.QMainWindow):
             @param appendNewLine: if True, new line terminator is appended to a message
             @param ensureInNewline: if True, additional cursor position check is implemented so given msg is really displayed in new line.
         """
+        self._logDisplayingRxData = False
+
         if appendNewLine:
             msg = f"{msg}\n"
 
@@ -329,8 +344,8 @@ class Gui(QtWidgets.QMainWindow):
             if self.ui.TE_log.textCursor().position() != 0:
                 msg = f"\n{msg}"
 
-        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value() # if autoscroll is not in use, set previous location.
-        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End) # always insert at the end of the log window
+        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value()  # if autoscroll is not in use, set previous location.
+        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)  # always insert at the end of the log window
 
         self.ui.TE_log.setTextColor(QtGui.QColor(color))
         self.ui.TE_log.insertPlainText(msg)
@@ -341,7 +356,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             self.ui.TE_log.verticalScrollBar().setValue(currentVerticalScrollBarPos)
 
-        log.debug(f"[LOG_WINDOW]: {msg.strip()}")   
+        log.debug(f"[LOG_WINDOW]: {msg.strip()}")
 
     def writeHtmlToLogWindow(self, msg: str):
         """
@@ -544,8 +559,8 @@ class Gui(QtWidgets.QMainWindow):
         Connect/disconnect from a port with serial settings.
         """
         if self.ui.PB_commPortCtrl.text() == COMM_PORT_CONNECTED_TEXT:
-            # currently connected, stop all sequences and disconnect 
-            self.stopAllSeqThreads() # might be a problem with unfinished, blockin sequences
+            # currently connected, stop all sequences and disconnect
+            self.stopAllSeqThreads()  # might be a problem with unfinished, blockin sequences
 
             self.commHandler.deinitPort()  # TODO: signal or not?
             msg = f"Disconnect request."
@@ -629,7 +644,20 @@ class Gui(QtWidgets.QMainWindow):
 
         self.dataModel.allRxTxData.append(f"{EXPORT_RX_TAG}{dataString}")
         if self.dataModel.displayReceivedData:
-            self.writeToLogWindow(dataString, RX_DATA_LOG_COLOR, self.dataModel.rxNewLine)
+            msg = f"{dataString}"
+            if self.dataModel.rxNewLine:
+                # insert \n on RX data, after specified timeout
+                if self._logDisplayingRxData:
+                    # we are in the middle of displaying RX data, check timestamp delta
+                    if (time.time() - self._lastRxEventTimestamp) > self.getRxNewLineTimeoutMs():
+                        msg = f"\n{dataString}"
+                    # else: # not enough time has passed, just add data without new line
+                # else: # some RX data or other message was displayed in log window since last RX data display
+            #else: # no RX on new line is needed, just add RX data
+            self.writeToLogWindow(msg, RX_DATA_LOG_COLOR, False, False)
+            self._logDisplayingRxData = True
+        
+        self._lastRxEventTimestamp = time.time()
 
         log.debug(f"\tEvent: data received: {dataString}")
 
@@ -785,7 +813,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.dataModel.allRxTxData.append(f"CH{channel}{EXPORT_TX_TAG}{dataString}")
         if self.dataModel.displayTransmittedData:
-            self.writeToLogWindow(dataString, TX_DATA_LOG_COLOR, ensureInNewline=True)
+            self.writeToLogWindow(dataString, TX_DATA_LOG_COLOR)
 
         self.commHandler.sigWrite.emit(data)
 
@@ -946,11 +974,11 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel.rxNewLineTimeout = self.ui.SB_rxTimeoutMs.value()
 
         return self.dataModel.rxNewLineTimeout
-        
 
     ################################################################################################
     # utility functions
     ################################################################################################
+
     def _checkIfDataNumberInRange(self, number: int) -> bool:
         """
         Return True if number is in range:
@@ -1222,10 +1250,10 @@ class Gui(QtWidgets.QMainWindow):
             errorMsg += f"\n\tExc. value: {excValue}"
             errorMsg += f"\n\tExc. traceback: {traceback.format_tb(tracebackObj)}"
             errorMsg += "\n\n"
-            
+
             try:
                 self.sigError.emit(errorMsg, LOG_COLOR_ERROR)
-            except Exception as err:  
+            except Exception as err:
                 # at least, log to file if log over signal fails
                 log.error(errorMsg)
 
