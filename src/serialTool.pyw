@@ -642,7 +642,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"{EXPORT_RX_TAG}{dataString}")
+        self.dataModel.allRxTxData.append(f"{EXPORT_RX_TAG}{data}")
         if self.dataModel.displayReceivedData:
             msg = f"{dataString}"
             if self.dataModel.rxNewLine:
@@ -683,9 +683,9 @@ class Gui(QtWidgets.QMainWindow):
         data = self.dataModel.parsedDataFields[dataChannel]
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{EXPORT_TX_TAG}{dataString}")
+        self.dataModel.allRxTxData.append(f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{EXPORT_TX_TAG}{data}")
         if self.dataModel.displayTransmittedData:
-            msg = f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {msg}"
+            msg = f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {dataString}"
 
             self.writeToLogWindow(msg, TX_DATA_LOG_COLOR)
 
@@ -811,7 +811,7 @@ class Gui(QtWidgets.QMainWindow):
         data = self.dataModel.parsedDataFields[channel]
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"CH{channel}{EXPORT_TX_TAG}{dataString}")
+        self.dataModel.allRxTxData.append(f"CH{channel}{EXPORT_TX_TAG}{data}")
         if self.dataModel.displayTransmittedData:
             self.writeToLogWindow(dataString, TX_DATA_LOG_COLOR)
 
@@ -1168,8 +1168,7 @@ class Gui(QtWidgets.QMainWindow):
             dataString = self.listOfIntsToIntString(data)
         elif self.dataModel.outputDataRepresentation == OutputRepresentation.HEX_LIST:
             dataString = self.listOfIntsToHexString(data)
-        else:
-            self.dataModel.outputDataRepresentation == OutputRepresentation.ASCII_LIST
+        else: #self.dataModel.outputDataRepresentation == OutputRepresentation.ASCII_LIST
             dataString = self.listOfIntsToAsciiString(data)
 
         return dataString

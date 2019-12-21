@@ -107,7 +107,7 @@ class LogHandler():
 
             self._createLogFolder()
 
-            fileHandler = logging.FileHandler(self._logFilePath, mode='w')
+            fileHandler = logging.FileHandler(self._logFilePath, mode='w', encoding='utf-8')
             fileHandler.setLevel(logging.DEBUG)
 
             if formatter is None:
