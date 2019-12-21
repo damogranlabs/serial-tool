@@ -1,4 +1,7 @@
 # Changelog:  
+**v2.4 (21.12.2019):**
+- improv: Removed verbose display mode (color-separated), implemented '\n' on RX data with timeout
+
 **v2.3 (8.12.2019):**
 - fix: serial read with asyncio (low CPU usage)
 - improv: added "\n" control on RX data
