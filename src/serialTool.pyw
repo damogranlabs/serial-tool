@@ -1019,8 +1019,7 @@ class Gui(QtWidgets.QMainWindow):
 
                     # handle HEX numbers (can be one or more bytes)
                     if dataPart.lower().startswith('0x'):
-                        dataPart = dataPart.lower()
-                        dataPart = dataPart.lstrip('0x')
+                        dataPart = dataPart.lower()[2:]
                         if len(dataPart) % 2:
                             dataPart = '0' + dataPart
                         hexNumbers = list(bytearray.fromhex(dataPart))
