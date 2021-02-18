@@ -27,7 +27,7 @@ from defines import *
 from gui.gui import Ui_root
 from gui.serialSetupDialog import Ui_SerialSetupDialog
 
-__version__ = "2.4"  # software version
+__version__ = "2.4.1"  # software version
 
 
 class Gui(QtWidgets.QMainWindow):
@@ -78,13 +78,19 @@ class Gui(QtWidgets.QMainWindow):
         self.uiSeqSendButtons = [self.ui.PB_sendSequence1,
                                  self.ui.PB_sendSequence2,
                                  self.ui.PB_sendSequence3]
-        self._seqThreads: [QtCore.QThread] = [None] * NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
-        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [None] * NUM_OF_SEQ_CHANNELS  # actual sequence handlers
+        self._seqThreads: [QtCore.QThread] = [None] * \
+            NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
+        self._seqSendWorkers: [communication.SerialDataSequenceTransmitterThread] = [
+            None] * NUM_OF_SEQ_CHANNELS  # actual sequence handlers
 
-        self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationString, OutputRepresentation.STRING)
-        self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationIntList, OutputRepresentation.INT_LIST)
-        self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationHexList, OutputRepresentation.HEX_LIST)
-        self.ui.RB_GROUP_outputRepresentation.setId(self.ui.RB_outputRepresentationAsciiList, OutputRepresentation.ASCII_LIST)
+        self.ui.RB_GROUP_outputRepresentation.setId(
+            self.ui.RB_outputRepresentationString, OutputRepresentation.STRING)
+        self.ui.RB_GROUP_outputRepresentation.setId(
+            self.ui.RB_outputRepresentationIntList, OutputRepresentation.INT_LIST)
+        self.ui.RB_GROUP_outputRepresentation.setId(
+            self.ui.RB_outputRepresentationHexList, OutputRepresentation.HEX_LIST)
+        self.ui.RB_GROUP_outputRepresentation.setId(
+            self.ui.RB_outputRepresentationAsciiList, OutputRepresentation.ASCII_LIST)
 
         # set up exception handler
         sys.excepthook = self._appExceptionHandler
@@ -97,12 +103,15 @@ class Gui(QtWidgets.QMainWindow):
         # prepare data and port handlers
         self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
         self.commHandler: communication.SerialToolPortHandler = communication.SerialToolPortHandler()
-        
-        # RX display data newline internal logic
-        self._lastRxEventTimestamp: int = time.time()  # timestamp of a last RX data event
-        self._logDisplayingRxData: bool = False # if true, log window is currently displaying RX data (to be used with '\n on RX data')
 
-        self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(self.dataModel, self.sharedSignals)
+        # RX display data newline internal logic
+        # timestamp of a last RX data event
+        self._lastRxEventTimestamp: int = time.time()
+        # if true, log window is currently displaying RX data (to be used with '\n on RX data')
+        self._logDisplayingRxData: bool = False
+
+        self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(
+            self.dataModel, self.sharedSignals)
 
         # init app and gui
         self.connectGuiSignalsToSlots()
@@ -115,9 +124,12 @@ class Gui(QtWidgets.QMainWindow):
 
     def connectGuiSignalsToSlots(self):
         # save/load dialog
-        self.ui.PB_fileMenu_newConfiguration.triggered.connect(self.onFileCreateNewConfiguration)
-        self.ui.PB_fileMenu_saveConfiguration.triggered.connect(self.onFileSaveConfiguration)
-        self.ui.PB_fileMenu_loadConfiguration.triggered.connect(self.onFileLoadConfiguration)
+        self.ui.PB_fileMenu_newConfiguration.triggered.connect(
+            self.onFileCreateNewConfiguration)
+        self.ui.PB_fileMenu_saveConfiguration.triggered.connect(
+            self.onFileSaveConfiguration)
+        self.ui.PB_fileMenu_loadConfiguration.triggered.connect(
+            self.onFileLoadConfiguration)
 
         # help menu
         self.ui.PB_helpMenu_about.triggered.connect(self.onHelpAbout)
@@ -125,26 +137,31 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.PB_helpMenu_openLogFile.triggered.connect(self.onOpenLog)
 
         # SERIAL PORT setup
-        self.ui.PB_serialSetup.clicked.connect(self.setSerialSettingsWithDialog)
+        self.ui.PB_serialSetup.clicked.connect(
+            self.setSerialSettingsWithDialog)
         self.ui.PB_refreshCommPortsList.clicked.connect(self.refreshPortsList)
         self.ui.PB_commPortCtrl.clicked.connect(self.onPortHandlerButton)
 
         # data note data send and button fields
         for index, dataField in enumerate(self.uiDataFields):
-            dataField.textChanged.connect(partial(self.onDataFieldChange, index))
+            dataField.textChanged.connect(
+                partial(self.onDataFieldChange, index))
 
         for index, dataSendButton in enumerate(self.uiDataSendButtons):
-            dataSendButton.clicked.connect(partial(self.onSendDataButton, index))
+            dataSendButton.clicked.connect(
+                partial(self.onSendDataButton, index))
 
         for index, noteField in enumerate(self.uiNoteFields):
-            noteField.textChanged.connect(partial(self.onNoteFieldChange, index))
+            noteField.textChanged.connect(
+                partial(self.onNoteFieldChange, index))
 
         # sequence fields
         for index, seqField in enumerate(self.uiSeqFields):
             seqField.textChanged.connect(partial(self.onSeqFieldChange, index))
 
         for index, seqSendButton in enumerate(self.uiSeqSendButtons):
-            seqSendButton.clicked.connect(partial(self.onSendStopSequenceButton, index))
+            seqSendButton.clicked.connect(
+                partial(self.onSendStopSequenceButton, index))
 
         # log
         self.ui.PB_clearLog.clicked.connect(self.clearLogWindow)
@@ -152,9 +169,11 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.PB_exportRxTxData.clicked.connect(self.saveRxTxDataToFile)
         self.ui.CB_rxToLog.clicked.connect(self.onRxDisplayModeChange)
         self.ui.CB_txToLog.clicked.connect(self.onTxDisplayModeChange)
-        self.ui.RB_GROUP_outputRepresentation.buttonClicked.connect(self.onOutputRepresentationModeChange)
+        self.ui.RB_GROUP_outputRepresentation.buttonClicked.connect(
+            self.onOutputRepresentationModeChange)
         self.ui.CB_rxNewLine.clicked.connect(self.onRxNewLineChange)
-        self.ui.SB_rxTimeoutMs.valueChanged.connect(self.onRxNewLineTimeoutChange)
+        self.ui.SB_rxTimeoutMs.valueChanged.connect(
+            self.onRxNewLineTimeoutChange)
 
     def connectExecutionSignalsToSlots(self):
         self.sigWrite.connect(self.writeToLogWindow)
@@ -168,20 +187,24 @@ class Gui(QtWidgets.QMainWindow):
         self.commHandler.sigDataReceived.connect(self.onDataReceiveEvent)
 
     def connectDataUpdateSignalsToSlots(self):
-        self.dataModel.sigSerialSettingsUpdate.connect(self.onSerialSettingsUpdate)
+        self.dataModel.sigSerialSettingsUpdate.connect(
+            self.onSerialSettingsUpdate)
         self.dataModel.sigDataFieldUpdate.connect(self.onDataFieldUpdate)
         self.dataModel.sigNoteFieldUpdate.connect(self.onNoteFieldUpdate)
         self.dataModel.sigSeqFieldUpdate.connect(self.onSeqFieldUpdate)
-        self.dataModel.sigRxDisplayModeUpdate.connect(self.onRxDisplayModeUpdate)
-        self.dataModel.sigTxDisplayModeUpdate.connect(self.onTxDisplayModeUpdate)
-        self.dataModel.sigOutputRepresentationModeUpdate.connect(self.onOutputRepresentationModeUpdate)
+        self.dataModel.sigRxDisplayModeUpdate.connect(
+            self.onRxDisplayModeUpdate)
+        self.dataModel.sigTxDisplayModeUpdate.connect(
+            self.onTxDisplayModeUpdate)
+        self.dataModel.sigOutputRepresentationModeUpdate.connect(
+            self.onOutputRepresentationModeUpdate)
         self.dataModel.sigRxNewLineUpdate.connect(self.onRxNewLineUpdate)
 
     def initGuiState(self):
         """
         Init GUI once created (check data/sequence fields, ...).
         """
-        #update current window name with version string
+        # update current window name with version string
         self.setAplicationWindowName()
 
         self._setMruCfgPaths()
@@ -189,12 +212,14 @@ class Gui(QtWidgets.QMainWindow):
         self.cfgHandler.createDefaultConfiguration()
 
         # serial port settings
-        baudrateValidator = QtGui.QIntValidator(0, serialUtil.SerialBase.BAUDRATES[-1])
+        baudrateValidator = QtGui.QIntValidator(
+            0, serialUtil.SerialBase.BAUDRATES[-1])
         self.ui.DD_baudrate.setValidator(baudrateValidator)
         baudratesAsString = list(map(str, serialUtil.SerialBase.BAUDRATES))
         self.ui.DD_baudrate.addItems(baudratesAsString)
 
-        defaultBaudrateListIndex = serialUtil.SerialBase.BAUDRATES.index(DEFAULT_BAUDRATE)
+        defaultBaudrateListIndex = serialUtil.SerialBase.BAUDRATES.index(
+            DEFAULT_BAUDRATE)
         self.ui.DD_baudrate.setCurrentIndex(defaultBaudrateListIndex)
 
         # log fields
@@ -208,13 +233,16 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.ui.PB_fileMenu_recentlyUsedConfigurations.clear()
 
-        mruCfgFiles = getMostRecentlyUsedConfigurations(NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
+        mruCfgFiles = getMostRecentlyUsedConfigurations(
+            NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
         for mruCfgFile in mruCfgFiles:
             fileName = os.path.basename(mruCfgFile)
 
             mruCfgAction = QtWidgets.QAction(fileName, self)
-            mruCfgAction.triggered.connect(partial(self.onFileLoadConfiguration, mruCfgFile))
-            self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(mruCfgAction)
+            mruCfgAction.triggered.connect(
+                partial(self.onFileLoadConfiguration, mruCfgFile))
+            self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(
+                mruCfgAction)
 
     def setAplicationWindowName(self, name: str = None):
         """
@@ -298,11 +326,14 @@ class Gui(QtWidgets.QMainWindow):
                 - if status == None: TRANSPARENT
         """
         if status is None:
-            textInputField.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {INPUT_NONE_COLOR}")
+            textInputField.setStyleSheet(
+                f"{DEFAULT_FONT_STYLE} background-color: {INPUT_NONE_COLOR}")
         elif status:
-            textInputField.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {INPUT_VALID_COLOR}")
+            textInputField.setStyleSheet(
+                f"{DEFAULT_FONT_STYLE} background-color: {INPUT_VALID_COLOR}")
         else:
-            textInputField.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {INPUT_ERROR_COLOR}")
+            textInputField.setStyleSheet(
+                f"{DEFAULT_FONT_STYLE} background-color: {INPUT_ERROR_COLOR}")
 
     def setConnectionButtonState(self, state: bool):
         """
@@ -313,10 +344,12 @@ class Gui(QtWidgets.QMainWindow):
         """
         if state:
             self.ui.PB_commPortCtrl.setText(COMM_PORT_CONNECTED_TEXT)
-            self.ui.PB_commPortCtrl.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_CONNECTED_COLOR}")
+            self.ui.PB_commPortCtrl.setStyleSheet(
+                f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_CONNECTED_COLOR}")
         else:
             self.ui.PB_commPortCtrl.setText(COMM_PORT_NOT_CONNECTED_TEXT)
-            self.ui.PB_commPortCtrl.setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_NOT_CONNECTED_COLOR}")
+            self.ui.PB_commPortCtrl.setStyleSheet(
+                f"{DEFAULT_FONT_STYLE} background-color: {COMM_PORT_NOT_CONNECTED_COLOR}")
 
     def getRxNewLineTimeoutMs(self) -> int:
         """
@@ -344,8 +377,10 @@ class Gui(QtWidgets.QMainWindow):
             if self.ui.TE_log.textCursor().position() != 0:
                 msg = f"\n{msg}"
 
-        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value()  # if autoscroll is not in use, set previous location.
-        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)  # always insert at the end of the log window
+        # if autoscroll is not in use, set previous location.
+        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value()
+        # always insert at the end of the log window
+        self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)
 
         self.ui.TE_log.setTextColor(QtGui.QColor(color))
         self.ui.TE_log.insertPlainText(msg)
@@ -398,11 +433,13 @@ class Gui(QtWidgets.QMainWindow):
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
         if self.dataModel.configurationFilePath is None:
-            cfgFilePath = os.path.join(getDefaultLogFolderPath(), DEFAULT_CFG_FILE_NAME)
+            cfgFilePath = os.path.join(
+                getDefaultLogFolderPath(), DEFAULT_CFG_FILE_NAME)
         else:
             cfgFilePath = self.dataModel.configurationFilePath
 
-        filePath = self.getSaveFileLocation("Save configuration...", cfgFilePath, CFG_FILE_EXTENSION_FILTER)
+        filePath = self.getSaveFileLocation(
+            "Save configuration...", cfgFilePath, CFG_FILE_EXTENSION_FILTER)
         if filePath is not None:
             self.dataModel.configurationFilePath = filePath
             self.cfgHandler.saveConfiguration(filePath)
@@ -429,10 +466,12 @@ class Gui(QtWidgets.QMainWindow):
             if self.dataModel.configurationFilePath is None:
                 cfgFolder = getDefaultLogFolderPath()
             else:
-                cfgFolder = os.path.dirname(self.dataModel.configurationFilePath)
+                cfgFolder = os.path.dirname(
+                    self.dataModel.configurationFilePath)
 
             if self.confirmActionDialog("Warning!", "Loading new configuration?\nThis will discard any changes!"):
-                filePath = self.getOpenFileLocation("Load configuration...", cfgFolder, CFG_FILE_EXTENSION_FILTER)
+                filePath = self.getOpenFileLocation(
+                    "Load configuration...", cfgFolder, CFG_FILE_EXTENSION_FILTER)
                 if filePath is not None:
                     self.dataModel.configurationFilePath = filePath
                     self.cfgHandler.loadConfiguration(filePath)
@@ -460,10 +499,15 @@ class Gui(QtWidgets.QMainWindow):
         Print current version and info links to log window.
         """
         aboutLines = []
-        aboutLines.append(f"<br>************ Serial Tool v{__version__} ************")
-        aboutLines.append(f"Domen Jurkovic @ <a href=\"{LINK_DAMOGRANLABS}\">Damogran Labs</a><br>")  # add extra new line
-        aboutLines.append(f"GitHub (docs, releases): <a href=\"{LINK_GITHUB}\">{LINK_GITHUB}</a>")
-        aboutLines.append(f"Homepage: <a href=\"{LINK_HOMEPAGE}\">{LINK_HOMEPAGE}</a>")
+        aboutLines.append(
+            f"<br>************ Serial Tool v{__version__} ************")
+        # add extra new line
+        aboutLines.append(
+            f"Domen Jurkovic @ <a href=\"{LINK_DAMOGRANLABS}\">Damogran Labs</a><br>")
+        aboutLines.append(
+            f"GitHub (docs, releases): <a href=\"{LINK_GITHUB}\">{LINK_GITHUB}</a>")
+        aboutLines.append(
+            f"Homepage: <a href=\"{LINK_HOMEPAGE}\">{LINK_HOMEPAGE}</a>")
 
         mergedLines = '<br>'.join(aboutLines)
         self.writeHtmlToLogWindow(mergedLines)
@@ -523,18 +567,24 @@ class Gui(QtWidgets.QMainWindow):
         self.refreshPortsList()  # also de-init
 
         if self.dataModel.serialSettings.port is not None:
-            chosenCommPort = self.ui.DD_commPortSelector.findText(self.dataModel.serialSettings.port)
+            chosenCommPort = self.ui.DD_commPortSelector.findText(
+                self.dataModel.serialSettings.port)
             if chosenCommPort == -1:
-                self.writeToLogWindow(f"No {self.dataModel.serialSettings.port} serial port currently available.", LOG_COLOR_WARNING)
+                self.writeToLogWindow(
+                    f"No {self.dataModel.serialSettings.port} serial port currently available.", LOG_COLOR_WARNING)
             else:
                 self.ui.DD_commPortSelector.setCurrentIndex(chosenCommPort)
 
         if self.dataModel.serialSettings.baudrate is not None:
-            chosenBaudrate = self.ui.DD_baudrate.findText(str(self.dataModel.serialSettings.baudrate))
+            chosenBaudrate = self.ui.DD_baudrate.findText(
+                str(self.dataModel.serialSettings.baudrate))
             if chosenBaudrate == -1:
-                self.writeToLogWindow(f"No {self.dataModel.serialSettings.baudrate} baudrate available, manually added.", LOG_COLOR_WARNING)
-                self.ui.DD_baudrate.addItem(str(self.dataModel.serialSettings.baudrate))
-                self.ui.DD_baudrate.setCurrentText(str(self.dataModel.serialSettings.baudrate))
+                self.writeToLogWindow(
+                    f"No {self.dataModel.serialSettings.baudrate} baudrate available, manually added.", LOG_COLOR_WARNING)
+                self.ui.DD_baudrate.addItem(
+                    str(self.dataModel.serialSettings.baudrate))
+                self.ui.DD_baudrate.setCurrentText(
+                    str(self.dataModel.serialSettings.baudrate))
             else:
                 self.ui.DD_baudrate.setCurrentIndex(chosenBaudrate)
 
@@ -653,10 +703,10 @@ class Gui(QtWidgets.QMainWindow):
                         msg = f"\n{dataString}"
                     # else: # not enough time has passed, just add data without new line
                 # else: # some RX data or other message was displayed in log window since last RX data display
-            #else: # no RX on new line is needed, just add RX data
+            # else: # no RX on new line is needed, just add RX data
             self.writeToLogWindow(msg, RX_DATA_LOG_COLOR, False, False)
             self._logDisplayingRxData = True
-        
+
         self._lastRxEventTimestamp = time.time()
 
         log.debug(f"\tEvent: data received: {dataString}")
@@ -668,7 +718,8 @@ class Gui(QtWidgets.QMainWindow):
             @param channel: sequence channel.
         """
         self.uiSeqSendButtons[channel].setText(SEQ_BUTTON_START_TEXT)
-        self.uiSeqSendButtons[channel].setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: None")
+        self.uiSeqSendButtons[channel].setStyleSheet(
+            f"{DEFAULT_FONT_STYLE} background-color: None")
         self._seqThreads[channel] = None
 
         log.debug(f"\tEvent: sequence {channel + 1} finished")
@@ -683,13 +734,15 @@ class Gui(QtWidgets.QMainWindow):
         data = self.dataModel.parsedDataFields[dataChannel]
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{EXPORT_TX_TAG}{data}")
+        self.dataModel.allRxTxData.append(
+            f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{EXPORT_TX_TAG}{data}")
         if self.dataModel.displayTransmittedData:
             msg = f"{SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {dataString}"
 
             self.writeToLogWindow(msg, TX_DATA_LOG_COLOR)
 
-        log.debug(f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
+        log.debug(
+            f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
 
     @QtCore.pyqtSlot(int)
     def stopSequenceRequestEvent(self, channel: int):
@@ -825,14 +878,16 @@ class Gui(QtWidgets.QMainWindow):
         """
         if self.uiSeqSendButtons[channel].text() == SEQ_BUTTON_START_TEXT:
             self.uiSeqSendButtons[channel].setText(SEQ_BUTTON_STOP_TEXT)
-            self.uiSeqSendButtons[channel].setStyleSheet(f"{DEFAULT_FONT_STYLE} background-color: {SEQ_ACTIVE_COLOR}")
+            self.uiSeqSendButtons[channel].setStyleSheet(
+                f"{DEFAULT_FONT_STYLE} background-color: {SEQ_ACTIVE_COLOR}")
 
             thread = QtCore.QThread(self)
             worker = communication.SerialDataSequenceTransmitterThread(self.commHandler.portHandler,
                                                                        channel,
                                                                        self.dataModel.parsedDataFields,
                                                                        self.dataModel.parsedSeqFields)
-            worker.sigSequenceTransmittFinished.connect(self.onSendSequenceFinishEvent)
+            worker.sigSequenceTransmittFinished.connect(
+                self.onSendSequenceFinishEvent)
             worker.sigDataSendEvent.connect(self.onSequenceSendEvent)
 
             worker.moveToThread(thread)
@@ -864,14 +919,17 @@ class Gui(QtWidgets.QMainWindow):
         Save (export) content of a current log window to a file.
         Pick destination with default OS pop-up window.
         """
-        defaultLogFilePath = os.path.join(getDefaultLogFolderPath(), DEFAULT_LOG_EXPORT_FILENAME)
-        filePath = self.getSaveFileLocation("Save log window content...", defaultLogFilePath, LOG_EXPORT_FILE_EXTENSION_FILTER)
+        defaultLogFilePath = os.path.join(
+            getDefaultLogFolderPath(), DEFAULT_LOG_EXPORT_FILENAME)
+        filePath = self.getSaveFileLocation(
+            "Save log window content...", defaultLogFilePath, LOG_EXPORT_FILE_EXTENSION_FILTER)
         if filePath is not None:
             with open(filePath, 'w+') as fileHandler:
                 contentToLog = self.ui.TE_log.toPlainText()
                 fileHandler.writelines(contentToLog)
 
-            self.writeToLogWindow(f"Log window content saved to: {filePath}", LOG_COLOR_GRAY)
+            self.writeToLogWindow(
+                f"Log window content saved to: {filePath}", LOG_COLOR_GRAY)
         else:
             log.debug("Save log window content request canceled.")
 
@@ -881,15 +939,18 @@ class Gui(QtWidgets.QMainWindow):
         Save (export) content of all RX/TX data to a file.
         Pick destination with default OS pop-up window.
         """
-        defaultLogFilePath = os.path.join(getDefaultLogFolderPath(), DEFAULT_DATA_EXPORT_FILENAME)
-        filePath = self.getSaveFileLocation("Save raw RX/TX data...", defaultLogFilePath, DATA_EXPORT_FILE_EXTENSION_FILTER)
+        defaultLogFilePath = os.path.join(
+            getDefaultLogFolderPath(), DEFAULT_DATA_EXPORT_FILENAME)
+        filePath = self.getSaveFileLocation(
+            "Save raw RX/TX data...", defaultLogFilePath, DATA_EXPORT_FILE_EXTENSION_FILTER)
         if filePath is not None:
             with open(filePath, 'w+') as fileHandler:
                 for data in self.dataModel.allRxTxData:
                     fileHandler.write(data + "\n")
 
             self.dataModel.allRxTxData = []
-            self.writeToLogWindow(f"RX/TX data exported: {filePath}", LOG_COLOR_GRAY)
+            self.writeToLogWindow(
+                f"RX/TX data exported: {filePath}", LOG_COLOR_GRAY)
         else:
             log.debug("RX/TX data export request canceled.")
 
@@ -926,7 +987,8 @@ class Gui(QtWidgets.QMainWindow):
         """
         Action to take place once outputDataRepresentation setting is altered (for example, on load configuration).
         """
-        self.ui.RB_GROUP_outputRepresentation.button(self.dataModel.outputDataRepresentation).click()
+        self.ui.RB_GROUP_outputRepresentation.button(
+            self.dataModel.outputDataRepresentation).click()
 
     @QtCore.pyqtSlot()
     def onOutputRepresentationModeChange(self):
@@ -1041,8 +1103,10 @@ class Gui(QtWidgets.QMainWindow):
                         if self._checkIfDataNumberInRange(dataAsInt):
                             # if negative number, create two's complement
                             if dataAsInt < 0:
-                                intAsByte = dataAsInt.to_bytes(1, byteorder=sys.byteorder, signed=True)
-                                dataAsUnsignedInt = int.from_bytes(intAsByte, byteorder=sys.byteorder, signed=False)
+                                intAsByte = dataAsInt.to_bytes(
+                                    1, byteorder=sys.byteorder, signed=True)
+                                dataAsUnsignedInt = int.from_bytes(
+                                    intAsByte, byteorder=sys.byteorder, signed=False)
                             else:
                                 dataAsUnsignedInt = dataAsInt
                             dataList.append(dataAsUnsignedInt)
@@ -1082,19 +1146,24 @@ class Gui(QtWidgets.QMainWindow):
                         block = block.strip(SEQ_BLOCK_START_CHARACTER)
                         block = block.strip(SEQ_BLOCK_END_CHARACTER)
                         blockData = block.split(SEQ_BLOCK_DATA_SEPARATOR)
-                        if len(blockData) in [2, 3]:  # repeat number is not mandatory
+                        # repeat number is not mandatory
+                        if len(blockData) in [2, 3]:
                             dataChannelIndex = int(blockData[0].strip())
-                            if 1 <= dataChannelIndex <= NUM_OF_DATA_CHANNELS:  # user must enter a number as seen in GUI, starts with 1
+                            # user must enter a number as seen in GUI, starts with 1
+                            if 1 <= dataChannelIndex <= NUM_OF_DATA_CHANNELS:
                                 dataChannelIndex = dataChannelIndex - 1
                                 channelDelay = int(blockData[1].strip())
                                 if 0 <= channelDelay:
-                                    thisBlockData = SequenceData(dataChannelIndex, channelDelay)
+                                    thisBlockData = SequenceData(
+                                        dataChannelIndex, channelDelay)
                                     if len(blockData) == 3:  # repeat is specified
-                                        repeatNumber = int(blockData[2].strip())
+                                        repeatNumber = int(
+                                            blockData[2].strip())
                                         if repeatNumber >= 1:
                                             thisBlockData.repeat = repeatNumber
                                         else:
-                                            raise Exception("Invalid 'repeat' sequence block number, (negative or 0).")
+                                            raise Exception(
+                                                "Invalid 'repeat' sequence block number, (negative or 0).")
                                     parsedBlocksData.append(thisBlockData)
                                     continue
                     raise Exception('Invalid sequence format!')
@@ -1137,7 +1206,8 @@ class Gui(QtWidgets.QMainWindow):
         """
         hexList = []
         for number in data:
-            hexNumber = "{0:#0{1}x}".format(number, 4)  # format always as 0x** (two fields for data value)
+            # format always as 0x** (two fields for data value)
+            hexNumber = "{0:#0{1}x}".format(number, 4)
             hexList.append(hexNumber)
         hexStr = RX_DATA_LIST_SEPARATOR.join(hexList) + RX_DATA_LIST_SEPARATOR
 
@@ -1152,7 +1222,8 @@ class Gui(QtWidgets.QMainWindow):
         asciiList = []
         for number in data:
             asciiList.append(f"'{chr(number)}'")
-        asciiStr = RX_DATA_LIST_SEPARATOR.join(asciiList) + RX_DATA_LIST_SEPARATOR
+        asciiStr = RX_DATA_LIST_SEPARATOR.join(
+            asciiList) + RX_DATA_LIST_SEPARATOR
 
         return asciiStr
 
@@ -1167,7 +1238,7 @@ class Gui(QtWidgets.QMainWindow):
             dataString = self.listOfIntsToIntString(data)
         elif self.dataModel.outputDataRepresentation == OutputRepresentation.HEX_LIST:
             dataString = self.listOfIntsToHexString(data)
-        else: #self.dataModel.outputDataRepresentation == OutputRepresentation.ASCII_LIST
+        else:  # self.dataModel.outputDataRepresentation == OutputRepresentation.ASCII_LIST
             dataString = self.listOfIntsToAsciiString(data)
 
         return dataString
@@ -1200,9 +1271,11 @@ class Gui(QtWidgets.QMainWindow):
             folderPath = os.path.normpath(folderPath)
 
         if saveType:
-            fileName, _ = QFileDialog.getSaveFileName(self, name, folderPath, filterExtension)
+            fileName, _ = QFileDialog.getSaveFileName(
+                self, name, folderPath, filterExtension)
         else:
-            fileName, _ = QFileDialog.getOpenFileName(self, name, folderPath, filterExtension)
+            fileName, _ = QFileDialog.getOpenFileName(
+                self, name, folderPath, filterExtension)
         if fileName != '':
             fileName = os.path.normpath(fileName)
             return fileName
@@ -1217,7 +1290,8 @@ class Gui(QtWidgets.QMainWindow):
         dialog = QtWidgets.QMessageBox()
 
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("gui/images/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap("gui/images/SerialTool.png"),
+                       QtGui.QIcon.Normal, QtGui.QIcon.Off)
         dialog.setWindowIcon(icon)
 
         dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
@@ -1236,7 +1310,7 @@ class Gui(QtWidgets.QMainWindow):
     def _appExceptionHandler(self, excType, excValue, tracebackObj):
         """
         Global function to catch unhandled exceptions.
-        
+
         @param excType: exception type
         @param excValue: exception value
         @param tracebackObj: traceback object
@@ -1271,7 +1345,8 @@ def getDefaultLogFolderPath() -> str:
     Return path to a default Serial Tool Appdata folder: %APPDATA%/<SERIAL_TOOL_APPDATA_FOLDER_NAME>
     """
     appdataPath = os.environ["APPDATA"]
-    serialToolFolderPath = os.path.join(appdataPath, SERIAL_TOOL_APPDATA_FOLDER_NAME)
+    serialToolFolderPath = os.path.join(
+        appdataPath, SERIAL_TOOL_APPDATA_FOLDER_NAME)
 
     return serialToolFolderPath
 
@@ -1280,7 +1355,8 @@ def getRecentlyUsedCfgFilePath() -> str:
     """
     Get path to a RECENTLY_USED_CFG_FILE_NAME which is, by default stored in log folder.
     """
-    recentlyUsedCfgsFilePath = os.path.join(getDefaultLogFolderPath(), RECENTLY_USED_CFG_FILE_NAME)
+    recentlyUsedCfgsFilePath = os.path.join(
+        getDefaultLogFolderPath(), RECENTLY_USED_CFG_FILE_NAME)
 
     return recentlyUsedCfgsFilePath
 
@@ -1321,14 +1397,17 @@ def addCurrentCfgToRecentlyUsedCfgs(cfgFilePath: str):
                 fileHandler.writelines(linesToWrite)
 
         except Exception as err:
-            log.warning(f"Error while writing/parsing recently used cfgs file:\n{err}")
+            log.warning(
+                f"Error while writing/parsing recently used cfgs file:\n{err}")
 
             try:
                 with open(recentlyUsedCfgsFilePath, 'w') as fileHandler:
                     fileHandler.write(f"{path}\n")
-                log.info(f"New recently used cfgs file created: {recentlyUsedCfgsFilePath}")
+                log.info(
+                    f"New recently used cfgs file created: {recentlyUsedCfgsFilePath}")
             except Exception as err:
-                log.warning(f"Unable to create new recently used cfgs file:\n{err}")
+                log.warning(
+                    f"Unable to create new recently used cfgs file:\n{err}")
                 log.warning(f"\tNo further attempts.")
 
 
@@ -1368,7 +1447,8 @@ def getMostRecentlyUsedConfigurations(number: int) -> [str]:
                     else:
                         break
     except Exception as err:
-        log.warning(f"Unable to get most recently used configurations from file: {recentlyUsedCfgsFilePath}\n{err}")
+        log.warning(
+            f"Unable to get most recently used configurations from file: {recentlyUsedCfgsFilePath}\n{err}")
 
     return recentlyUsedCfgFilePaths
 
@@ -1399,7 +1479,8 @@ def initEnvironment():
     createLogFolder()
 
     logger = log.LogHandler()
-    formatter = logging.Formatter("%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s")
+    formatter = logging.Formatter(
+        "%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s")
     logger.addConsoleHandler(formatter)
     logger.addFileHandler(SERIAL_TOOL_LOG_FILENAME, logFolder, formatter)
 
