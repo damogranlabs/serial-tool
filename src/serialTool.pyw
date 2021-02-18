@@ -27,7 +27,7 @@ from defines import *
 from gui.gui import Ui_root
 from gui.serialSetupDialog import Ui_SerialSetupDialog
 
-__version__ = "2.4.1"  # software version
+__version__ = "2.4.2"  # software version
 
 
 class Gui(QtWidgets.QMainWindow):
