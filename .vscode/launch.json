@@ -5,11 +5,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug main.pyw",
+            "name": "Debug serial_tool.pyw",
             "type": "python",
             "request": "launch",
-            //"cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/src/serialTool.pyw",
+            "program": "${workspaceFolder}/src/serial_tool/serialTool.pyw",
             "console": "integratedTerminal"
         },
         {
