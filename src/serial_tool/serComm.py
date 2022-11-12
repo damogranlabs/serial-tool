@@ -1,7 +1,7 @@
 """
 This file holds all serial communication utility functions and handlers.
 """
-import asyncio
+from typing import List
 import aioserial
 import glob
 import sys
@@ -9,7 +9,7 @@ import sys
 import serial
 import serial.serialutil as serialUtil
 
-from defines import *
+from serial_tool import defines as defs
 
 
 class SerialCommSettings:
@@ -21,8 +21,8 @@ class SerialCommSettings:
         self.parity: serialUtil.SerialBase.PARITIES = serial.PARITY_NONE
         self.swFlowControl: bool = False  # XON/XOFF
         self.hwFlowControl: bool = False  # RTS/CTS
-        self.readTimeoutMs: int = SERIAL_READ_TIMEOUT_MS
-        self.writeTimeoutMs: int = SERIAL_WRITE_TIMEOUT_MS
+        self.readTimeoutMs: int = defs.SERIAL_READ_TIMEOUT_MS
+        self.writeTimeoutMs: int = defs.SERIAL_WRITE_TIMEOUT_MS
 
     def __str__(self):
         """
@@ -45,7 +45,7 @@ class SerialCommSettings:
         return settings
 
 
-class ParityAsNumbers():
+class ParityAsNumbers:
     NONE = 0  # serial.PARITY_NONE
     EVEN = 1  # serial.PARITY_EVEN
     ODD = 2  # serial.PARITY_ODD
@@ -76,7 +76,7 @@ def parityToString(parity: int) -> str:
 
 
 ###################################################################################################
-class SerialPortHandler():
+class SerialPortHandler:
     def __init__(self):
         """
         Non-threaded serial port communication class. Holds all needed functions to init, read and write to/from serial port.
@@ -89,13 +89,13 @@ class SerialPortHandler():
         Get a list of all available 'COMx' or '/dev/ttyX' serial ports.
             @param scanRange: applicable for windows for COMx, where x is in range from 0 to scanRange
         """
-        if sys.platform.startswith('win'):
-            ports = ['COM%s' % (i + 1) for i in range(scanRange)]
-        elif sys.platform.startswith('linux') or sys.platform.startswith('cygwin'):
+        if sys.platform.startswith("win"):
+            ports = ["COM%s" % (i + 1) for i in range(scanRange)]
+        elif sys.platform.startswith("linux") or sys.platform.startswith("cygwin"):
             # this excludes your current terminal "/dev/tty"
-            ports = glob.glob('/dev/tty[A-Za-z]*')
+            ports = glob.glob("/dev/tty[A-Za-z]*")
         else:
-            raise EnvironmentError('Unsupported platform')
+            raise EnvironmentError("Unsupported platform")
 
         # list all available ports
         availablePorts = []
@@ -127,7 +127,8 @@ class SerialPortHandler():
                 rtscts=serialSettings.hwFlowControl,
                 dsrdtr=False,  # disable hardware (DSR/DTR) flow control
                 timeout=serialSettings.readTimeoutMs / 1000,
-                write_timeout=serialSettings.writeTimeoutMs / 1000)
+                write_timeout=serialSettings.writeTimeoutMs / 1000,
+            )
 
             self.portSettings = serialSettings
 
@@ -198,13 +199,15 @@ class SerialPortHandler():
             @param data: string representation of a data to send.
             @param raiseException: if True, raise exception if write was not successfull, False otherwise.
         """
-        byteArrayEncodedData = data.encode('utf-8')
+        byteArrayEncodedData = data.encode("utf-8")
         numOfBytesWritten = self._portHandle.write(byteArrayEncodedData)
         if numOfBytesWritten == len(data):
             return numOfBytesWritten
         else:
             if raiseException:
-                errorMsg = f"Serial port write data unsuccessfull. {numOfBytesWritten} sent while len(data) = {len(data)}"
+                errorMsg = (
+                    f"Serial port write data unsuccessful. {numOfBytesWritten} sent while len(data) = {len(data)}"
+                )
                 raise Exception(errorMsg)
             else:
                 return numOfBytesWritten
@@ -213,14 +216,16 @@ class SerialPortHandler():
         """
         Same as writeData, except 'data' is formatted as a list of integers.
             @param data: list of integers to send (0 - 255).
-            @param raiseException: if True, raise exception if write was not successfull, False otherwise.
+            @param raiseException: if True, raise exception if write was not successful, False otherwise.
         """
         numOfBytesWritten = self._portHandle.write(data)
         if numOfBytesWritten == len(data):
             return numOfBytesWritten
         else:
             if raiseException:
-                errorMsg = f"Serial port write data list unsuccessfull. {numOfBytesWritten} sent while len(data) = {len(data)}"
+                errorMsg = (
+                    f"Serial port write data list unsuccessful. {numOfBytesWritten} sent while len(data) = {len(data)}"
+                )
                 raise Exception(errorMsg)
             else:
                 return numOfBytesWritten
@@ -233,7 +238,7 @@ class SerialPortHandler():
         byte = await self._portHandle.read_async()  # will wait until one byte will not be received.
         return byte
 
-    def readData(self) -> [int]:
+    def readData(self) -> List[int]:
         """
         Read data from a serial port and return a list of received data (unsigned integers 0 - 255).
         Raise exception on error.

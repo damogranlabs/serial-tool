@@ -1,0 +1,7 @@
+pytest
+mypy
+black
+pylint
+pylint-pytest
+
+tox

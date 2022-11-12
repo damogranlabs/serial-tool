@@ -2,9 +2,9 @@
 build/
 log/
 Serial Tool LOG/
-.vscode/.*
 tests/
 .pytest*
+venv_*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

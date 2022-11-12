@@ -4,13 +4,13 @@ This file holds all serial communication utility functions and handlers.
 import asyncio
 import time
 import threading
+from typing import List
 
 from PyQt5 import QtCore
 
-from defines import *
-import serComm
-
-import logHandler as log
+from serial_tool import defines as defs
+from serial_tool import serComm
+from serial_tool import logHandler as log
 
 
 ###################################################################################################
@@ -48,7 +48,7 @@ class SerialDataReceiverThread(QtCore.QObject):
             while not self._receiveThreadStopFlag:
                 try:
                     byte = asyncio.run(self._portHandler.asyncReadData())  # asynchronously receive 1 byte
-                    if byte == b'':
+                    if byte == b"":
                         continue  # nothing received
                     else:
                         # receive data available, read all
@@ -70,7 +70,7 @@ class SerialDataReceiverThread(QtCore.QObject):
 
     def stopReceivingData(self):
         """
-        Stop thread by setting self._receiveThreadStopFlag to True. Application must manually wait for 
+        Stop thread by setting self._receiveThreadStopFlag to True. Application must manually wait for
         """
         self._receiveThreadStopFlag = True
 
@@ -92,11 +92,13 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
 
     sigSequenceStopRequest = QtCore.pyqtSignal()
 
-    def __init__(self,
-                 portHandler: serComm.SerialPortHandler,
-                 seqChannel: int,
-                 parsedDataFields: [int],
-                 parsedSeqBlocks: [SequenceData]):
+    def __init__(
+        self,
+        portHandler: serComm.SerialPortHandler,
+        seqChannel: int,
+        parsedDataFields: List[int],
+        parsedSeqBlocks: List[defs.SequenceData],
+    ):
         """
         This class initialize thread that sends sequence (block of data and delay) over given serial port.
             @param portHandler: must be already existing port handler.
@@ -108,8 +110,8 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
 
         self._portHandler: serComm.SerialPortHandler = portHandler
         self.seqChannel: int = seqChannel
-        self.parsedDataFields: [int] = parsedDataFields
-        self.parsedSeqBlocks: [SequenceData] = parsedSeqBlocks
+        self.parsedDataFields: List[int] = parsedDataFields
+        self.parsedSeqBlocks: List[defs.SequenceData] = parsedSeqBlocks
 
         self._stopSequenceRequest = False
 
