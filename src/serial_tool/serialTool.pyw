@@ -13,8 +13,9 @@ from typing import List, Optional, Tuple
 import webbrowser
 
 import serial.serialutil as serialUtil
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QFileDialog, QMessageBox
+from PyQt5 import QtCore
+from PyQt5 import QtGui
+from PyQt5 import QtWidgets
 
 import serial_tool
 from serial_tool import cfgHandler
@@ -232,7 +233,8 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(mruCfgAction)
 
     def setAplicationWindowName(self, name: Optional[str] = None) -> None:
-        """Set additional name to the main application GUI window.
+        """
+        Set additional name to the main application GUI window.
 
         Args:
             name: Optional additional name to set.
@@ -247,17 +249,15 @@ class Gui(QtWidgets.QMainWindow):
         """
         Return name of currently selected serial port from a drop down menu.
         """
-        selectedSerialPort = self.ui.DD_commPortSelector.currentText()
-        return selectedSerialPort
+        return self.ui.DD_commPortSelector.currentText()
 
-    def getPortBaudrate(self) -> int:
+    def getPortBaudrate(self) -> str:
         """
         Return selected/set baudrate from a drop down menu.
         """
-        baudrate = self.ui.DD_baudrate.currentText()
-        return baudrate
+        return self.ui.DD_baudrate.currentText()
 
-    def setDataSendButtonState(self, channel: int, state: bool):
+    def setDataSendButtonState(self, channel: int, state: bool) -> None:
         """
         Set chosen data data channel push button state to enabled/disabled.
             @param channel: index of data field channel
@@ -265,7 +265,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.uiDataSendButtons[channel].setEnabled(state)
 
-    def setAllDataSendButtonState(self, state: bool):
+    def setAllDataSendButtonState(self, state: bool) -> None:
         """
         Set all data send push button state to enabled/disabled.
             @param state: if True, buttons are enabled. Disabled otherwise.
@@ -273,7 +273,7 @@ class Gui(QtWidgets.QMainWindow):
         for button in self.uiDataSendButtons:
             button.setEnabled(state)
 
-    def setSeqSendButtonState(self, channel: int, state: bool):
+    def setSeqSendButtonState(self, channel: int, state: bool) -> None:
         """
         Set chosen sequence data channel push button state to enabled/disabled.
             @param channel: index of sequence field channel
@@ -281,7 +281,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.uiSeqSendButtons[channel].setEnabled(state)
 
-    def setAllSeqSendButtonState(self, state: bool):
+    def setAllSeqSendButtonState(self, state: bool) -> None:
         """
         Set all sequence send push button state to enabled/disabled.
             @param state: if True, buttons are enabled. Disabled otherwise.
@@ -289,7 +289,7 @@ class Gui(QtWidgets.QMainWindow):
         for button in self.uiSeqSendButtons:
             button.setEnabled(state)
 
-    def stopAllSeqThreads(self):
+    def stopAllSeqThreads(self) -> None:
         """
         Stop all sequence threads.
         Ignore exceptions.
@@ -302,7 +302,7 @@ class Gui(QtWidgets.QMainWindow):
                 errorMsg = f"Unable to stop sequence {seqIndex+1} thread."
                 log.error(errorMsg)
 
-    def colorizeTextInputField(self, textInputField: QtWidgets.QLineEdit, status) -> bool:
+    def colorizeTextInputField(self, textInputField: QtWidgets.QLineEdit, status) -> None:
         """
         Colorize given text input field with pre-defined scheme (see status parameter).
             @param channel: data channel selector: 0 - 7
@@ -318,7 +318,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             textInputField.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.INPUT_ERROR_COLOR}")
 
-    def setConnectionButtonState(self, state: bool):
+    def setConnectionButtonState(self, state: bool) -> None:
         """
         Set comm port connection status button state (text and color).
             @param state:
@@ -342,12 +342,12 @@ class Gui(QtWidgets.QMainWindow):
         """
         value = self.ui.SB_rxTimeoutMs.value() / 1e3  # (to ms conversion)
 
-        return value
+        return int(value)
 
     @QtCore.pyqtSlot(str, str)
     def writeToLogWindow(
         self, msg: str, color: str = defs.LOG_COLOR_NORMAL, appendNewLine: bool = True, ensureInNewline: bool = True
-    ):
+    ) -> None:
         """
         Write to log window with a given color.
             @param msg: message to write to log window.
@@ -380,7 +380,7 @@ class Gui(QtWidgets.QMainWindow):
 
         log.debug(f"[LOG_WINDOW]: {msg.strip()}")
 
-    def writeHtmlToLogWindow(self, msg: str):
+    def writeHtmlToLogWindow(self, msg: str) -> None:
         """
         Write HTML content to log window with a given color.
             @param msg: html formatted message to write to log window.
@@ -399,7 +399,7 @@ class Gui(QtWidgets.QMainWindow):
     # Menu bar slots
     ################################################################################################
     @QtCore.pyqtSlot()
-    def onFileCreateNewConfiguration(self):
+    def onFileCreateNewConfiguration(self) -> None:
         """
         Create new blank configuration and discard any current settings. User is previously asked for confirmation.
         """
@@ -415,7 +415,7 @@ class Gui(QtWidgets.QMainWindow):
             log.debug("New configuration request canceled.")
 
     @QtCore.pyqtSlot()
-    def onFileSaveConfiguration(self):
+    def onFileSaveConfiguration(self) -> None:
         """
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
@@ -440,7 +440,7 @@ class Gui(QtWidgets.QMainWindow):
             log.debug("Save configuration request canceled.")
 
     @QtCore.pyqtSlot()
-    def onFileLoadConfiguration(self, filePath: str = None):
+    def onFileLoadConfiguration(self, filePath: Optional[str] = None) -> None:
         """
         Load configuration from a file and discard any current settings. User is previously asked for confirmation.
             @param filePath: if None, user is asked to entry file path.
@@ -477,7 +477,7 @@ class Gui(QtWidgets.QMainWindow):
             self.setAplicationWindowName(filePath)
 
     @QtCore.pyqtSlot()
-    def onHelpAbout(self):
+    def onHelpAbout(self) -> None:
         """
         Print current version and info links to log window.
         """
@@ -492,7 +492,7 @@ class Gui(QtWidgets.QMainWindow):
         self.writeHtmlToLogWindow(mergedLines)
 
     @QtCore.pyqtSlot()
-    def onHelpDocs(self):
+    def onHelpDocs(self) -> None:
         """
         Open Github README page in a web browser.
         """
@@ -501,7 +501,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug("Online docs opened.")
 
     @QtCore.pyqtSlot()
-    def onOpenLog(self):
+    def onOpenLog(self) -> None:
         """
         Open Serial Tool log file with viewer.
         """
@@ -519,7 +519,7 @@ class Gui(QtWidgets.QMainWindow):
     # serial settings slots
     ################################################################################################
     @QtCore.pyqtSlot()
-    def setSerialSettingsWithDialog(self):
+    def setSerialSettingsWithDialog(self) -> None:
         """
         Open serial settings dialog and set new port settings.
         """
@@ -539,7 +539,7 @@ class Gui(QtWidgets.QMainWindow):
             log.debug("New serial settings request canceled.")
 
     @QtCore.pyqtSlot()
-    def onSerialSettingsUpdate(self):
+    def onSerialSettingsUpdate(self) -> None:
         """
         Load new serial settings dialog values from data model.
         """
@@ -569,7 +569,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug("New serial settings applied.")
 
     @QtCore.pyqtSlot()
-    def refreshPortsList(self):
+    def refreshPortsList(self) -> None:
         """
         Refresh list of available serial port list. Will close current port.
         """
@@ -582,7 +582,7 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.DD_commPortSelector.addItems(list(reversed(availablePorts)))
 
     @QtCore.pyqtSlot()
-    def onPortHandlerButton(self):
+    def onPortHandlerButton(self) -> None:
         """
         Connect/disconnect from a port with serial settings.
         """
@@ -620,7 +620,7 @@ class Gui(QtWidgets.QMainWindow):
     # application generated events
     ################################################################################################
     @QtCore.pyqtSlot()
-    def onConnectEvent(self):
+    def onConnectEvent(self) -> None:
         """
         This function is called once connection to port is successfully created.
         """
@@ -650,7 +650,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug("\tEvent: connect")
 
     @QtCore.pyqtSlot()
-    def onDisconnectEvent(self):
+    def onDisconnectEvent(self) -> None:
         """
         This function is called once connection to port is closed.
         """
@@ -664,7 +664,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug("\tEvent: disconnect")
 
     @QtCore.pyqtSlot(list)
-    def onDataReceiveEvent(self, data: List[int]):
+    def onDataReceiveEvent(self, data: List[int]) -> None:
         """
         This function is called once data is received on a serial port.
         """
@@ -690,7 +690,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug(f"\tEvent: data received: {dataString}")
 
     @QtCore.pyqtSlot(int)
-    def onSendSequenceFinishEvent(self, channel: int):
+    def onSendSequenceFinishEvent(self, channel: int) -> None:
         """
         This function is called once sequence sending thread is finished.
             @param channel: sequence channel.
@@ -702,7 +702,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug(f"\tEvent: sequence {channel + 1} finished")
 
     @QtCore.pyqtSlot(int, int)
-    def onSequenceSendEvent(self, seqChannel: int, dataChannel: int):
+    def onSequenceSendEvent(self, seqChannel: int, dataChannel: int) -> None:
         """
         This function is called once data is send from send sequence thread.
             @param seqChannel: index of sequence channel index.
@@ -720,7 +720,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug(f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
 
     @QtCore.pyqtSlot(int)
-    def stopSequenceRequestEvent(self, channel: int):
+    def stopSequenceRequestEvent(self, channel: int) -> None:
         """
         Display "stop" request sequence action.
             @param channel: sequence button channel.
@@ -730,7 +730,7 @@ class Gui(QtWidgets.QMainWindow):
         log.debug(f"\tEvent: sequence {channel + 1} stop request")
 
     @QtCore.pyqtSlot()
-    def onQuitApplicationEvent(self):
+    def onQuitApplicationEvent(self) -> None:
         """
         Deinit serial port, close GUI.
         """
@@ -742,7 +742,7 @@ class Gui(QtWidgets.QMainWindow):
     # data/sequence fields/buttons slots
     ################################################################################################
     @QtCore.pyqtSlot(int)
-    def onDataFieldUpdate(self, channel: int):
+    def onDataFieldUpdate(self, channel: int) -> None:
         """
         Actions to take place once data field is updated (for example, from load configuration).
             @param channel: index of data field
@@ -751,7 +751,7 @@ class Gui(QtWidgets.QMainWindow):
         self.onDataFieldChange(channel)
 
     @QtCore.pyqtSlot(int)
-    def onNoteFieldUpdate(self, channel: int):
+    def onNoteFieldUpdate(self, channel: int) -> None:
         """
         Actions to take place once note field is updated (for example, from load configuration).
             @param channel: index of note field
@@ -759,7 +759,7 @@ class Gui(QtWidgets.QMainWindow):
         self.uiNoteFields[channel].setText(self.dataModel.noteFields[channel])
 
     @QtCore.pyqtSlot(int)
-    def onSeqFieldUpdate(self, channel: int):
+    def onSeqFieldUpdate(self, channel: int) -> None:
         """
         Actions to take place once sequence field is updated (for example, from load configuration).
             @param channel: index of data field
@@ -768,7 +768,7 @@ class Gui(QtWidgets.QMainWindow):
         self.onSeqFieldChange(channel)
 
     @QtCore.pyqtSlot(int)
-    def onDataFieldChange(self, channel: int):
+    def onDataFieldChange(self, channel: int) -> None:
         """
         Actions to take place once any data field is changed.
             @param channel: index of data field
@@ -793,7 +793,7 @@ class Gui(QtWidgets.QMainWindow):
             self.onSeqFieldChange(seqFieldIndex)
 
     @QtCore.pyqtSlot(int)
-    def onNoteFieldChange(self, channel: int):
+    def onNoteFieldChange(self, channel: int) -> None:
         """
         Actions to take place once any of note field is changed.
             @param channel: index of note field
@@ -802,7 +802,7 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel.noteFields[channel] = noteFieldText.strip()
 
     @QtCore.pyqtSlot(int)
-    def onSeqFieldChange(self, channel: int):
+    def onSeqFieldChange(self, channel: int) -> None:
         """
         Actions to take place once any sequence field is changed.
             @param channel: index of sequence field
@@ -831,7 +831,7 @@ class Gui(QtWidgets.QMainWindow):
             self.setSeqSendButtonState(channel, False)
 
     @QtCore.pyqtSlot(int)
-    def onSendDataButton(self, channel: int):
+    def onSendDataButton(self, channel: int) -> None:
         """
         Send data on a selected data channel.
             @param channel: index of data field index
@@ -846,7 +846,7 @@ class Gui(QtWidgets.QMainWindow):
         self.commHandler.sigWrite.emit(data)
 
     @QtCore.pyqtSlot(int)
-    def onSendStopSequenceButton(self, channel: int):
+    def onSendStopSequenceButton(self, channel: int) -> None:
         """
         Start sending data sequence.
             @param channel: sequence field channel.
@@ -880,7 +880,7 @@ class Gui(QtWidgets.QMainWindow):
     # log settings slots
     ################################################################################################
     @QtCore.pyqtSlot()
-    def clearLogWindow(self):
+    def clearLogWindow(self) -> None:
         """
         Clear log window.
         """
@@ -888,7 +888,7 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.TE_log.clear()
 
     @QtCore.pyqtSlot()
-    def saveLogWindowToFile(self):
+    def saveLogWindowToFile(self) -> None:
         """
         Save (export) content of a current log window to a file.
         Pick destination with default OS pop-up window.
@@ -907,7 +907,7 @@ class Gui(QtWidgets.QMainWindow):
             log.debug("Save log window content request canceled.")
 
     @QtCore.pyqtSlot()
-    def saveRxTxDataToFile(self):
+    def saveRxTxDataToFile(self) -> None:
         """
         Save (export) content of all RX/TX data to a file.
         Pick destination with default OS pop-up window.
@@ -927,49 +927,49 @@ class Gui(QtWidgets.QMainWindow):
             log.debug("RX/TX data export request canceled.")
 
     @QtCore.pyqtSlot()
-    def onRxDisplayModeUpdate(self):
+    def onRxDisplayModeUpdate(self) -> None:
         """
         Action to take place once RX-to-log checkbox setting is altered (for example, on load configuration).
         """
         self.ui.CB_rxToLog.setChecked(self.dataModel.displayReceivedData)
 
     @QtCore.pyqtSlot()
-    def onRxDisplayModeChange(self):
+    def onRxDisplayModeChange(self) -> None:
         """
         Get RX-to-log checkbox settings from GUI.
         """
         self.dataModel.displayReceivedData = self.ui.CB_rxToLog.isChecked()
 
     @QtCore.pyqtSlot()
-    def onTxDisplayModeUpdate(self):
+    def onTxDisplayModeUpdate(self) -> None:
         """
         Action to take place once TX-to-log checkbox setting is altered (for example, on load configuration).
         """
         self.ui.CB_txToLog.setChecked(self.dataModel.displayTransmittedData)
 
     @QtCore.pyqtSlot()
-    def onTxDisplayModeChange(self):
+    def onTxDisplayModeChange(self) -> None:
         """
         Get TX-to-log checkbox settings from GUI.
         """
         self.dataModel.displayTransmittedData = self.ui.CB_txToLog.isChecked()
 
     @QtCore.pyqtSlot()
-    def onOutputRepresentationModeUpdate(self):
+    def onOutputRepresentationModeUpdate(self) -> None:
         """
         Action to take place once outputDataRepresentation setting is altered (for example, on load configuration).
         """
         self.ui.RB_GROUP_outputRepresentation.button(self.dataModel.outputDataRepresentation).click()
 
     @QtCore.pyqtSlot()
-    def onOutputRepresentationModeChange(self):
+    def onOutputRepresentationModeChange(self) -> None:
         """
         Get output representation type from GUI selection.
         """
         self.dataModel.outputDataRepresentation = self.ui.RB_GROUP_outputRepresentation.checkedId()
 
     @QtCore.pyqtSlot()
-    def onRxNewLineUpdate(self):
+    def onRxNewLineUpdate(self) -> None:
         """
         Action to take place once RX new line setting is altered (for example, on load configuration).
         """
@@ -980,7 +980,7 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.SB_rxTimeoutMs.setEnabled(False)
 
     @QtCore.pyqtSlot()
-    def onRxNewLineChange(self):
+    def onRxNewLineChange(self) -> None:
         """
         Get RX new line settings of log RX/TX data.
         """
@@ -993,14 +993,14 @@ class Gui(QtWidgets.QMainWindow):
         return self.dataModel.rxNewLine
 
     @QtCore.pyqtSlot()
-    def onRxNewLineTimeoutUpdate(self):
+    def onRxNewLineTimeoutUpdate(self) -> None:
         """
         Action to take place once RX new line timeout setting is altered (for example, on load configuration).
         """
         self.ui.SB_rxTimeoutMs.setValue(self.dataModel.rxNewLineTimeout)
 
     @QtCore.pyqtSlot()
-    def onRxNewLineTimeoutChange(self):
+    def onRxNewLineTimeoutChange(self) -> None:
         """
         Get RX new line settings of log RX/TX data.
         """
@@ -1210,14 +1210,14 @@ class Gui(QtWidgets.QMainWindow):
 
         return dataString
 
-    def getSaveFileLocation(self, name: str, folderPath: str = None, filterExtension: str = "*.txt") -> str:
+    def getSaveFileLocation(self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt") -> str:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
         See getFileLocation() for parameters.
         """
         return self.getFileLocation(name, True, folderPath, filterExtension)
 
-    def getOpenFileLocation(self, name: str, folderPath: str = None, filterExtension: str = "*.txt") -> str:
+    def getOpenFileLocation(self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt") -> str:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
         See getFileLocation() for parameters.
@@ -1225,8 +1225,8 @@ class Gui(QtWidgets.QMainWindow):
         return self.getFileLocation(name, False, folderPath, filterExtension)
 
     def getFileLocation(
-        self, name: str, saveType: bool = True, folderPath: str = None, filterExtension: str = None
-    ) -> str:
+        self, name: str, saveType: bool = True, folderPath: Optional[str] = None, filterExtension: Optional[str] = None
+    ) -> Optional[str]:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
             @param name: name of pop-up gui window.
@@ -1240,16 +1240,18 @@ class Gui(QtWidgets.QMainWindow):
             folderPath = os.path.normpath(folderPath)
 
         if saveType:
-            fileName, _ = QFileDialog.getSaveFileName(self, name, folderPath, filterExtension)
+            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, name, folderPath, filterExtension)
         else:
-            fileName, _ = QFileDialog.getOpenFileName(self, name, folderPath, filterExtension)
+            fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self, name, folderPath, filterExtension)
         if fileName != "":
             fileName = os.path.normpath(fileName)
             return fileName
         else:
             return None
 
-    def confirmActionDialog(self, name: str, question: str, icon: QMessageBox.Icon = QMessageBox.Icon.Question) -> bool:
+    def confirmActionDialog(
+        self, name: str, question: str, icon: QtWidgets.QMessageBox.Icon = QtWidgets.QMessageBox.Icon.Question
+    ) -> bool:
         """
         Pop-up system dialog with OK|Cancel options.
         Return True if user respond with click to OK button. Else, return False.
@@ -1260,20 +1262,20 @@ class Gui(QtWidgets.QMainWindow):
         icon.addPixmap(QtGui.QPixmap("gui/images/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         dialog.setWindowIcon(icon)
 
-        dialog.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
-        dialog.setDefaultButton(QMessageBox.Ok)
-        dialog.setEscapeButton(QMessageBox.Cancel)
+        dialog.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
+        dialog.setDefaultButton(QtWidgets.QMessageBox.Ok)
+        dialog.setEscapeButton(QtWidgets.QMessageBox.Cancel)
 
         dialog.setText(question)
         dialog.setWindowTitle(name)
 
         retval = dialog.exec_()
-        if retval == QMessageBox.Ok:
+        if retval == QtWidgets.QMessageBox.Ok:
             return True
         else:
             return False
 
-    def _appExceptionHandler(self, excType, excValue, tracebackObj):
+    def _appExceptionHandler(self, excType, excValue, tracebackObj) -> None:
         """
         Global function to catch unhandled exceptions.
 
@@ -1374,14 +1376,14 @@ def addCurrentCfgToRecentlyUsedCfgs(cfgFilePath: str):
                 log.warning(f"\tNo further attempts.")
 
 
-def getMostRecentlyUsedConfiguration() -> str:
+def getMostRecentlyUsedConfiguration() -> Optional[str]:
     """
     Get the most recently used configuration.
     Return None if file does not exist or it is empty.
     """
     mruCfgFilePaths = getMostRecentlyUsedConfigurations(1)
     if mruCfgFilePaths:
-        mruCfgFilePath = mruCfgFilePath[0].strip("\n").strip()
+        mruCfgFilePath = mruCfgFilePaths[0].strip("\n").strip()
         return mruCfgFilePath
     else:
         return None
@@ -1433,7 +1435,7 @@ def createLogFolder() -> str:
     return logFolderPath
 
 
-def initEnvironment():
+def initEnvironment() -> None:
     """
     Init log folder, log handler and
     """
@@ -1449,7 +1451,7 @@ def initEnvironment():
 
 
 ###################################################################################################
-def main():
+def main() -> None:
     initEnvironment()
 
     app = QtWidgets.QApplication(sys.argv)
