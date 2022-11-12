@@ -231,18 +231,17 @@ class Gui(QtWidgets.QMainWindow):
             mruCfgAction.triggered.connect(partial(self.onFileLoadConfiguration, mruCfgFile))
             self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(mruCfgAction)
 
-    def setAplicationWindowName(self, name: str = Optional[None]):
-        """
-        Set main application GUI window name.
-            @param name: new name to set.
-        """
-        serialToolName = f"{defs.APPLICATION_NAME} v{serial_tool.__version__}"
-        if name is None:
-            name = serialToolName
-        else:
-            name = f"{serialToolName} - {name}"
+    def setAplicationWindowName(self, name: Optional[str] = None) -> None:
+        """Set additional name to the main application GUI window.
 
-        self.setWindowTitle(name)
+        Args:
+            name: Optional additional name to set.
+        """
+        main_name = f"{defs.APPLICATION_NAME} v{serial_tool.__version__}"
+        if name:
+            main_name += f" - {name}"
+
+        self.setWindowTitle(main_name)
 
     def getSelectedPort(self) -> str:
         """
