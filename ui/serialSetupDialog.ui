@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>386</width>
-    <height>164</height>
+    <height>184</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,8 +20,8 @@
    <string>Serial Setup Dialog</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images/icons.qrc">
-    <normaloff>:/images/SerialTool.png</normaloff>:/images/SerialTool.png</iconset>
+   <iconset resource="icons.qrc">
+    <normaloff>:/images/src/serial_tool/gui/images/SerialTool.png</normaloff>:/images/src/serial_tool/gui/images/SerialTool.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -306,12 +306,12 @@
   </layout>
  </widget>
  <resources>
-  <include location="../images/icons.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
  <buttongroups>
-  <buttongroup name="RB_parityGroup"/>
   <buttongroup name="RB_stopBitsGroup"/>
   <buttongroup name="RB_dataSizeGroup"/>
+  <buttongroup name="RB_parityGroup"/>
  </buttongroups>
 </ui>

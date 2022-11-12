@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="images">
+    <file>./../src/serial_tool/gui/images/SerialTool.png</file>
+    <file>./../src/serial_tool/gui/images/SerialTool.ico</file>
+    <file>./../src/serial_tool/gui/images/icon-delete.png</file>
+    <file>./../src/serial_tool/gui/images/icon-save.png</file>
+    <file>./../src/serial_tool/gui/images/refresh.png</file>
+	  <file>./../src/serial_tool/gui/images/settings.png</file>
+	  <file>./../src/serial_tool/gui/images/icon-save-raw.png</file>
+    <file>./../src/serial_tool/gui/images/down-arrow.png</file>
+    <file>./../src/serial_tool/gui/images/external-link.png</file>
+	</qresource>
+</RCC>

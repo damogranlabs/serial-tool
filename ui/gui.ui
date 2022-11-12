@@ -12,7 +12,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>766</width>
+    <width>847</width>
     <height>737</height>
    </rect>
   </property>
@@ -40,8 +40,8 @@
    <string>Serial Tool</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../images/icons.qrc">
-    <normaloff>:/images/SerialTool.png</normaloff>:/images/SerialTool.png</iconset>
+   <iconset resource="icons.qrc">
+    <normaloff>:/images/src/serial_tool/gui/images/SerialTool.png</normaloff>:/images/src/serial_tool/gui/images/SerialTool.png</iconset>
   </property>
   <property name="iconSize">
    <size>
@@ -161,8 +161,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../images/icons.qrc">
-          <normaloff>:/images/settings.png</normaloff>:/images/settings.png</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/images/src/serial_tool/gui/images/settings.png</normaloff>:/images/src/serial_tool/gui/images/settings.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -201,8 +201,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../images/icons.qrc">
-          <normaloff>:/images/refresh.png</normaloff>:/images/refresh.png</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/images/src/serial_tool/gui/images/refresh.png</normaloff>:/images/src/serial_tool/gui/images/refresh.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1434,8 +1434,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../images/icons.qrc">
-          <normaloff>:/images/icon-delete.png</normaloff>:/images/icon-delete.png</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/images/src/serial_tool/gui/images/icon-delete.png</normaloff>:/images/src/serial_tool/gui/images/icon-delete.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1463,8 +1463,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../images/icons.qrc">
-          <normaloff>:/images/icon-save.png</normaloff>:/images/icon-save.png</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/images/src/serial_tool/gui/images/icon-save.png</normaloff>:/images/src/serial_tool/gui/images/icon-save.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1489,8 +1489,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../images/icons.qrc">
-          <normaloff>:/images/icon-save-raw.png</normaloff>:/images/icon-save-raw.png</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/images/src/serial_tool/gui/images/icon-save-raw.png</normaloff>:/images/src/serial_tool/gui/images/icon-save-raw.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1708,8 +1708,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="../images/icons.qrc">
-          <normaloff>:/images/down-arrow.png</normaloff>:/images/down-arrow.png</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/images/src/serial_tool/gui/images/down-arrow.png</normaloff>:/images/src/serial_tool/gui/images/down-arrow.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1782,8 +1782,8 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>766</width>
-     <height>21</height>
+     <width>847</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -1895,7 +1895,7 @@ p, li { white-space: pre-wrap; }
   </action>
   <action name="PB_helpMenu_docs">
    <property name="icon">
-    <iconset resource="../images/icons.qrc">
+    <iconset>
      <normaloff>:/images/external-link.png</normaloff>:/images/external-link.png</iconset>
    </property>
    <property name="text">
@@ -1976,7 +1976,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>TE_log</tabstop>
  </tabstops>
  <resources>
-  <include location="../images/icons.qrc"/>
+  <include location="icons.qrc"/>
  </resources>
  <connections/>
  <buttongroups>
