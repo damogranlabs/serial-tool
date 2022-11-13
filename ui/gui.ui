@@ -40,8 +40,8 @@
    <string>Serial Tool</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="icons.qrc">
-    <normaloff>:/images/src/serial_tool/gui/images/SerialTool.png</normaloff>:/images/src/serial_tool/gui/images/SerialTool.png</iconset>
+   <iconset resource="../resources/icons.qrc">
+    <normaloff>:/icons/icons/SerialTool.png</normaloff>:/icons/icons/SerialTool.png</iconset>
   </property>
   <property name="iconSize">
    <size>
@@ -161,8 +161,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/images/src/serial_tool/gui/images/settings.png</normaloff>:/images/src/serial_tool/gui/images/settings.png</iconset>
+         <iconset resource="../resources/icons.qrc">
+          <normaloff>:/icons/icons/settings.png</normaloff>:/icons/icons/settings.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -201,8 +201,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/images/src/serial_tool/gui/images/refresh.png</normaloff>:/images/src/serial_tool/gui/images/refresh.png</iconset>
+         <iconset resource="../resources/icons.qrc">
+          <normaloff>:/icons/icons/refresh.png</normaloff>:/icons/icons/refresh.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1434,8 +1434,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/images/src/serial_tool/gui/images/icon-delete.png</normaloff>:/images/src/serial_tool/gui/images/icon-delete.png</iconset>
+         <iconset resource="../resources/icons.qrc">
+          <normaloff>:/icons/icons/icon-delete.png</normaloff>:/icons/icons/icon-delete.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1463,8 +1463,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/images/src/serial_tool/gui/images/icon-save.png</normaloff>:/images/src/serial_tool/gui/images/icon-save.png</iconset>
+         <iconset resource="../resources/icons.qrc">
+          <normaloff>:/icons/icons/icon-save.png</normaloff>:/icons/icons/icon-save.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1489,8 +1489,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/images/src/serial_tool/gui/images/icon-save-raw.png</normaloff>:/images/src/serial_tool/gui/images/icon-save-raw.png</iconset>
+         <iconset resource="../resources/icons.qrc">
+          <normaloff>:/icons/icons/icon-save-raw.png</normaloff>:/icons/icons/icon-save-raw.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1708,8 +1708,8 @@
          <string>...</string>
         </property>
         <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/images/src/serial_tool/gui/images/down-arrow.png</normaloff>:/images/src/serial_tool/gui/images/down-arrow.png</iconset>
+         <iconset resource="../resources/icons.qrc">
+          <normaloff>:/icons/icons/down-arrow.png</normaloff>:/icons/icons/down-arrow.png</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -1976,7 +1976,7 @@ p, li { white-space: pre-wrap; }
   <tabstop>TE_log</tabstop>
  </tabstops>
  <resources>
-  <include location="icons.qrc"/>
+  <include location="../resources/icons.qrc"/>
  </resources>
  <connections/>
  <buttongroups>

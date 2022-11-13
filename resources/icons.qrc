@@ -1,0 +1,13 @@
+<RCC>
+  <qresource prefix="icons">
+    <file>icons/down-arrow.png</file>
+    <file>icons/external-link.png</file>
+    <file>icons/icon-delete.png</file>
+    <file>icons/icon-save.png</file>
+    <file>icons/icon-save-raw.png</file>
+    <file>icons/refresh.png</file>
+    <file>icons/SerialTool.ico</file>
+    <file>icons/SerialTool.png</file>
+    <file>icons/settings.png</file>
+  </qresource>
+</RCC>

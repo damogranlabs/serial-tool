@@ -21,7 +21,7 @@ class Ui_SerialSetupDialog(object):
         sizePolicy.setHeightForWidth(SerialSetupDialog.sizePolicy().hasHeightForWidth())
         SerialSetupDialog.setSizePolicy(sizePolicy)
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/images/src/serial_tool/gui/images/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon.addPixmap(QtGui.QPixmap(":/icons/icons/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         SerialSetupDialog.setWindowIcon(icon)
         self.verticalLayout = QtWidgets.QVBoxLayout(SerialSetupDialog)
         self.verticalLayout.setObjectName("verticalLayout")
