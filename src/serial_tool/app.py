@@ -1203,14 +1203,18 @@ class Gui(QtWidgets.QMainWindow):
 
         return dataString
 
-    def getSaveFileLocation(self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt") -> str:
+    def getSaveFileLocation(
+        self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt"
+    ) -> Optional[str]:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
         See getFileLocation() for parameters.
         """
         return self.getFileLocation(name, True, folderPath, filterExtension)
 
-    def getOpenFileLocation(self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt") -> str:
+    def getOpenFileLocation(
+        self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt"
+    ) -> Optional[str]:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
         See getFileLocation() for parameters.
@@ -1226,12 +1230,15 @@ class Gui(QtWidgets.QMainWindow):
             @param saveType: if True, dialog for selecting save file is created. Otherwise, dialog to open file is created.
             @param folderPath: path to a folder/file where dialog should be open.
                 paths.get_default_log_dir() is used by default.
-            @param filterExtension: file extension filter (can be merged list: "*.txt, "*.json", "*.log")
+            @param filterExtension: file extension filter (can be merged list: '"*.txt, "*.json", "*.log"')
         """
         if folderPath is None:
             folderPath = paths.get_default_log_dir()
         else:
             folderPath = os.path.normpath(folderPath)
+
+        if filterExtension is None:
+            filterExtension = ""
 
         if saveType:
             fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, name, folderPath, filterExtension)
