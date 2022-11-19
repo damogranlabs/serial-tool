@@ -13,7 +13,7 @@ class OutputRepresentation:
 class SequenceData:
     def __init__(self, channelIndex: int = None, delayMS: int = 0, repeat: int = 1):
         """
-        Each item in sequence field list is of this type and holds 
+        Each item in sequence field list is of this type and holds
             @param channelIndex: index of data channel index as described in GUI fields
             @param delayMS: delay after this channel data is sent in milliseconds.
             @param repeat: number of times this channel is sent with given data and delay
@@ -23,7 +23,9 @@ class SequenceData:
         self.repeat: int = repeat
 
     def __str__(self):
-        seqAsString = f"({self.channelIndex}{SEQ_BLOCK_DATA_SEPARATOR}{self.delayMS}{SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
+        seqAsString = (
+            f"({self.channelIndex}{SEQ_BLOCK_DATA_SEPARATOR}{self.delayMS}{SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
+        )
         return seqAsString
 
 
