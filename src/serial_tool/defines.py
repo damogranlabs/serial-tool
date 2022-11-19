@@ -29,6 +29,10 @@ class SequenceData:
         return seqAsString
 
 
+
+LOG_FORMAT = "%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s"
+LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 ###################################################################################################
 # default serial settings
 DEFAULT_BAUDRATE = 115200

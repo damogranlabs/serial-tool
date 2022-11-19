@@ -9,7 +9,6 @@ from PyQt5 import QtCore, QtWidgets
 
 from serial_tool.gui.serialSetupDialog import Ui_SerialSetupDialog
 
-from serial_tool import defines as defs
 from serial_tool import serComm
 
 

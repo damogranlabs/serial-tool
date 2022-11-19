@@ -2,6 +2,7 @@
 This file holds all serial communication utility functions and handlers.
 """
 import asyncio
+import logging
 import time
 import threading
 from typing import List
@@ -10,7 +11,6 @@ from PyQt5 import QtCore
 
 from serial_tool import defines as defs
 from serial_tool import serComm
-from serial_tool import logHandler as log
 
 
 ###################################################################################################
@@ -64,8 +64,7 @@ class SerialDataReceiverThread(QtCore.QObject):
                     errorMsg = f"Exception caught in receive thread readData() function:\n{err}"
                     raise Exception(errorMsg)
         except Exception as err:
-            errorMsg = f"Exception in data receiving thread:\n{err}"
-            log.error(errorMsg)
+            logging.error(f"Exception in data receiving thread:\n{err}")
             raise
 
     def stopReceivingData(self):
@@ -149,8 +148,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
                         time.sleep(delay)
                 break
         except Exception as err:
-            errorMsg = f"Exception while transmitting sequence {self.seqChannel+1}:\n{err}"
-            log.error(errorMsg)
+            logging.error(f"Exception while transmitting sequence {self.seqChannel+1}:\n{err}")
             raise
 
         finally:

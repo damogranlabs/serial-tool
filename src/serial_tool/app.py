@@ -20,10 +20,10 @@ from PyQt5 import QtWidgets
 import serial_tool
 from serial_tool import cfgHandler
 from serial_tool import dataModel
-from serial_tool import logHandler as log
 from serial_tool import serComm
 from serial_tool import communication
 from serial_tool import setupDialog
+from serial_tool import paths
 from serial_tool import defines as defs
 
 # pyuic generated GUI files
@@ -216,7 +216,7 @@ class Gui(QtWidgets.QMainWindow):
         # log fields
         self.clearLogWindow()
 
-        log.info("GUI initialized.")
+        logging.info("GUI initialized.")
 
     def _setMruCfgPaths(self):
         """
@@ -224,7 +224,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.ui.PB_fileMenu_recentlyUsedConfigurations.clear()
 
-        mruCfgFiles = getMostRecentlyUsedConfigurations(defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
+        mruCfgFiles = paths.get_recently_used_cfgs(defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
         for mruCfgFile in mruCfgFiles:
             fileName = os.path.basename(mruCfgFile)
 
@@ -299,8 +299,7 @@ class Gui(QtWidgets.QMainWindow):
                 if seqWorker is not None:
                     seqWorker.sigSequenceStopRequest.emit()
             except Exception as err:
-                errorMsg = f"Unable to stop sequence {seqIndex+1} thread."
-                log.error(errorMsg)
+                logging.error(f"Unable to stop sequence {seqIndex+1} thread.")
 
     def colorizeTextInputField(self, textInputField: QtWidgets.QLineEdit, status) -> None:
         """
@@ -378,7 +377,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             self.ui.TE_log.verticalScrollBar().setValue(currentVerticalScrollBarPos)
 
-        log.debug(f"[LOG_WINDOW]: {msg.strip()}")
+        logging.debug(f"[LOG_WINDOW]: {msg.strip()}")
 
     def writeHtmlToLogWindow(self, msg: str) -> None:
         """
@@ -393,7 +392,7 @@ class Gui(QtWidgets.QMainWindow):
         if self.ui.PB_autoScroll.isChecked():
             self.ui.TE_log.ensureCursorVisible()
 
-        log.debug(f"writeHtmlToLogWindow: {msg}")
+        logging.debug(f"writeHtmlToLogWindow: {msg}")
 
     ################################################################################################
     # Menu bar slots
@@ -412,7 +411,7 @@ class Gui(QtWidgets.QMainWindow):
 
             self.setAplicationWindowName()
         else:
-            log.debug("New configuration request canceled.")
+            logging.debug("New configuration request canceled.")
 
     @QtCore.pyqtSlot()
     def onFileSaveConfiguration(self) -> None:
@@ -420,7 +419,7 @@ class Gui(QtWidgets.QMainWindow):
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
         if self.dataModel.configurationFilePath is None:
-            cfgFilePath = os.path.join(getDefaultLogFolderPath(), defs.DEFAULT_CFG_FILE_NAME)
+            cfgFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_CFG_FILE_NAME)
         else:
             cfgFilePath = self.dataModel.configurationFilePath
 
@@ -429,7 +428,7 @@ class Gui(QtWidgets.QMainWindow):
             self.dataModel.configurationFilePath = filePath
             self.cfgHandler.saveConfiguration(filePath)
 
-            addCurrentCfgToRecentlyUsedCfgs(filePath)
+            paths.add_cfg_to_recently_used_cfgs(filePath)
             self._setMruCfgPaths()
 
             msg = f"Configuration saved: {filePath}"
@@ -437,7 +436,7 @@ class Gui(QtWidgets.QMainWindow):
 
             self.setAplicationWindowName(filePath)
         else:
-            log.debug("Save configuration request canceled.")
+            logging.debug("Save configuration request canceled.")
 
     @QtCore.pyqtSlot()
     def onFileLoadConfiguration(self, filePath: Optional[str] = None) -> None:
@@ -449,7 +448,7 @@ class Gui(QtWidgets.QMainWindow):
 
         if filePath is None:
             if self.dataModel.configurationFilePath is None:
-                cfgFolder = getDefaultLogFolderPath()
+                cfgFolder = paths.get_default_log_dir()
             else:
                 cfgFolder = os.path.dirname(self.dataModel.configurationFilePath)
 
@@ -460,7 +459,7 @@ class Gui(QtWidgets.QMainWindow):
                     self.cfgHandler.loadConfiguration(filePath)
                     refreshMenu = True
                 else:
-                    log.debug("Load configuration request canceled.")
+                    logging.debug("Load configuration request canceled.")
         else:
             filePath = os.path.normpath(filePath)
             self.cfgHandler.loadConfiguration(filePath)
@@ -468,7 +467,7 @@ class Gui(QtWidgets.QMainWindow):
             refreshMenu = True
 
         if refreshMenu:
-            addCurrentCfgToRecentlyUsedCfgs(filePath)
+            paths.add_cfg_to_recently_used_cfgs(filePath)
             self._setMruCfgPaths()
 
             msg = f"Configuration loaded: {filePath}"
@@ -498,22 +497,16 @@ class Gui(QtWidgets.QMainWindow):
         """
         webbrowser.open(defs.LINK_GITHUB_DOCS, new=2)  # new=2 new tab
 
-        log.debug("Online docs opened.")
+        logging.debug("Online docs opened.")
 
     @QtCore.pyqtSlot()
     def onOpenLog(self) -> None:
         """
         Open Serial Tool log file with viewer.
         """
-        defaultLogger = log.getDefaultLogHandler()
-        filePath = defaultLogger.getLogFilePath()
+        path = paths.get_log_file_path()
 
-        if platform.system() == "Darwin":  # macOS
-            subprocess.call(("open", filePath))
-        elif platform.system() == "Windows":  # Windows
-            os.startfile(filePath)
-        else:  # linux variants
-            subprocess.call(("xdg-open", filePath))
+        os.system(path)
 
     ################################################################################################
     # serial settings slots
@@ -536,7 +529,7 @@ class Gui(QtWidgets.QMainWindow):
             msg = f"New serial settings applied: {self.dataModel.serialSettings}"
             self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
         else:
-            log.debug("New serial settings request canceled.")
+            logging.debug("New serial settings request canceled.")
 
     @QtCore.pyqtSlot()
     def onSerialSettingsUpdate(self) -> None:
@@ -566,14 +559,14 @@ class Gui(QtWidgets.QMainWindow):
             else:
                 self.ui.DD_baudrate.setCurrentIndex(chosenBaudrate)
 
-        log.debug("New serial settings applied.")
+        logging.debug("New serial settings applied.")
 
     @QtCore.pyqtSlot()
     def refreshPortsList(self) -> None:
         """
         Refresh list of available serial port list. Will close current port.
         """
-        log.debug("Serial port list refresh request.")
+        logging.debug("Serial port list refresh request.")
 
         self.commHandler.deinitPort()  # TODO: signal or not?
 
@@ -647,7 +640,7 @@ class Gui(QtWidgets.QMainWindow):
             else:
                 self.setSeqSendButtonState(seqFieldIndex, False)
 
-        log.debug("\tEvent: connect")
+        logging.debug("\tEvent: connect")
 
     @QtCore.pyqtSlot()
     def onDisconnectEvent(self) -> None:
@@ -661,7 +654,7 @@ class Gui(QtWidgets.QMainWindow):
         self.setAllDataSendButtonState(False)
         self.setAllSeqSendButtonState(False)
 
-        log.debug("\tEvent: disconnect")
+        logging.debug("\tEvent: disconnect")
 
     @QtCore.pyqtSlot(list)
     def onDataReceiveEvent(self, data: List[int]) -> None:
@@ -687,7 +680,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self._lastRxEventTimestamp = time.time()
 
-        log.debug(f"\tEvent: data received: {dataString}")
+        logging.debug(f"\tEvent: data received: {dataString}")
 
     @QtCore.pyqtSlot(int)
     def onSendSequenceFinishEvent(self, channel: int) -> None:
@@ -699,7 +692,7 @@ class Gui(QtWidgets.QMainWindow):
         self.uiSeqSendButtons[channel].setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: None")
         self._seqThreads[channel] = None
 
-        log.debug(f"\tEvent: sequence {channel + 1} finished")
+        logging.debug(f"\tEvent: sequence {channel + 1} finished")
 
     @QtCore.pyqtSlot(int, int)
     def onSequenceSendEvent(self, seqChannel: int, dataChannel: int) -> None:
@@ -717,7 +710,7 @@ class Gui(QtWidgets.QMainWindow):
 
             self.writeToLogWindow(msg, defs.TX_DATA_LOG_COLOR)
 
-        log.debug(f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
+        logging.debug(f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
 
     @QtCore.pyqtSlot(int)
     def stopSequenceRequestEvent(self, channel: int) -> None:
@@ -727,7 +720,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         self._seqSendWorkers[channel].sigSequenceStopRequest.emit()
 
-        log.debug(f"\tEvent: sequence {channel + 1} stop request")
+        logging.debug(f"\tEvent: sequence {channel + 1} stop request")
 
     @QtCore.pyqtSlot()
     def onQuitApplicationEvent(self) -> None:
@@ -893,7 +886,7 @@ class Gui(QtWidgets.QMainWindow):
         Save (export) content of a current log window to a file.
         Pick destination with default OS pop-up window.
         """
-        defaultLogFilePath = os.path.join(getDefaultLogFolderPath(), defs.DEFAULT_LOG_EXPORT_FILENAME)
+        defaultLogFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_LOG_EXPORT_FILENAME)
         filePath = self.getSaveFileLocation(
             "Save log window content...", defaultLogFilePath, defs.LOG_EXPORT_FILE_EXTENSION_FILTER
         )
@@ -904,7 +897,7 @@ class Gui(QtWidgets.QMainWindow):
 
             self.writeToLogWindow(f"Log window content saved to: {filePath}", defs.LOG_COLOR_GRAY)
         else:
-            log.debug("Save log window content request canceled.")
+            logging.debug("Save log window content request canceled.")
 
     @QtCore.pyqtSlot()
     def saveRxTxDataToFile(self) -> None:
@@ -912,7 +905,7 @@ class Gui(QtWidgets.QMainWindow):
         Save (export) content of all RX/TX data to a file.
         Pick destination with default OS pop-up window.
         """
-        defaultLogFilePath = os.path.join(getDefaultLogFolderPath(), defs.DEFAULT_DATA_EXPORT_FILENAME)
+        defaultLogFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_DATA_EXPORT_FILENAME)
         filePath = self.getSaveFileLocation(
             "Save raw RX/TX data...", defaultLogFilePath, defs.DATA_EXPORT_FILE_EXTENSION_FILTER
         )
@@ -924,7 +917,7 @@ class Gui(QtWidgets.QMainWindow):
             self.dataModel.allRxTxData = []
             self.writeToLogWindow(f"RX/TX data exported: {filePath}", defs.LOG_COLOR_GRAY)
         else:
-            log.debug("RX/TX data export request canceled.")
+            logging.debug("RX/TX data export request canceled.")
 
     @QtCore.pyqtSlot()
     def onRxDisplayModeUpdate(self) -> None:
@@ -1231,11 +1224,12 @@ class Gui(QtWidgets.QMainWindow):
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
             @param name: name of pop-up gui window.
             @param saveType: if True, dialog for selecting save file is created. Otherwise, dialog to open file is created.
-            @param folderPath: path to a folder/file where dialog should be open. getDefaultLogFolderPath() is used by default.
+            @param folderPath: path to a folder/file where dialog should be open.
+                paths.get_default_log_dir() is used by default.
             @param filterExtension: file extension filter (can be merged list: "*.txt, "*.json", "*.log")
         """
         if folderPath is None:
-            folderPath = getDefaultLogFolderPath()
+            folderPath = paths.get_default_log_dir()
         else:
             folderPath = os.path.normpath(folderPath)
 
@@ -1297,162 +1291,41 @@ class Gui(QtWidgets.QMainWindow):
                 self.sigError.emit(errorMsg, defs.LOG_COLOR_ERROR)
             except Exception as err:
                 # at least, log to file if log over signal fails
-                log.error(errorMsg)
+                logging.error(errorMsg)
 
             self.stopAllSeqThreads()
             self.commHandler.deinitPort()
 
         except Exception as err:
-            log.error(f"Error in exception handling function.\n{err}")
+            logging.error(f"Error in exception handling function.\n{err}")
             self.sigClose.emit()
 
 
-###############################################################################################
-# Other
-################################################################################################
-def getDefaultLogFolderPath() -> str:
-    """
-    Return path to a default Serial Tool Appdata folder: %APPDATA%/<SERIAL_TOOL_APPDATA_FOLDER_NAME>
-    """
-    appdataPath = os.environ["APPDATA"]
-    serialToolFolderPath = os.path.join(appdataPath, defs.SERIAL_TOOL_APPDATA_FOLDER_NAME)
+def init_logger() -> None:
+    log_dir = paths.get_default_log_dir()
+    os.makedirs(log_dir, exist_ok=True)
+    file_path = os.path.join(log_dir, defs.SERIAL_TOOL_LOG_FILENAME)
 
-    return serialToolFolderPath
+    fmt = logging.Formatter(defs.LOG_FORMAT, datefmt=defs.LOG_DATETIME_FORMAT)
 
+    logger = logging.getLogger()
+    logger.setLevel(logging.DEBUG)
 
-def getRecentlyUsedCfgFilePath() -> str:
-    """
-    Get path to a RECENTLY_USED_CFG_FILE_NAME which is, by default stored in log folder.
-    """
-    recentlyUsedCfgsFilePath = os.path.join(getDefaultLogFolderPath(), defs.RECENTLY_USED_CFG_FILE_NAME)
+    std_hdlr = logging.StreamHandler()
+    std_hdlr.setLevel(logging.DEBUG)
+    std_hdlr.setFormatter(fmt)
+    logger.addHandler(std_hdlr)
 
-    return recentlyUsedCfgsFilePath
+    file_hdlr = logging.FileHandler(file_path, encoding="utf-8")
+    file_hdlr.setFormatter(fmt)
+    file_hdlr.setLevel(logging.DEBUG)
+    logger.addHandler(file_hdlr)
 
-
-def addCurrentCfgToRecentlyUsedCfgs(cfgFilePath: str):
-    """
-    Add entry (insert at position 0, first line) current configuration file to a list of recently used configurations.
-    """
-    path = os.path.normpath(cfgFilePath)
-    path = os.path.abspath(cfgFilePath)
-
-    recentlyUsedCfgsFilePath = getRecentlyUsedCfgFilePath()
-    if not os.path.exists(recentlyUsedCfgsFilePath):
-        with open(recentlyUsedCfgsFilePath, "w") as fileHandler:
-            fileHandler.write(f"{path}\n")
-    else:
-        try:
-            with open(recentlyUsedCfgsFilePath, "r+") as fileHandler:
-                lines = fileHandler.readlines()
-                fileHandler.seek(0)  # strange \x00 appeared without this
-                fileHandler.truncate(0)
-
-                lines.insert(0, f"{path}\n")
-
-                # remove duplicates
-                relevantPaths = []
-                linesToWrite = []
-                configurationsNumber = 0
-                for line in lines:
-                    line = line.strip()
-                    if line not in relevantPaths:
-                        if os.path.exists(line):
-                            if configurationsNumber < defs.MAX_NUM_OF_RECENTLY_USED_CFGS:
-                                relevantPaths.append(line)
-                                linesToWrite.append(f"{line}\n")
-                                configurationsNumber = configurationsNumber + 1
-
-                fileHandler.writelines(linesToWrite)
-
-        except Exception as err:
-            log.warning(f"Error while writing/parsing recently used cfgs file:\n{err}")
-
-            try:
-                with open(recentlyUsedCfgsFilePath, "w") as fileHandler:
-                    fileHandler.write(f"{path}\n")
-                log.info(f"New recently used cfgs file created: {recentlyUsedCfgsFilePath}")
-            except Exception as err:
-                log.warning(f"Unable to create new recently used cfgs file:\n{err}")
-                log.warning(f"\tNo further attempts.")
+    logging.info(f"Logger initialized: {file_path}")
 
 
-def getMostRecentlyUsedConfiguration() -> Optional[str]:
-    """
-    Get the most recently used configuration.
-    Return None if file does not exist or it is empty.
-    """
-    mruCfgFilePaths = getMostRecentlyUsedConfigurations(1)
-    if mruCfgFilePaths:
-        mruCfgFilePath = mruCfgFilePaths[0].strip("\n").strip()
-        return mruCfgFilePath
-    else:
-        return None
-
-
-def getMostRecentlyUsedConfigurations(number: int) -> List[str]:
-    """
-    Get a list of last 'number' of valid entries of recently used configurations.
-        @param number: number of  max recently used configuration file paths to return.
-    """
-    recentlyUsedCfgsFilePath = getRecentlyUsedCfgFilePath()
-
-    recentlyUsedCfgFilePaths = []
-    try:
-        if os.path.exists(recentlyUsedCfgsFilePath):
-            with open(recentlyUsedCfgsFilePath, "r") as fileHandler:
-                lines = fileHandler.readlines()
-                currentNumber = 0
-                for line in lines:
-                    if currentNumber < number:
-                        line = line.strip()
-                        if os.path.exists(line):
-                            if line not in recentlyUsedCfgFilePaths:
-                                recentlyUsedCfgFilePaths.append(line)
-                                currentNumber = currentNumber + 1
-                    else:
-                        break
-    except Exception as err:
-        log.warning(f"Unable to get most recently used configurations from file: {recentlyUsedCfgsFilePath}\n{err}")
-
-    return recentlyUsedCfgFilePaths
-
-
-def createLogFolder() -> str:
-    """
-    Create <application root folder>/log folder and return absolute path to this folder.
-    On fail, return None.
-    """
-    logFolderPath = getDefaultLogFolderPath()
-    if not os.path.exists(logFolderPath):
-        try:
-            os.mkdir(logFolderPath)
-        except Exception as err:
-            errorMsg = f"Unable to create log folder: {logFolderPath}"
-            errorMsg += f"\nCheck location write permissions."
-            errorMsg += f"\nError:{err}"
-            raise Exception(errorMsg)
-
-    return logFolderPath
-
-
-def initEnvironment() -> None:
-    """
-    Init log folder, log handler and
-    """
-    logFolder = getDefaultLogFolderPath()
-    createLogFolder()
-
-    logger = log.LogHandler()
-    formatter = logging.Formatter("%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s")
-    logger.addConsoleHandler(formatter)
-    logger.addFileHandler(defs.SERIAL_TOOL_LOG_FILENAME, logFolder, formatter)
-
-    log.info("Log initialized.")
-
-
-###################################################################################################
 def main() -> None:
-    initEnvironment()
+    init_logger()
 
     app = QtWidgets.QApplication(sys.argv)
     gui = Gui()
