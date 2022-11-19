@@ -127,7 +127,7 @@ DATA_EXPORT_FILE_EXTENSION_FILTER = "*.log"
 ###################################################################################################
 # default paths and file names
 SERIAL_TOOL_APPDATA_FOLDER_NAME = "SerialTool"
-SERIAL_TOOL_LOG_FILENAME = "SerialToolLog.log"
+SERIAL_TOOL_LOG_FILENAME = "SerialTool.log"
 DEFAULT_CFG_FILE_NAME = "SerialToolCfg.json"
 DEFAULT_LOG_EXPORT_FILENAME = "logWindow.log"
 DEFAULT_DATA_EXPORT_FILENAME = "rxTxData.log"
