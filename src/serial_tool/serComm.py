@@ -1,24 +1,22 @@
 """
 This file holds all serial communication utility functions and handlers.
 """
-from typing import List
-import aioserial
-import glob
-import sys
+from typing import List, Optional
 
+import aioserial
 import serial
-import serial.serialutil as serialUtil
+from serial.tools.list_ports import comports
 
 from serial_tool import defines as defs
 
 
 class SerialCommSettings:
     def __init__(self):
-        self.port: str = None
-        self.baudrate: int = None
-        self.dataSize: serialUtil.SerialBase.BYTESIZES = serial.EIGHTBITS
-        self.stopbits: serialUtil.SerialBase.STOPBITS = serial.STOPBITS_ONE
-        self.parity: serialUtil.SerialBase.PARITIES = serial.PARITY_NONE
+        self.port: Optional[str] = None
+        self.baudrate: Optional[int] = None
+        self.dataSize: int = serial.EIGHTBITS  # serial.SerialBase.BYTESIZES
+        self.stopbits: int = serial.STOPBITS_ONE  # serialUtil.SerialBase.STOPBITS
+        self.parity: str = serial.PARITY_NONE  # serialUtil.SerialBase.PARITIES
         self.swFlowControl: bool = False  # XON/XOFF
         self.hwFlowControl: bool = False  # RTS/CTS
         self.readTimeoutMs: int = defs.SERIAL_READ_TIMEOUT_MS
@@ -84,30 +82,11 @@ class SerialPortHandler:
         self._portHandle = aioserial.AioSerial()
         self.portSettings: SerialCommSettings = SerialCommSettings()
 
-    def getAvailablePorts(self, scanRange: int = 40) -> list:
+    def getAvailablePorts(self) -> List[str]:
         """
-        Get a list of all available 'COMx' or '/dev/ttyX' serial ports.
-            @param scanRange: applicable for windows for COMx, where x is in range from 0 to scanRange
+        Get a list of all available  'COMx' or '/dev/ttyX' serial ports.
         """
-        if sys.platform.startswith("win"):
-            ports = ["COM%s" % (i + 1) for i in range(scanRange)]
-        elif sys.platform.startswith("linux") or sys.platform.startswith("cygwin"):
-            # this excludes your current terminal "/dev/tty"
-            ports = glob.glob("/dev/tty[A-Za-z]*")
-        else:
-            raise EnvironmentError("Unsupported platform")
-
-        # list all available ports
-        availablePorts = []
-        for port in ports:
-            try:
-                s = serial.Serial(port)
-                s.close()
-                availablePorts.append(port)
-            except (OSError, serial.SerialException):
-                pass
-
-        return availablePorts
+        return [port.name for port in comports()]
 
     def initPort(self, serialSettings: SerialCommSettings, raiseException: bool = True) -> bool:
         """
@@ -136,9 +115,9 @@ class SerialPortHandler:
 
         except Exception as err:
             if raiseException:
-                errorMsg = f"Unable to init serial port with following settings: {serialSettings}"
-                errorMsg += f"\nError:\n{err}"
-                raise Exception
+                msg = f"Unable to init serial port with following settings: {serialSettings}"
+                msg += f"\nError:\n{err}"
+                raise RuntimeError(msg)
 
         return False
 
@@ -151,7 +130,7 @@ class SerialPortHandler:
         if not status:
             if raiseException:
                 errorMsg = "Serial port is not open."
-                raise Exception(errorMsg)
+                raise RuntimeError(errorMsg)
 
         return status
 
@@ -165,7 +144,7 @@ class SerialPortHandler:
 
         if raiseException and self._portHandle.is_open:
             errorMsg = "Serial port was not closed."
-            raise Exception(errorMsg)
+            raise RuntimeError(errorMsg)
 
     def isReceivedDataAvailable(self) -> bool:
         """
@@ -212,7 +191,7 @@ class SerialPortHandler:
             else:
                 return numOfBytesWritten
 
-    def writeDataList(self, data: [int], raiseException: bool = True) -> int:
+    def writeDataList(self, data: List[int], raiseException: bool = True) -> int:
         """
         Same as writeData, except 'data' is formatted as a list of integers.
             @param data: list of integers to send (0 - 255).

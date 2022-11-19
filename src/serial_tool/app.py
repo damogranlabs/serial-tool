@@ -5,12 +5,10 @@ import logging
 from functools import partial
 import os
 import sys
-import platform
-import subprocess
 import time
 import traceback
-from typing import List, Optional, Tuple
 import webbrowser
+from typing import List, Optional, Tuple, Union
 
 import serial.serialutil as serialUtil
 from PyQt5 import QtCore
@@ -80,8 +78,10 @@ class Gui(QtWidgets.QMainWindow):
 
         self.uiSeqFields = [self.ui.TI_sequence1, self.ui.TI_sequence2, self.ui.TI_sequence3]
         self.uiSeqSendButtons = [self.ui.PB_sendSequence1, self.ui.PB_sendSequence2, self.ui.PB_sendSequence3]
-        self._seqThreads: List[QtCore.QThread] = [None] * defs.NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
-        self._seqSendWorkers: List[communication.SerialDataSequenceTransmitterThread] = [
+        self._seqThreads: List[Optional[QtCore.QThread]] = [
+            None
+        ] * defs.NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
+        self._seqSendWorkers: List[Optional[communication.SerialDataSequenceTransmitterThread]] = [
             None
         ] * defs.NUM_OF_SEQ_CHANNELS  # actual sequence handlers
 
@@ -101,10 +101,7 @@ class Gui(QtWidgets.QMainWindow):
         # set up exception handler
         sys.excepthook = self._appExceptionHandler
 
-        self.sharedSignals = dataModel.SharedSignalsContainer()
-        self.sharedSignals.sigWrite = self.sigWrite
-        self.sharedSignals.sigWarning = self.sigWarning
-        self.sharedSignals.sigError = self.sigError
+        self.sharedSignals = dataModel.SharedSignalsContainer(self.sigWrite, self.sigWarning, self.sigError)
 
         # prepare data and port handlers
         self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
@@ -112,7 +109,7 @@ class Gui(QtWidgets.QMainWindow):
 
         # RX display data newline internal logic
         # timestamp of a last RX data event
-        self._lastRxEventTimestamp: int = time.time()
+        self._lastRxEventTimestamp: float = time.time()
         # if true, log window is currently displaying RX data (to be used with '\n on RX data')
         self._logDisplayingRxData: bool = False
 
@@ -129,7 +126,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.raise_()
 
-    def connectGuiSignalsToSlots(self):
+    def connectGuiSignalsToSlots(self) -> None:
         # save/load dialog
         self.ui.PB_fileMenu_newConfiguration.triggered.connect(self.onFileCreateNewConfiguration)
         self.ui.PB_fileMenu_saveConfiguration.triggered.connect(self.onFileSaveConfiguration)
@@ -172,7 +169,7 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.CB_rxNewLine.clicked.connect(self.onRxNewLineChange)
         self.ui.SB_rxTimeoutMs.valueChanged.connect(self.onRxNewLineTimeoutChange)
 
-    def connectExecutionSignalsToSlots(self):
+    def connectExecutionSignalsToSlots(self) -> None:
         self.sigWrite.connect(self.writeToLogWindow)
         self.sigWarning.connect(self.writeToLogWindow)
         self.sigError.connect(self.writeToLogWindow)
@@ -183,7 +180,7 @@ class Gui(QtWidgets.QMainWindow):
         self.commHandler.sigConnectionClosed.connect(self.onDisconnectEvent)
         self.commHandler.sigDataReceived.connect(self.onDataReceiveEvent)
 
-    def connectDataUpdateSignalsToSlots(self):
+    def connectDataUpdateSignalsToSlots(self) -> None:
         self.dataModel.sigSerialSettingsUpdate.connect(self.onSerialSettingsUpdate)
         self.dataModel.sigDataFieldUpdate.connect(self.onDataFieldUpdate)
         self.dataModel.sigNoteFieldUpdate.connect(self.onNoteFieldUpdate)
@@ -193,7 +190,7 @@ class Gui(QtWidgets.QMainWindow):
         self.dataModel.sigOutputRepresentationModeUpdate.connect(self.onOutputRepresentationModeUpdate)
         self.dataModel.sigRxNewLineUpdate.connect(self.onRxNewLineUpdate)
 
-    def initGuiState(self):
+    def initGuiState(self) -> None:
         """
         Init GUI once created (check data/sequence fields, ...).
         """
@@ -218,7 +215,7 @@ class Gui(QtWidgets.QMainWindow):
 
         logging.info("GUI initialized.")
 
-    def _setMruCfgPaths(self):
+    def _setMruCfgPaths(self) -> None:
         """
         Set most recently used configurations to "File menu > Recently used configurations" list
         """
@@ -299,7 +296,7 @@ class Gui(QtWidgets.QMainWindow):
                 if seqWorker is not None:
                     seqWorker.sigSequenceStopRequest.emit()
             except Exception as err:
-                logging.error(f"Unable to stop sequence {seqIndex+1} thread.")
+                logging.error(f"Unable to stop sequence {seqIndex+1} thread.\n{err}")
 
     def colorizeTextInputField(self, textInputField: QtWidgets.QLineEdit, status) -> None:
         """
@@ -502,11 +499,11 @@ class Gui(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def onOpenLog(self) -> None:
         """
-        Open Serial Tool log file with viewer.
+        Open Serial Tool log file.
         """
         path = paths.get_log_file_path()
 
-        os.system(path)
+        webbrowser.open(f"file://{path}", new=2)
 
     ################################################################################################
     # serial settings slots
@@ -718,7 +715,9 @@ class Gui(QtWidgets.QMainWindow):
         Display "stop" request sequence action.
             @param channel: sequence button channel.
         """
-        self._seqSendWorkers[channel].sigSequenceStopRequest.emit()
+        worker = self._seqSendWorkers[channel]
+        assert worker is not None
+        worker.sigSequenceStopRequest.emit()
 
         logging.debug(f"\tEvent: sequence {channel + 1} stop request")
 
@@ -863,11 +862,13 @@ class Gui(QtWidgets.QMainWindow):
             self._seqThreads[channel] = thread
             self._seqSendWorkers[channel] = worker
 
-            self._seqThreads[channel].start()
+            thread.start()
         else:
-            self._seqSendWorkers[channel].sigSequenceStopRequest.emit()
-            msg = f"Sequence {channel+1} stop request!"
-            self.writeToLogWindow(msg, defs.LOG_COLOR_WARNING)
+            worker = self._seqSendWorkers[channel]
+            assert worker is not None
+            worker.sigSequenceStopRequest.emit()
+
+            self.writeToLogWindow(f"Sequence {channel+1} stop request!", defs.LOG_COLOR_WARNING)
 
     ################################################################################################
     # log settings slots
@@ -1022,7 +1023,7 @@ class Gui(QtWidgets.QMainWindow):
 
         return False
 
-    def _unparseDataString(self, channel: int) -> Tuple[bool, List[int]]:
+    def _unparseDataString(self, channel: int) -> Tuple[Optional[bool], Union[str, List[int]]]:
         """
         Get string from a data field and return a tuple:
             - on success: True, [<valid data bytes to send>]
@@ -1084,7 +1085,7 @@ class Gui(QtWidgets.QMainWindow):
 
         return None, ""
 
-    def _unparseSequenceDataString(self, channel: int) -> Tuple[bool, List[defs.SequenceData]]:
+    def _unparseSequenceDataString(self, channel: int) -> Tuple[Optional[bool], Union[str, List[defs.SequenceData]]]:
         """
         Get data from a sequence field and and return a tuple:
             - on success: True, [<valid SequenceData objects>]
@@ -1251,7 +1252,10 @@ class Gui(QtWidgets.QMainWindow):
             return None
 
     def confirmActionDialog(
-        self, name: str, question: str, icon: QtWidgets.QMessageBox.Icon = QtWidgets.QMessageBox.Icon.Question
+        self,
+        name: str,
+        question: str,
+        icon_type: Optional[QtWidgets.QMessageBox.Icon] = QtWidgets.QMessageBox.Icon.Warning,
     ) -> bool:
         """
         Pop-up system dialog with OK|Cancel options.
@@ -1259,9 +1263,12 @@ class Gui(QtWidgets.QMainWindow):
         """
         dialog = QtWidgets.QMessageBox()
 
-        icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("gui/images/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        dialog.setWindowIcon(icon)
+        window_icon = QtGui.QIcon()
+        window_icon.addPixmap(QtGui.QPixmap(":/icons/icons/SerialTool.png"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        dialog.setWindowIcon(window_icon)
+
+        if icon_type is not None:
+            dialog.setIcon(icon_type)
 
         dialog.setStandardButtons(QtWidgets.QMessageBox.Ok | QtWidgets.QMessageBox.Cancel)
         dialog.setDefaultButton(QtWidgets.QMessageBox.Ok)
@@ -1271,10 +1278,8 @@ class Gui(QtWidgets.QMainWindow):
         dialog.setWindowTitle(name)
 
         retval = dialog.exec_()
-        if retval == QtWidgets.QMessageBox.Ok:
-            return True
-        else:
-            return False
+
+        return retval == QtWidgets.QMessageBox.Ok
 
     def _appExceptionHandler(self, excType, excValue, tracebackObj) -> None:
         """

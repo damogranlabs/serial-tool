@@ -2,7 +2,7 @@
 This file holds data model for MVC (Viewer/Controller Model) based application.
 https://www.wildcardconsulting.dk/rdkit-gui-browser-with-mvc-using-pyside/
 """
-from typing import List
+from typing import List, Optional
 from PyQt5 import QtCore
 
 from serial_tool import defines as defs
@@ -10,10 +10,12 @@ from serial_tool import serComm
 
 
 class SharedSignalsContainer:
-    def __init__(self):
-        self.sigWrite = None
-        self.sigWarning = None
-        self.sigError = None
+    def __init__(
+        self, sigWrite: QtCore.pyqtBoundSignal, sigWarning: QtCore.pyqtBoundSignal, sigError: QtCore.pyqtBoundSignal
+    ) -> None:
+        self.sigWrite = sigWrite
+        self.sigWarning = sigWarning
+        self.sigError = sigError
 
 
 class SerialToolSettings(QtCore.QObject):
@@ -27,7 +29,7 @@ class SerialToolSettings(QtCore.QObject):
     sigRxNewLineUpdate = QtCore.pyqtSignal()
     sigRxNewLineTimeoutUpdate = QtCore.pyqtSignal()
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Main shared data object.
         """
@@ -35,15 +37,17 @@ class SerialToolSettings(QtCore.QObject):
 
         self.serialSettings: serComm.SerialCommSettings = serComm.SerialCommSettings()
 
-        self.configurationFilePath: str = None
+        self.configurationFilePath: Optional[str] = None
 
         self.dataFields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
-        self.parsedDataFields: List[int] = [
+        self.parsedDataFields: List[Optional[int]] = [
             None
         ] * defs.NUM_OF_DATA_CHANNELS  # list of integers (bytes), as they are send over serial port
         self.noteFields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
         self.seqFields: List[str] = [""] * defs.NUM_OF_SEQ_CHANNELS
-        self.parsedSeqFields: List[SequenceData] = [None] * defs.NUM_OF_SEQ_CHANNELS  # list of parsed sequence blocks
+        self.parsedSeqFields: List[Optional[defs.SequenceData]] = [
+            None
+        ] * defs.NUM_OF_SEQ_CHANNELS  # list of parsed sequence blocks
 
         self.allRxTxData = []
 
@@ -53,7 +57,7 @@ class SerialToolSettings(QtCore.QObject):
         self.rxNewLine: bool = False
         self.rxNewLineTimeout: int = defs.DEFAULT_RX_NEWLINE_TIMEOUT_MS
 
-    def setSerialSettings(self, serialSettings: serComm.SerialCommSettings):
+    def setSerialSettings(self, serialSettings: serComm.SerialCommSettings) -> None:
         """
         Update serial settings and emit a signal at the end.
             @param serialSettings: new serial settings
@@ -61,7 +65,7 @@ class SerialToolSettings(QtCore.QObject):
         self.serialSettings = serialSettings
         self.sigSerialSettingsUpdate.emit()
 
-    def setDataField(self, channel: int, data: str):
+    def setDataField(self, channel: int, data: str) -> None:
         """
         Update data field and emit a signal at the end.
             @param channel: data channel index
@@ -70,7 +74,7 @@ class SerialToolSettings(QtCore.QObject):
         self.dataFields[channel] = data
         self.sigDataFieldUpdate.emit(channel)
 
-    def setNoteField(self, channel: int, data: str):
+    def setNoteField(self, channel: int, data: str) -> None:
         """
         Update note field and emit a signal at the end.
             @param channel: note channel index
@@ -79,7 +83,7 @@ class SerialToolSettings(QtCore.QObject):
         self.noteFields[channel] = data
         self.sigNoteFieldUpdate.emit(channel)
 
-    def setSeqField(self, channel: int, data: str):
+    def setSeqField(self, channel: int, data: str) -> None:
         """
         Update sequence field and emit a signal at the end.
             @param channel: sequence channel index
@@ -88,7 +92,7 @@ class SerialToolSettings(QtCore.QObject):
         self.seqFields[channel] = data
         self.sigSeqFieldUpdate.emit(channel)
 
-    def setRxDisplayMode(self, isEnabled: bool):
+    def setRxDisplayMode(self, isEnabled: bool) -> None:
         """
         Update RX log visibility field and emit a signal at the end.
             @param isEnabled: if True, RX data is displayed in log.
@@ -96,7 +100,7 @@ class SerialToolSettings(QtCore.QObject):
         self.displayReceivedData = isEnabled
         self.sigRxDisplayModeUpdate.emit()
 
-    def setTxDisplayMode(self, isEnabled: bool):
+    def setTxDisplayMode(self, isEnabled: bool) -> None:
         """
         Update TX log visibility field and emit a signal at the end.
             @param isEnabled: if True, TX data is displayed in log.
@@ -104,7 +108,7 @@ class SerialToolSettings(QtCore.QObject):
         self.displayTransmittedData = isEnabled
         self.sigTxDisplayModeUpdate.emit()
 
-    def setOutputRepresentationMode(self, outputRepresentation: int):
+    def setOutputRepresentationMode(self, outputRepresentation: int) -> None:
         """
         Update output representation field and emit a signal at the end.
             @param outputRepresentation: new output data representation mode.
@@ -112,7 +116,7 @@ class SerialToolSettings(QtCore.QObject):
         self.outputDataRepresentation = outputRepresentation
         self.sigOutputRepresentationModeUpdate.emit()
 
-    def setRxNewlineMode(self, isEnabled: bool):
+    def setRxNewlineMode(self, isEnabled: bool) -> None:
         """
         Update RX new line field and emit a signal at the end.
             @param isEnabled: if True, new line is appended to RX data once received.
@@ -120,30 +124,10 @@ class SerialToolSettings(QtCore.QObject):
         self.rxNewLine = isEnabled
         self.sigRxNewLineUpdate.emit()
 
-    def setRxNewlineTimeout(self, timeoutMs: int):
+    def setRxNewlineTimeout(self, timeoutMs: int) -> None:
         """
         Update RX new line timeout field and emit a signal at the end.
             @param timeoutMs: timeout after \n is appended to next RX data (if enabled).
         """
         self.rxNewLineTimeout = timeoutMs
         self.sigRxNewLineTimeoutUpdate.emit()
-
-
-def _dataFieldIndexInRange(dataFieldIndex: int) -> bool:
-    """
-    Return True, if dataFieldIndex is in range: 0 - NUM_OF_DATA_CHANNELS, False otherwise.
-    """
-    if 0 >= dataFieldIndex < defs.NUM_OF_DATA_CHANNELS:
-        return True
-    else:
-        return False
-
-
-def _seqFieldIndexInRange(seqFieldIndex: int) -> bool:
-    """
-    Return True, if seqFieldIndex is in range: 0 - NUM_OF_SEQ_CHANNELS, False otherwise.
-    """
-    if 0 >= seqFieldIndex < defs.NUM_OF_SEQ_CHANNELS:
-        return True
-    else:
-        return False

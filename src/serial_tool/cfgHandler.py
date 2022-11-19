@@ -73,9 +73,9 @@ class ConfigurationHandler:
             wData = json.load(fileHandler)
 
         if (defs.CFG_TAG_FILE_VERSION not in wData) or (wData[defs.CFG_TAG_FILE_VERSION] != _CFG_VERSION):
-            errorMsg = "Configuration file syntax has changed - unable to set configuration."
-            errorMsg += f"\nCurrent version: {_CFG_VERSION}, config file version: {wData[defs.CFG_TAG_FILE_VERSION]}"
-            raise Exception(errorMsg)
+            msg = "Configuration file syntax has changed - unable to set configuration."
+            msg += f"\nCurrent version: {_CFG_VERSION}, config file version: {wData[defs.CFG_TAG_FILE_VERSION]}"
+            raise Exception(msg)
 
         try:
             serialSettings = serComm.SerialCommSettings()
@@ -89,9 +89,9 @@ class ConfigurationHandler:
             serialSettings.readTimeoutMs = wData[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_READTIMEOUTMS]
             serialSettings.writeTimeoutMs = wData[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS]
             self.dataModel.setSerialSettings(serialSettings)
-        except Exception as err:
-            errorMsg = f"Unable to set serial settings from a configuration file: {err}"
-            self.signals.sigWarning.emit(errorMsg, defs.LOG_COLOR_WARNING)
+        except KeyError as err:
+            msg = f"Unable to set serial settings from a configuration file: {err}"
+            self.signals.sigWarning.emit(msg, defs.LOG_COLOR_WARNING)
 
         try:
             for channel, data in wData[defs.CFG_TAG_DATA_FIELDS].items():
@@ -102,9 +102,9 @@ class ConfigurationHandler:
 
             for channel, data in wData[defs.CFG_TAG_SEQ_FIELDS].items():
                 self.dataModel.setSeqField(int(channel), data)
-        except Exception as err:
-            errorMsg = f"Unable to set data/note/sequence settings from a configuration file: {err}"
-            self.signals.sigWarning.emit(errorMsg, defs.LOG_COLOR_WARNING)
+        except KeyError as err:
+            msg = f"Unable to set data/note/sequence settings from a configuration file: {err}"
+            self.signals.sigWarning.emit(msg, defs.LOG_COLOR_WARNING)
 
         try:
             self.dataModel.setRxDisplayMode(wData[defs.CFG_TAG_RXLOG])
@@ -112,9 +112,9 @@ class ConfigurationHandler:
             self.dataModel.setOutputRepresentationMode(wData[defs.CFG_TAG_OUTPUT_REPRESENTATION])
             self.dataModel.setRxNewlineMode(wData[defs.CFG_TAG_RX_NEW_LINE])
             self.dataModel.setRxNewlineTimeout(wData[defs.CFG_TAG_RX_NEW_LINE_TIMEOUT])
-        except Exception as err:
-            errorMsg = f"Unable to set log settings from a configuration file: {err}"
-            self.signals.sigWarning.emit(errorMsg, defs.LOG_COLOR_WARNING)
+        except KeyError as err:
+            msg = f"Unable to set log settings from a configuration file: {err}"
+            self.signals.sigWarning.emit(msg, defs.LOG_COLOR_WARNING)
 
     def createDefaultConfiguration(self):
         """
