@@ -16,13 +16,15 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 import serial_tool
+from serial_tool import defines as defs
+from serial_tool import models
 from serial_tool import cfgHandler
 from serial_tool import dataModel
 from serial_tool import serComm
 from serial_tool import communication
 from serial_tool import setupDialog
 from serial_tool import paths
-from serial_tool import defines as defs
+from serial_tool import validators
 
 # pyuic generated GUI files
 from serial_tool.gui.gui import Ui_root
@@ -44,7 +46,7 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         # create lists of all similar items
-        self.uiDataFields = [
+        self.uiDataFields: Tuple[QtWidgets.QLineEdit, ...] = (
             self.ui.TI_data1,
             self.ui.TI_data2,
             self.ui.TI_data3,
@@ -53,8 +55,8 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.TI_data6,
             self.ui.TI_data7,
             self.ui.TI_data8,
-        ]
-        self.uiDataSendButtons = [
+        )
+        self.uiDataSendButtons: Tuple[QtWidgets.QPushButton, ...] = (
             self.ui.PB_send1,
             self.ui.PB_send2,
             self.ui.PB_send3,
@@ -63,9 +65,9 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_send6,
             self.ui.PB_send7,
             self.ui.PB_send8,
-        ]
+        )
 
-        self.uiNoteFields = [
+        self.uiNoteFields: Tuple[QtWidgets.QLineEdit, ...] = (
             self.ui.TI_note1,
             self.ui.TI_note2,
             self.ui.TI_note3,
@@ -74,10 +76,18 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.TI_note6,
             self.ui.TI_note7,
             self.ui.TI_note8,
-        ]
+        )
 
-        self.uiSeqFields = [self.ui.TI_sequence1, self.ui.TI_sequence2, self.ui.TI_sequence3]
-        self.uiSeqSendButtons = [self.ui.PB_sendSequence1, self.ui.PB_sendSequence2, self.ui.PB_sendSequence3]
+        self.uiSeqFields: Tuple[QtWidgets.QLineEdit, ...] = (
+            self.ui.TI_sequence1,
+            self.ui.TI_sequence2,
+            self.ui.TI_sequence3,
+        )
+        self.uiSeqSendButtons: Tuple[QtWidgets.QPushButton, ...] = (
+            self.ui.PB_sendSequence1,
+            self.ui.PB_sendSequence2,
+            self.ui.PB_sendSequence3,
+        )
         self._seqThreads: List[Optional[QtCore.QThread]] = [
             None
         ] * defs.NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
@@ -104,14 +114,14 @@ class Gui(QtWidgets.QMainWindow):
         self.sharedSignals = dataModel.SharedSignalsContainer(self.sigWrite, self.sigWarning, self.sigError)
 
         # prepare data and port handlers
-        self.dataModel: dataModel.SerialToolSettings = dataModel.SerialToolSettings()
-        self.commHandler: communication.SerialToolPortHandler = communication.SerialToolPortHandler()
+        self.dataModel = dataModel.SerialToolSettings()
+        self.commHandler = communication.SerialToolPortHandler()
 
         # RX display data newline internal logic
         # timestamp of a last RX data event
-        self._lastRxEventTimestamp: float = time.time()
+        self._lastRxEventTimestamp = time.time()
         # if true, log window is currently displaying RX data (to be used with '\n on RX data')
-        self._logDisplayingRxData: bool = False
+        self._logDisplayingRxData = False
 
         self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(
             self.dataModel, self.sharedSignals
@@ -143,21 +153,21 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.PB_commPortCtrl.clicked.connect(self.onPortHandlerButton)
 
         # data note data send and button fields
-        for index, dataField in enumerate(self.uiDataFields):
-            dataField.textChanged.connect(partial(self.onDataFieldChange, index))
+        for idx, data_field in enumerate(self.uiDataFields):
+            data_field.textChanged.connect(partial(self.onDataFieldChange, idx))
 
-        for index, dataSendButton in enumerate(self.uiDataSendButtons):
-            dataSendButton.clicked.connect(partial(self.onSendDataButton, index))
+        for idx, data_send_pb in enumerate(self.uiDataSendButtons):
+            data_send_pb.clicked.connect(partial(self.onSendDataButton, idx))
 
-        for index, noteField in enumerate(self.uiNoteFields):
-            noteField.textChanged.connect(partial(self.onNoteFieldChange, index))
+        for idx, note_field in enumerate(self.uiNoteFields):
+            note_field.textChanged.connect(partial(self.onNoteFieldChange, idx))
 
         # sequence fields
-        for index, seqField in enumerate(self.uiSeqFields):
-            seqField.textChanged.connect(partial(self.onSeqFieldChange, index))
+        for idx, seq_field in enumerate(self.uiSeqFields):
+            seq_field.textChanged.connect(partial(self.onSeqFieldChange, idx))
 
-        for index, seqSendButton in enumerate(self.uiSeqSendButtons):
-            seqSendButton.clicked.connect(partial(self.onSendStopSequenceButton, index))
+        for idx, seq_send_pb in enumerate(self.uiSeqSendButtons):
+            seq_send_pb.clicked.connect(partial(self.onSendStopSequenceButton, idx))
 
         # log
         self.ui.PB_clearLog.clicked.connect(self.clearLogWindow)
@@ -298,21 +308,10 @@ class Gui(QtWidgets.QMainWindow):
             except Exception as err:
                 logging.error(f"Unable to stop sequence {seqIndex+1} thread.\n{err}")
 
-    def colorizeTextInputField(self, textInputField: QtWidgets.QLineEdit, status) -> None:
-        """
-        Colorize given text input field with pre-defined scheme (see status parameter).
-            @param channel: data channel selector: 0 - 7
-            @param status: new field color:
-                - if status == False: RED
-                - if status == True: GREEN
-                - if status == None: TRANSPARENT
-        """
-        if status is None:
-            textInputField.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.INPUT_NONE_COLOR}")
-        elif status:
-            textInputField.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.INPUT_VALID_COLOR}")
-        else:
-            textInputField.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.INPUT_ERROR_COLOR}")
+    def colorize_text_field(self, field: QtWidgets.QLineEdit, status: models.TextFieldStatus) -> None:
+        """Colorize given text input field with pre-defined scheme (see status parameter)."""
+        color = models.TextFieldStatus.get_font_color(status)
+        field.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {color}")
 
     def setConnectionButtonState(self, state: bool) -> None:
         """
@@ -618,18 +617,18 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.DD_commPortSelector.setEnabled(False)
         self.ui.DD_baudrate.setEnabled(False)
 
-        for dataFieldIndex, dataField in enumerate(self.uiDataFields):
-            status, _ = self._unparseDataString(dataFieldIndex)
-            if status:
-                self.setDataSendButtonState(dataFieldIndex, True)
+        for idx, _ in enumerate(self.uiDataFields):
+            result = self._parse_data_field(idx)
+            if result.status == models.TextFieldStatus.OK:
+                self.setDataSendButtonState(idx, True)
             else:
-                self.setDataSendButtonState(dataFieldIndex, False)
+                self.setDataSendButtonState(idx, False)
 
-        for seqFieldIndex, seqField in enumerate(self.uiSeqFields):
-            status, seqData = self._unparseSequenceDataString(seqFieldIndex)
-            if status:
-                for block in seqData:
-                    if self.dataModel.parsedDataFields[block.channelIndex] is None:
+        for seqFieldIndex, _ in enumerate(self.uiSeqFields):
+            result = self._parse_seq_data_field(seqFieldIndex)
+            if result.status:
+                for block in result.data:
+                    if self.dataModel.parsedDataFields[block.channel_idx] is None:
                         self.setSeqSendButtonState(seqFieldIndex, False)
                         break
                 else:
@@ -767,11 +766,12 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.dataModel.dataFields[channel] = self.uiDataFields[channel].text()
 
-        status, data = self._unparseDataString(channel)
-        self.colorizeTextInputField(self.uiDataFields[channel], status)
+        result = self._parse_data_field(channel)
+        self.colorize_text_field(self.uiDataFields[channel], result.status)
 
-        if status:
-            self.dataModel.parsedDataFields[channel] = data
+        if result.status == models.TextFieldStatus.OK:
+            assert result.data is not None
+            self.dataModel.parsedDataFields[channel] = result.data
             if self.commHandler.isConnected():
                 self.setDataSendButtonState(channel, True)
             else:
@@ -803,14 +803,14 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.dataModel.seqFields[channel] = self.uiSeqFields[channel].text()
 
-        status, data = self._unparseSequenceDataString(channel)
-        self.colorizeTextInputField(self.uiSeqFields[channel], status)
+        result = self._parse_seq_data_field(channel)
+        self.colorize_text_field(self.uiSeqFields[channel], result.status)
 
-        if status:
-            self.dataModel.parsedSeqFields[channel] = data
+        if result.status == models.TextFieldStatus.OK:
+            self.dataModel.parsedSeqFields[channel] = result.data
             # check if seq button can be enabled (seq field is properly formatted. Are all data fields properly formatted?
-            for block in data:
-                if self.dataModel.parsedDataFields[block.channelIndex] is None:
+            for block in result.data:
+                if self.dataModel.parsedDataFields[block.channel_idx] is None:
                     self.setSeqSendButtonState(channel, False)
                     break
             else:
@@ -1005,138 +1005,20 @@ class Gui(QtWidgets.QMainWindow):
     ################################################################################################
     # utility functions
     ################################################################################################
+    def _parse_data_field(self, channel: int) -> models.ChannelTextFieldParserResult:
+        """Get string from a data field and return parsed data"""
+        assert 0 <= channel < defs.NUM_OF_DATA_CHANNELS
 
-    def _checkIfDataNumberInRange(self, number: int) -> bool:
-        """
-        Return True if number is in range:
-            - if number is signed char (as int8_t): -128 <= number <= +127
-            - if number is unsigned char (as uint8_t): 0 <= number <= 255
-        False otherwise.
-            @param number: number to check.
-        """
-        if number < 0:  # signed integer
-            if number >= -128:
-                return True
-        else:  # unsigned integer
-            if number <= 255:
-                return True
+        text = self.uiDataFields[channel].text()
+        return validators.parse_channel_data(text)
 
-        return False
-
-    def _unparseDataString(self, channel: int) -> Tuple[Optional[bool], Union[str, List[int]]]:
-        """
-        Get string from a data field and return a tuple:
-            - on success: True, [<valid data bytes to send>]
-            - on empty string: None, ''
-            - on error: False, <current string>
-
-            @param ch: sequence channel selector: 0 - 7
-        """
-        dataField = self.uiDataFields[channel]
-        currentText = dataField.text()
-        if currentText != "":
-            try:
-                dataList = []
-
-                currentText = currentText.strip()
-                dataParts = currentText.strip(defs.DATA_BYTES_SEPARATOR)
-                dataParts = dataParts.split(defs.DATA_BYTES_SEPARATOR)
-                for dataPart in dataParts:
-                    dataPart = dataPart.strip()
-
-                    # handle HEX numbers (can be one or more bytes)
-                    if dataPart.lower().startswith("0x"):
-                        dataPart = dataPart.lower()[2:]
-                        if len(dataPart) % 2:
-                            dataPart = "0" + dataPart
-                        hexNumbers = list(bytearray.fromhex(dataPart))
-                        dataList.extend(hexNumbers)
-                        continue
-
-                    # character (enclosed in "<one or more characters>")
-                    if dataPart.startswith('"') and dataPart.endswith('"'):
-                        dataPart = dataPart.strip('"')
-                        for char in dataPart:
-                            charAsInt = ord(char)
-                            if self._checkIfDataNumberInRange(charAsInt):
-                                dataList.append(charAsInt)
-                        continue
-
-                    # number
-                    if dataPart.isdigit() or dataPart.startswith("-"):
-                        dataAsInt = int(dataPart)
-                        if self._checkIfDataNumberInRange(dataAsInt):
-                            # if negative number, create two's complement
-                            if dataAsInt < 0:
-                                intAsByte = dataAsInt.to_bytes(1, byteorder=sys.byteorder, signed=True)
-                                dataAsUnsignedInt = int.from_bytes(intAsByte, byteorder=sys.byteorder, signed=False)
-                            else:
-                                dataAsUnsignedInt = dataAsInt
-                            dataList.append(dataAsUnsignedInt)
-                            continue
-
-                    raise Exception("Invalid data format!")
-                else:
-                    return True, dataList
-
-            except Exception as err:
-                # something is wrong in a given data string
-                return False, currentText
-
-        return None, ""
-
-    def _unparseSequenceDataString(self, channel: int) -> Tuple[Optional[bool], Union[str, List[defs.SequenceData]]]:
-        """
-        Get data from a sequence field and and return a tuple:
-            - on success: True, [<valid SequenceData objects>]
-            - on empty string: None, ''
-            - on error: False, <current string>
-
-            @param channel: sequence channel selector: 0 - 2
-        """
+    def _parse_seq_data_field(self, channel: int) -> models.SequenceTextFieldParserResult:
+        """Get data from a sequence field and return parsed data"""
+        assert 0 <= channel < defs.NUM_OF_SEQ_CHANNELS
         seq = self.uiSeqFields[channel]
-        currentText = seq.text()
-        if currentText != "":
-            try:
-                parsedBlocksData = []
+        text = seq.text()
 
-                currentText = currentText.strip()
-                blocks = currentText.strip(defs.SEQ_BLOCK_SEPARATOR)
-                blocks = blocks.split(defs.SEQ_BLOCK_SEPARATOR)
-                for block in blocks:
-                    block = block.strip()
-                    if block.startswith(defs.SEQ_BLOCK_START_CHARACTER) and block.endswith(
-                        defs.SEQ_BLOCK_END_CHARACTER
-                    ):
-                        block = block.strip(defs.SEQ_BLOCK_START_CHARACTER)
-                        block = block.strip(defs.SEQ_BLOCK_END_CHARACTER)
-                        blockData = block.split(defs.SEQ_BLOCK_DATA_SEPARATOR)
-                        # repeat number is not mandatory
-                        if len(blockData) in [2, 3]:
-                            dataChannelIndex = int(blockData[0].strip())
-                            # user must enter a number as seen in GUI, starts with 1
-                            if 1 <= dataChannelIndex <= defs.NUM_OF_DATA_CHANNELS:
-                                dataChannelIndex = dataChannelIndex - 1
-                                channelDelay = int(blockData[1].strip())
-                                if 0 <= channelDelay:
-                                    thisBlockData = defs.SequenceData(dataChannelIndex, channelDelay)
-                                    if len(blockData) == 3:  # repeat is specified
-                                        repeatNumber = int(blockData[2].strip())
-                                        if repeatNumber >= 1:
-                                            thisBlockData.repeat = repeatNumber
-                                        else:
-                                            raise Exception("Invalid 'repeat' sequence block number, (negative or 0).")
-                                    parsedBlocksData.append(thisBlockData)
-                                    continue
-                    raise Exception("Invalid sequence format!")
-                else:
-                    return True, parsedBlocksData
-
-            except Exception as err:
-                # something is wrong in a given sequence string
-                return False, currentText
-
-        return None, ""
+        return validators.parse_seq_data(text)
 
     def listOfIntsToString(self, data: List[int]) -> str:
         """

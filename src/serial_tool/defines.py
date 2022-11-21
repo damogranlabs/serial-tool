@@ -1,6 +1,9 @@
 """
 This file holds definitions of default serial tool settings, strings and internal data values.
 """
+import enum
+
+from typing import Dict
 
 
 class OutputRepresentation:
@@ -10,24 +13,26 @@ class OutputRepresentation:
     ASCII_LIST = 3
 
 
-class SequenceData:
-    def __init__(self, channelIndex: int = None, delayMS: int = 0, repeat: int = 1):
+class SequenceInfo:
+    def __init__(self, channel_idx: int, delay_msec: int = 0, repeat: int = 1):
         """
         Each item in sequence field list is of this type and holds
             @param channelIndex: index of data channel index as described in GUI fields
             @param delayMS: delay after this channel data is sent in milliseconds.
             @param repeat: number of times this channel is sent with given data and delay
         """
-        self.channelIndex: int = channelIndex
-        self.delayMS: int = delayMS
+        self.channel_idx: int = channel_idx
+        self.delay_msec: int = delay_msec
         self.repeat: int = repeat
 
     def __str__(self):
-        seqAsString = (
-            f"({self.channelIndex}{SEQ_BLOCK_DATA_SEPARATOR}{self.delayMS}{SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
-        )
-        return seqAsString
+        return f"({self.channel_idx}{SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
 
+
+class SequencesData:
+    def __init__(self) -> None:
+        self.status = False
+        self.channels: Dict[int, SequenceInfo] = {}  # {idx: <Sequence info>}
 
 
 LOG_FORMAT = "%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s"
@@ -94,8 +99,8 @@ DATA_BYTES_SEPARATOR = ";"
 
 SEQ_BLOCK_SEPARATOR = ";"
 SEQ_BLOCK_DATA_SEPARATOR = ","
-SEQ_BLOCK_START_CHARACTER = "("
-SEQ_BLOCK_END_CHARACTER = ")"
+SEQ_BLOCK_START_CHAR = "("
+SEQ_BLOCK_END_CHAR = ")"
 
 
 ###################################################################################################

@@ -45,7 +45,7 @@ class SerialToolSettings(QtCore.QObject):
         ] * defs.NUM_OF_DATA_CHANNELS  # list of integers (bytes), as they are send over serial port
         self.noteFields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
         self.seqFields: List[str] = [""] * defs.NUM_OF_SEQ_CHANNELS
-        self.parsedSeqFields: List[Optional[defs.SequenceData]] = [
+        self.parsedSeqFields: List[Optional[defs.SequenceInfo]] = [
             None
         ] * defs.NUM_OF_SEQ_CHANNELS  # list of parsed sequence blocks
 

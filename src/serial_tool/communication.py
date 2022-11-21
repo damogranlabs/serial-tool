@@ -96,7 +96,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
         portHandler: serComm.SerialPortHandler,
         seqChannel: int,
         parsedDataFields: List[int],
-        parsedSeqBlocks: List[defs.SequenceData],
+        parsedSeqBlocks: List[defs.SequenceInfo],
     ):
         """
         This class initialize thread that sends sequence (block of data and delay) over given serial port.
@@ -110,7 +110,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
         self._portHandler: serComm.SerialPortHandler = portHandler
         self.seqChannel: int = seqChannel
         self.parsedDataFields: List[int] = parsedDataFields
-        self.parsedSeqBlocks: List[defs.SequenceData] = parsedSeqBlocks
+        self.parsedSeqBlocks: List[defs.SequenceInfo] = parsedSeqBlocks
 
         self._stopSequenceRequest = False
 
