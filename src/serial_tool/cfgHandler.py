@@ -5,7 +5,7 @@ import json
 
 from serial_tool import defines as defs
 from serial_tool import dataModel
-from serial_tool import serComm
+from serial_tool import serial_hdlr
 
 _CFG_VERSION = 2.0  # configuration file version (not main software version)
 
@@ -78,7 +78,7 @@ class ConfigurationHandler:
             raise Exception(msg)
 
         try:
-            serialSettings = serComm.SerialCommSettings()
+            serialSettings = serial_hdlr.SerialCommSettings()
             serialSettings.port = wData[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_PORT]
             serialSettings.baudrate = wData[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_BAUDRATE]
             serialSettings.dataSize = wData[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_DATASIZE]
@@ -121,7 +121,7 @@ class ConfigurationHandler:
         Set instance of data model with default values.
         Will emit signals to update GUI.
         """
-        self.dataModel.setSerialSettings(serComm.SerialCommSettings())
+        self.dataModel.setSerialSettings(serial_hdlr.SerialCommSettings())
         for channel in range(defs.NUM_OF_DATA_CHANNELS):
             self.dataModel.setDataField(channel, "")
             self.dataModel.setNoteField(channel, "")

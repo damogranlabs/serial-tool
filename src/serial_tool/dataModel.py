@@ -6,7 +6,7 @@ from typing import List, Optional
 from PyQt5 import QtCore
 
 from serial_tool import defines as defs
-from serial_tool import serComm
+from serial_tool import serial_hdlr
 
 
 class SharedSignalsContainer:
@@ -35,7 +35,7 @@ class SerialToolSettings(QtCore.QObject):
         """
         super().__init__()
 
-        self.serialSettings: serComm.SerialCommSettings = serComm.SerialCommSettings()
+        self.serialSettings: serial_hdlr.SerialCommSettings = serial_hdlr.SerialCommSettings()
 
         self.configurationFilePath: Optional[str] = None
 
@@ -57,7 +57,7 @@ class SerialToolSettings(QtCore.QObject):
         self.rxNewLine: bool = False
         self.rxNewLineTimeout: int = defs.DEFAULT_RX_NEWLINE_TIMEOUT_MS
 
-    def setSerialSettings(self, serialSettings: serComm.SerialCommSettings) -> None:
+    def setSerialSettings(self, serialSettings: serial_hdlr.SerialCommSettings) -> None:
         """
         Update serial settings and emit a signal at the end.
             @param serialSettings: new serial settings

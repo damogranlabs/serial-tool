@@ -9,11 +9,11 @@ from PyQt5 import QtCore, QtWidgets
 
 from serial_tool.gui.serialSetupDialog import Ui_SerialSetupDialog
 
-from serial_tool import serComm
+from serial_tool import serial_hdlr
 
 
 class SerialSetupDialog(QtWidgets.QDialog):
-    def __init__(self, serialSettings: serComm.SerialCommSettings = None):
+    def __init__(self, serialSettings: serial_hdlr.SerialCommSettings = None):
         """
         Serial settings dialog.
             @param serialSettings: if None, new blank (default settings) are applied. Otherwise, pre-set default given values
@@ -23,9 +23,9 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.setupUi(self)
 
         if serialSettings is None:
-            self.dialogSettings: serComm.SerialCommSettings = serComm.SerialCommSettings()
+            self.dialogSettings: serial_hdlr.SerialCommSettings = serial_hdlr.SerialCommSettings()
         else:
-            self.dialogSettings: serComm.SerialCommSettings = serialSettings
+            self.dialogSettings: serial_hdlr.SerialCommSettings = serialSettings
 
         self.applySettingsOnClose = False
 
@@ -44,9 +44,9 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.RB_dataSizeGroup.setId(self.ui.RB_dataSize_five, serial.FIVEBITS)
 
         # round button parity group
-        self.ui.RB_parityGroup.setId(self.ui.RB_parity_none, serComm.parity_as_int(serial.PARITY_NONE))
-        self.ui.RB_parityGroup.setId(self.ui.RB_parity_even, serComm.parity_as_int(serial.PARITY_EVEN))
-        self.ui.RB_parityGroup.setId(self.ui.RB_parity_odd, serComm.parity_as_int(serial.PARITY_ODD))
+        self.ui.RB_parityGroup.setId(self.ui.RB_parity_none, serial_hdlr.parity_as_int(serial.PARITY_NONE))
+        self.ui.RB_parityGroup.setId(self.ui.RB_parity_even, serial_hdlr.parity_as_int(serial.PARITY_EVEN))
+        self.ui.RB_parityGroup.setId(self.ui.RB_parity_odd, serial_hdlr.parity_as_int(serial.PARITY_ODD))
 
         # round button stop bits group
         self.ui.RB_stopBitsGroup.setId(self.ui.RB_stopBits_one, serial.STOPBITS_ONE)
@@ -86,9 +86,9 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.dialogSettings.dataSize = self.ui.RB_dataSizeGroup.checkedId()
         self.dialogSettings.stopbits = self.ui.RB_stopBitsGroup.checkedId()
         parityAsNumber = self.ui.RB_parityGroup.checkedId()
-        self.dialogSettings.parity = serComm.parity_as_str(parityAsNumber)
+        self.dialogSettings.parity = serial_hdlr.parity_as_str(parityAsNumber)
 
-    def getDialogValues(self) -> serComm.SerialCommSettings:
+    def getDialogValues(self) -> serial_hdlr.SerialCommSettings:
         """
         Store and return dialog values.
         """
@@ -101,7 +101,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         """
         return self.applySettingsOnClose
 
-    def setDialogValues(self, serialSettings: serComm.SerialCommSettings):
+    def setDialogValues(self, serialSettings: serial_hdlr.SerialCommSettings):
         """
         Set current setup dialog settings and refresh internal self.dialogValues state.
         """
@@ -111,7 +111,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         roundButton = self.ui.RB_dataSizeGroup.button(serialSettings.dataSize)
         roundButton.click()
 
-        parityAsNumber = serComm.parity_as_int(serialSettings.parity)
+        parityAsNumber = serial_hdlr.parity_as_int(serialSettings.parity)
         roundButton = self.ui.RB_parityGroup.button(parityAsNumber)
         roundButton.click()
 
@@ -124,7 +124,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
 def main():
     app = QtWidgets.QApplication(sys.argv)
 
-    initialSerialDialogSettings = serComm.SerialCommSettings()
+    initialSerialDialogSettings = serial_hdlr.SerialCommSettings()
     initialSerialDialogSettings.swFlowControl = True
     initialSerialDialogSettings.stopbits = serial.STOPBITS_TWO
     initialSerialDialogSettings.dataSize = serial.SIXBITS

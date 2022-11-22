@@ -20,7 +20,7 @@ from serial_tool import defines as defs
 from serial_tool import models
 from serial_tool import cfgHandler
 from serial_tool import dataModel
-from serial_tool import serComm
+from serial_tool import serial_hdlr
 from serial_tool import communication
 from serial_tool import setupDialog
 from serial_tool import paths
@@ -566,7 +566,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.commHandler.deinitPort()  # TODO: signal or not?
 
-        availablePorts = serComm.SerialPortHandler().get_available_ports()
+        availablePorts = serial_hdlr.SerialPortHandler().get_available_ports()
         self.ui.DD_commPortSelector.clear()
         self.ui.DD_commPortSelector.addItems(list(reversed(availablePorts)))
 

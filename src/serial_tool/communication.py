@@ -10,21 +10,21 @@ from typing import List
 from PyQt5 import QtCore
 
 from serial_tool import defines as defs
-from serial_tool import serComm
+from serial_tool import serial_hdlr
 
 
 ###################################################################################################
 class SerialDataReceiverThread(QtCore.QObject):
     sigRxNotEmpty = QtCore.pyqtSignal()
 
-    def __init__(self, portHandler: serComm.SerialPortHandler):
+    def __init__(self, portHandler: serial_hdlr.SerialPortHandler):
         """
         This class initialize thread that read available data with asyncio read and store receive data in a list.
         On data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
         """
         super().__init__()
 
-        self._portHandler: serComm.SerialPortHandler = portHandler
+        self._portHandler: serial_hdlr.SerialPortHandler = portHandler
 
         self._receivedData: list = []
         self._rxDataListLock = threading.Lock()
@@ -93,7 +93,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
 
     def __init__(
         self,
-        portHandler: serComm.SerialPortHandler,
+        portHandler: serial_hdlr.SerialPortHandler,
         seqChannel: int,
         parsedDataFields: List[int],
         parsedSeqBlocks: List[defs.SequenceInfo],
@@ -107,7 +107,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
         """
         super().__init__()
 
-        self._portHandler: serComm.SerialPortHandler = portHandler
+        self._portHandler: serial_hdlr.SerialPortHandler = portHandler
         self.seqChannel: int = seqChannel
         self.parsedDataFields: List[int] = parsedDataFields
         self.parsedSeqBlocks: List[defs.SequenceInfo] = parsedSeqBlocks
@@ -168,7 +168,7 @@ class SerialToolPortHandler(QtCore.QObject):
     def __init__(self):
         super().__init__()
         self.serialSettings = None
-        self.portHandler: serComm.SerialPortHandler = None
+        self.portHandler: serial_hdlr.SerialPortHandler = None
         self._rxWatcher: SerialDataReceiverThread = None
         self._rxWatcherThread = None
 
@@ -188,7 +188,7 @@ class SerialToolPortHandler(QtCore.QObject):
         return False
 
     def initPortAndReceiveThread(self):
-        self.portHandler = serComm.SerialPortHandler()
+        self.portHandler = serial_hdlr.SerialPortHandler()
         if self.portHandler.init(self.serialSettings):
             self._rxWatcher = SerialDataReceiverThread(self.portHandler)
             self._rxWatcher.sigRxNotEmpty.connect(self.getReceivedData)  # TODO
