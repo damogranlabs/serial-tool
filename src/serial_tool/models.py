@@ -1,8 +1,5 @@
-from abc import ABC, abstractmethod
 import enum
 from typing import Generic, List, Optional, TypeVar
-from PyQt5 import QtCore
-
 
 from serial_tool import defines as defs
 
