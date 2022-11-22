@@ -566,7 +566,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.commHandler.deinitPort()  # TODO: signal or not?
 
-        availablePorts = serComm.SerialPortHandler().getAvailablePorts()
+        availablePorts = serComm.SerialPortHandler().get_available_ports()
         self.ui.DD_commPortSelector.clear()
         self.ui.DD_commPortSelector.addItems(list(reversed(availablePorts)))
 

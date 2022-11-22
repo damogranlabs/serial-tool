@@ -1,11 +1,9 @@
-"""
-This file holds all serial communication utility functions and handlers.
-"""
 from typing import List, Optional
 
 import aioserial
 import serial
 from serial.tools.list_ports import comports
+from serial.serialutil import SerialException
 
 from serial_tool import defines as defs
 
@@ -49,7 +47,7 @@ class ParityAsNumbers:
     ODD = 2  # serial.PARITY_ODD
 
 
-def parityToNumber(parity: str) -> int:
+def parity_as_int(parity: str) -> int:
     if parity == serial.PARITY_NONE:
         return ParityAsNumbers.NONE
     elif parity == serial.PARITY_EVEN:
@@ -57,11 +55,10 @@ def parityToNumber(parity: str) -> int:
     elif parity == serial.PARITY_ODD:
         return ParityAsNumbers.ODD
     else:
-        errorMsg = f"Unable to convert parity string ({parity}) to a matching number."
-        raise Exception(errorMsg)
+        raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
 
 
-def parityToString(parity: int) -> str:
+def parity_as_str(parity: int) -> str:
     if parity == ParityAsNumbers.NONE:
         return serial.PARITY_NONE
     elif parity == ParityAsNumbers.EVEN:
@@ -69,162 +66,103 @@ def parityToString(parity: int) -> str:
     elif parity == ParityAsNumbers.ODD:
         return serial.PARITY_ODD
     else:
-        errorMsg = f"Unable to convert parity string ({parity}) to a matching number."
-        raise Exception(errorMsg)
+        raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
 
 
 ###################################################################################################
 class SerialPortHandler:
     def __init__(self):
         """
-        Non-threaded serial port communication class. Holds all needed functions to init, read and write to/from serial port.
+        Non-threaded serial port communication class.
+        Holds all needed functions to init, read and write to/from serial port.
         """
-        self._portHandle = aioserial.AioSerial()
-        self.portSettings: SerialCommSettings = SerialCommSettings()
+        self._port = aioserial.AioSerial()
+        self.settings: SerialCommSettings = SerialCommSettings()
 
-    def getAvailablePorts(self) -> List[str]:
+    def get_available_ports(self) -> List[str]:
         """
         Get a list of all available  'COMx' or '/dev/ttyX' serial ports.
         """
         return [port.name for port in comports()]
 
-    def initPort(self, serialSettings: SerialCommSettings, raiseException: bool = True) -> bool:
-        """
-        Initialize serial port with a given settings and return True on success, False otherwise.
-            @param raiseException: if True, raise exception if port is not open.
-        """
-        try:
-            self.closePort()
+    def init(self, settings: SerialCommSettings, raise_exc: bool = True) -> bool:
+        """Initialize serial port with a given settings and return True on success, False otherwise."""
+        self.close_port()
 
-            self._portHandle = aioserial.AioSerial(
-                port=serialSettings.port,
-                baudrate=serialSettings.baudrate,
-                bytesize=serialSettings.dataSize,
-                parity=serialSettings.parity,
-                stopbits=serialSettings.stopbits,
-                xonxoff=serialSettings.swFlowControl,
-                rtscts=serialSettings.hwFlowControl,
+        try:
+            self._port = aioserial.AioSerial(
+                port=settings.port,
+                baudrate=settings.baudrate,
+                bytesize=settings.dataSize,
+                parity=settings.parity,
+                stopbits=settings.stopbits,
+                xonxoff=settings.swFlowControl,
+                rtscts=settings.hwFlowControl,
                 dsrdtr=False,  # disable hardware (DSR/DTR) flow control
-                timeout=serialSettings.readTimeoutMs / 1000,
-                write_timeout=serialSettings.writeTimeoutMs / 1000,
+                timeout=settings.readTimeoutMs / 1000,
+                write_timeout=settings.writeTimeoutMs / 1000,
             )
 
-            self.portSettings = serialSettings
+            self.settings = settings
 
             return True
 
-        except Exception as err:
-            if raiseException:
-                msg = f"Unable to init serial port with following settings: {serialSettings}"
-                msg += f"\nError:\n{err}"
-                raise RuntimeError(msg)
+        except SerialException as err:
+            if raise_exc:
+                raise RuntimeError(f"Unable to init serial port with following settings: {settings}") from err
+            else:
+                return False
 
-        return False
-
-    def isConnected(self, raiseException: bool = False) -> bool:
-        """
-        Return True if connection to serial port is established, False otherwise.
-            @param raiseException: if True, raise exception if port is not open.
-        """
-        status = self._portHandle.is_open
-        if not status:
-            if raiseException:
-                errorMsg = "Serial port is not open."
-                raise RuntimeError(errorMsg)
-
-        return status
-
-    def closePort(self, raiseException: bool = False):
-        """
-        Close port (if open).
-            @param raiseException: if True, raise exception if port is not closed at the end.
-        """
-        if self._portHandle.is_open:
-            self._portHandle.close()
-
-        if raiseException and self._portHandle.is_open:
-            errorMsg = "Serial port was not closed."
-            raise RuntimeError(errorMsg)
-
-    def isReceivedDataAvailable(self) -> bool:
-        """
-        Return True if there is any data in RX buffer, False otherwise.
-        """
-        if self._portHandle.in_waiting > 0:
+    def isConnected(self, raise_exc: bool = False) -> bool:
+        """Return True if connection to serial port is established, False otherwise."""
+        status = self._port.is_open
+        if status:
             return True
+        elif raise_exc:
+            raise RuntimeError("Unable to open serial port.")
         else:
             return False
 
-    def flushReceiveBuffer(self):
-        """
-        Try to flush RX buffed (if port is open).
-        Raise exception on error.
-        """
+    def close_port(self, raise_exc: bool = False) -> None:
+        """Close port (if open)."""
+        if self._port.is_open:
+            self._port.close()
+
+            if raise_exc and self._port.is_open:
+                raise RuntimeError("Unable to close serial port!")
+
+    def is_data_available(self) -> bool:
+        """Return True if there is any data in RX buffer, False otherwise."""
+        return self._port.in_waiting > 0
+
+    def flush_read_buff(self) -> None:
+        """Try to flush RX buffed (if port is open)."""
         self.isConnected(True)
-        self._portHandle.reset_input_buffer()
+        self._port.reset_input_buffer()
 
-    def flushWriteBuffer(self):
-        """
-        Try to flush TX buffer (if port is open).
-        Raise exception on error.
-        """
+    def flush_write_buff(self) -> None:
+        """Try to flush TX buffer (if port is open)."""
         self.isConnected(True)
-        self._portHandle.reset_input_buffer()
+        self._port.reset_input_buffer()
 
-    def writeData(self, data: str, raiseException: bool = True) -> int:
-        """
-        Write data to serial port and return number of written bytes.
-        Optionally raise exception on error or if not all data bytes were written.
-            @param data: string representation of a data to send.
-            @param raiseException: if True, raise exception if write was not successfull, False otherwise.
-        """
-        byteArrayEncodedData = data.encode("utf-8")
-        numOfBytesWritten = self._portHandle.write(byteArrayEncodedData)
-        if numOfBytesWritten == len(data):
-            return numOfBytesWritten
+    def write_data(self, data: List[int], raise_exc: bool = True) -> int:
+        """Write data to port, where each list item is an integer (0 - 255)."""
+        num = self._port.write(data)
+        if num == len(data):
+            return num
+        elif raise_exc:
+            raise Exception(f"Serial port write data list unsuccessful. {num} sent while len(data) = {len(data)}")
         else:
-            if raiseException:
-                errorMsg = (
-                    f"Serial port write data unsuccessful. {numOfBytesWritten} sent while len(data) = {len(data)}"
-                )
-                raise Exception(errorMsg)
-            else:
-                return numOfBytesWritten
+            return num
 
-    def writeDataList(self, data: List[int], raiseException: bool = True) -> int:
-        """
-        Same as writeData, except 'data' is formatted as a list of integers.
-            @param data: list of integers to send (0 - 255).
-            @param raiseException: if True, raise exception if write was not successful, False otherwise.
-        """
-        numOfBytesWritten = self._portHandle.write(data)
-        if numOfBytesWritten == len(data):
-            return numOfBytesWritten
-        else:
-            if raiseException:
-                errorMsg = (
-                    f"Serial port write data list unsuccessful. {numOfBytesWritten} sent while len(data) = {len(data)}"
-                )
-                raise Exception(errorMsg)
-            else:
-                return numOfBytesWritten
-
-    async def asyncReadData(self) -> bytes:
+    async def async_read_data(self) -> bytes:
         """
         Asynchronously read data from a serial port and return one byte. Might be an empty byte (b''), which indicates no new received data.
         Raise exception on error.
         """
-        byte = await self._portHandle.read_async()  # will wait until one byte will not be received.
+        byte = await self._port.read_async()  # will wait until one byte will not be received.
         return byte
 
-    def readData(self) -> List[int]:
-        """
-        Read data from a serial port and return a list of received data (unsigned integers 0 - 255).
-        Raise exception on error.
-        """
-        data = self._portHandle.read(self._portHandle.in_waiting)
-        dataAsList = []
-        for byteData in data:
-            dataAsList.append(byteData)
-
-        return dataAsList
+    def read_data(self) -> List[int]:
+        """Read data from a serial port and return a list of received data (unsigned integers 0 - 255)."""
+        return list(self._port.read(self._port.in_waiting))

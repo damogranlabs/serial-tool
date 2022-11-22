@@ -44,9 +44,9 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.RB_dataSizeGroup.setId(self.ui.RB_dataSize_five, serial.FIVEBITS)
 
         # round button parity group
-        self.ui.RB_parityGroup.setId(self.ui.RB_parity_none, serComm.parityToNumber(serial.PARITY_NONE))
-        self.ui.RB_parityGroup.setId(self.ui.RB_parity_even, serComm.parityToNumber(serial.PARITY_EVEN))
-        self.ui.RB_parityGroup.setId(self.ui.RB_parity_odd, serComm.parityToNumber(serial.PARITY_ODD))
+        self.ui.RB_parityGroup.setId(self.ui.RB_parity_none, serComm.parity_as_int(serial.PARITY_NONE))
+        self.ui.RB_parityGroup.setId(self.ui.RB_parity_even, serComm.parity_as_int(serial.PARITY_EVEN))
+        self.ui.RB_parityGroup.setId(self.ui.RB_parity_odd, serComm.parity_as_int(serial.PARITY_ODD))
 
         # round button stop bits group
         self.ui.RB_stopBitsGroup.setId(self.ui.RB_stopBits_one, serial.STOPBITS_ONE)
@@ -86,7 +86,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.dialogSettings.dataSize = self.ui.RB_dataSizeGroup.checkedId()
         self.dialogSettings.stopbits = self.ui.RB_stopBitsGroup.checkedId()
         parityAsNumber = self.ui.RB_parityGroup.checkedId()
-        self.dialogSettings.parity = serComm.parityToString(parityAsNumber)
+        self.dialogSettings.parity = serComm.parity_as_str(parityAsNumber)
 
     def getDialogValues(self) -> serComm.SerialCommSettings:
         """
@@ -111,7 +111,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         roundButton = self.ui.RB_dataSizeGroup.button(serialSettings.dataSize)
         roundButton.click()
 
-        parityAsNumber = serComm.parityToNumber(serialSettings.parity)
+        parityAsNumber = serComm.parity_as_int(serialSettings.parity)
         roundButton = self.ui.RB_parityGroup.button(parityAsNumber)
         roundButton.click()
 

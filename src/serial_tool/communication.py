@@ -47,12 +47,12 @@ class SerialDataReceiverThread(QtCore.QObject):
             self._receiveThreadStopFlag = False
             while not self._receiveThreadStopFlag:
                 try:
-                    byte = asyncio.run(self._portHandler.asyncReadData())  # asynchronously receive 1 byte
+                    byte = asyncio.run(self._portHandler.async_read_data())  # asynchronously receive 1 byte
                     if byte == b"":
                         continue  # nothing received
                     else:
                         # receive data available, read all
-                        receivedData = self._portHandler.readData()
+                        receivedData = self._portHandler.read_data()
                         with self._rxDataListLock:
                             self._receivedData.append(ord(byte))  # first received byte (async)
                             self._receivedData.extend(receivedData)  # other data
@@ -140,7 +140,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
                         if self._stopSequenceRequest:
                             break
 
-                        self._portHandler.writeDataList(data)
+                        self._portHandler.write_data(data)
                         self.sigDataSendEvent.emit(self.seqChannel, block.channelIndex)
 
                         if self._stopSequenceRequest:
@@ -189,7 +189,7 @@ class SerialToolPortHandler(QtCore.QObject):
 
     def initPortAndReceiveThread(self):
         self.portHandler = serComm.SerialPortHandler()
-        if self.portHandler.initPort(self.serialSettings):
+        if self.portHandler.init(self.serialSettings):
             self._rxWatcher = SerialDataReceiverThread(self.portHandler)
             self._rxWatcher.sigRxNotEmpty.connect(self.getReceivedData)  # TODO
 
@@ -212,13 +212,13 @@ class SerialToolPortHandler(QtCore.QObject):
             self._rxWatcher = None
 
         if self.portHandler is not None:
-            self.portHandler.closePort()
+            self.portHandler.close_port()
             self.portHandler = None
 
         self.sigConnectionClosed.emit()
 
     def writeData(self, data: str):
-        self.portHandler.writeDataList(data)
+        self.portHandler.write_data(data)
 
     def getReceivedData(self) -> list:
         receivedData = self._rxWatcher.getAllReceivedData()
