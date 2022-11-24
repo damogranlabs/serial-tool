@@ -40,7 +40,7 @@ class SerialToolSettings(QtCore.QObject):
         self.cfg_file_path: Optional[str] = None
 
         self.data_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
-        self.parsed_data_fields: List[Optional[int]] = [
+        self.parsed_data_fields: List[Optional[List[int]]] = [
             None
         ] * defs.NUM_OF_DATA_CHANNELS  # list of integers (bytes), as they are send over serial port
         self.note_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS

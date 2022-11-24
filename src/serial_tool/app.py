@@ -657,7 +657,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         This function is called once data is received on a serial port.
         """
-        dataString = self.convertDataToChosenFormat(data)
+        dataString = self._convert_data(data, self.dataModel.output_data_representation)
 
         self.dataModel.all_rx_tx_data.append(f"{defs.EXPORT_RX_TAG}{data}")
         if self.dataModel.display_rx_data:
@@ -698,13 +698,14 @@ class Gui(QtWidgets.QMainWindow):
             @param dataChannel: index of data channel index.
         """
         data = self.dataModel.parsed_data_fields[dataChannel]
-        dataString = self.convertDataToChosenFormat(data)
+        assert data is not None
+        data_str = self._convert_data(data, self.dataModel.output_data_representation)
 
         self.dataModel.all_rx_tx_data.append(
             f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{defs.EXPORT_TX_TAG}{data}"
         )
         if self.dataModel.display_tx_data:
-            msg = f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {dataString}"
+            msg = f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {data_str}"
 
             self.writeToLogWindow(msg, defs.TX_DATA_LOG_COLOR)
 
@@ -828,7 +829,8 @@ class Gui(QtWidgets.QMainWindow):
     def onSendDataButton(self, channel: int) -> None:
         """Send data on a selected data channel."""
         data = self.dataModel.parsed_data_fields[channel]
-        dataString = self.convertDataToChosenFormat(data)
+        assert data is not None
+        dataString = self._convert_data(data, self.dataModel.output_data_representation)
 
         self.dataModel.all_rx_tx_data.append(f"CH{channel}{defs.EXPORT_TX_TAG}{data}")
         if self.dataModel.display_tx_data:
@@ -1022,71 +1024,25 @@ class Gui(QtWidgets.QMainWindow):
 
         return validators.parse_seq_data(text)
 
-    def listOfIntsToString(self, data: List[int]) -> str:
-        """
-        Convert list of data (integers) to a string, without data separator.
-            @param data: list of integers to be converted.
-        """
-        intStr = ""
-        for number in data:
-            intStr += chr(number)
-
-        return intStr
-
-    def listOfIntsToIntString(self, data: List[int]) -> str:
-        """
-        Convert list of data (integers) to a string of integer values.
-            @param data: list of integers to be converted.
-        """
-        intList = []
-        for number in data:
-            intList.append(str(number))
-        intStr = defs.RX_DATA_LIST_SEPARATOR.join(intList) + defs.RX_DATA_LIST_SEPARATOR
-
-        return intStr
-
-    def listOfIntsToHexString(self, data: List[int]) -> str:
-        """
-        Convert list of data (integers) to a string of hex values.
-            @param data: list of integers to be converted.
-        """
-        hexList = []
-        for number in data:
+    def _convert_data(self, data: List[int], new_format: Union[int, defs.OutputRepresentation]) -> str:
+        """Convert chosen data to a string with selected format."""
+        if new_format == defs.OutputRepresentation.STRING:
+            # Convert list of integers to a string, without data separator.
+            output_data = "".join([chr(num) for num in data])
+        elif new_format == defs.OutputRepresentation.INT_LIST:
+            # Convert list of integers to a string of integer values.
+            int_data = [str(num) for num in data]
+            output_data = defs.RX_DATA_LIST_SEPARATOR.join(int_data) + defs.RX_DATA_LIST_SEPARATOR
+        elif new_format == defs.OutputRepresentation.HEX_LIST:
+            # Convert list of integers to a string of hex values.
             # format always as 0x** (two fields for data value)
-            hexNumber = "{0:#0{1}x}".format(number, 4)
-            hexList.append(hexNumber)
-        hexStr = defs.RX_DATA_LIST_SEPARATOR.join(hexList) + defs.RX_DATA_LIST_SEPARATOR
+            hex_data = ["{0:#0{1}x}".format(num, 4) for num in data]
+            output_data = defs.RX_DATA_LIST_SEPARATOR.join(hex_data) + defs.RX_DATA_LIST_SEPARATOR
+        else:
+            ascii_data = [f"'{chr(num)}'" for num in data]
+            output_data = defs.RX_DATA_LIST_SEPARATOR.join(ascii_data) + defs.RX_DATA_LIST_SEPARATOR
 
-        return hexStr
-
-    def listOfIntsToAsciiString(self, data: List[int]) -> str:
-        """
-        Convert list of data (integers) to a string of ascii characters.
-            @param data: list of integers to be converted.
-        """
-
-        asciiList = []
-        for number in data:
-            asciiList.append(f"'{chr(number)}'")
-        asciiStr = defs.RX_DATA_LIST_SEPARATOR.join(asciiList) + defs.RX_DATA_LIST_SEPARATOR
-
-        return asciiStr
-
-    def convertDataToChosenFormat(self, data: List[int]) -> str:
-        """
-        Convert chosen data to a string with selected format.
-        """
-        dataString = ""
-        if self.dataModel.output_data_representation == defs.OutputRepresentation.STRING:
-            dataString = self.listOfIntsToString(data)
-        elif self.dataModel.output_data_representation == defs.OutputRepresentation.INT_LIST:
-            dataString = self.listOfIntsToIntString(data)
-        elif self.dataModel.output_data_representation == defs.OutputRepresentation.HEX_LIST:
-            dataString = self.listOfIntsToHexString(data)
-        else:  # self.dataModel.outputDataRepresentation == defs.OutputRepresentation.ASCII_LIST
-            dataString = self.listOfIntsToAsciiString(data)
-
-        return dataString
+        return output_data
 
     def getSaveFileLocation(
         self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt"
