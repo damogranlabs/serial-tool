@@ -10,7 +10,7 @@ class TextFieldStatus(enum.Enum):
     EMPTY = "no content"
 
     @staticmethod
-    def get_font_color(status: "TextFieldStatus") -> str:
+    def get_color(status: "TextFieldStatus") -> str:
         if status == TextFieldStatus.OK:
             return defs.INPUT_VALID_COLOR
         elif status == TextFieldStatus.BAD:

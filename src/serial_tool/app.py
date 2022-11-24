@@ -310,7 +310,7 @@ class Gui(QtWidgets.QMainWindow):
 
     def colorize_text_field(self, field: QtWidgets.QLineEdit, status: models.TextFieldStatus) -> None:
         """Colorize given text input field with pre-defined scheme (see status parameter)."""
-        color = models.TextFieldStatus.get_font_color(status)
+        color = models.TextFieldStatus.get_color(status)
         field.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {color}")
 
     def setConnectionButtonState(self, state: bool) -> None:
