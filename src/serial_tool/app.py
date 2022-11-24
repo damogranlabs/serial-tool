@@ -191,7 +191,7 @@ class Gui(QtWidgets.QMainWindow):
         self.commHandler.sigDataReceived.connect(self.onDataReceiveEvent)
 
     def connectDataUpdateSignalsToSlots(self) -> None:
-        self.dataModel.sigSerialSettingsUpdate.connect(self.onSerialSettingsUpdate)
+        self.dataModel.sig_serial_settings_update.connect(self.onSerialSettingsUpdate)
         self.dataModel.sigDataFieldUpdate.connect(self.onDataFieldUpdate)
         self.dataModel.sigNoteFieldUpdate.connect(self.onNoteFieldUpdate)
         self.dataModel.sigSeqFieldUpdate.connect(self.onSeqFieldUpdate)
@@ -399,7 +399,7 @@ class Gui(QtWidgets.QMainWindow):
         Create new blank configuration and discard any current settings. User is previously asked for confirmation.
         """
         if self.confirmActionDialog("Warning!", "Create new configuration?\nThis will discard any changes!"):
-            self.dataModel.configurationFilePath = None
+            self.dataModel.cfg_file_path = None
             self.cfgHandler.createDefaultConfiguration()
 
             msg = "New default configuration created."
@@ -414,14 +414,14 @@ class Gui(QtWidgets.QMainWindow):
         """
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
-        if self.dataModel.configurationFilePath is None:
+        if self.dataModel.cfg_file_path is None:
             cfgFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_CFG_FILE_NAME)
         else:
-            cfgFilePath = self.dataModel.configurationFilePath
+            cfgFilePath = self.dataModel.cfg_file_path
 
         filePath = self.getSaveFileLocation("Save configuration...", cfgFilePath, defs.CFG_FILE_EXTENSION_FILTER)
         if filePath is not None:
-            self.dataModel.configurationFilePath = filePath
+            self.dataModel.cfg_file_path = filePath
             self.cfgHandler.saveConfiguration(filePath)
 
             paths.add_cfg_to_recently_used_cfgs(filePath)
@@ -443,15 +443,15 @@ class Gui(QtWidgets.QMainWindow):
         refreshMenu = False
 
         if filePath is None:
-            if self.dataModel.configurationFilePath is None:
+            if self.dataModel.cfg_file_path is None:
                 cfgFolder = paths.get_default_log_dir()
             else:
-                cfgFolder = os.path.dirname(self.dataModel.configurationFilePath)
+                cfgFolder = os.path.dirname(self.dataModel.cfg_file_path)
 
             if self.confirmActionDialog("Warning!", "Loading new configuration?\nThis will discard any changes!"):
                 filePath = self.getOpenFileLocation("Load configuration...", cfgFolder, defs.CFG_FILE_EXTENSION_FILTER)
                 if filePath is not None:
-                    self.dataModel.configurationFilePath = filePath
+                    self.dataModel.cfg_file_path = filePath
                     self.cfgHandler.loadConfiguration(filePath)
                     refreshMenu = True
                 else:
@@ -459,7 +459,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             filePath = os.path.normpath(filePath)
             self.cfgHandler.loadConfiguration(filePath)
-            self.dataModel.configurationFilePath = filePath
+            self.dataModel.cfg_file_path = filePath
             refreshMenu = True
 
         if refreshMenu:
@@ -512,17 +512,17 @@ class Gui(QtWidgets.QMainWindow):
         """
         Open serial settings dialog and set new port settings.
         """
-        dialog = setup_dialog.SerialSetupDialog(self.dataModel.serialSettings)
+        dialog = setup_dialog.SerialSetupDialog(self.dataModel.serial_settings)
         dialog.setWindowModality(QtCore.Qt.ApplicationModal)
         dialog.display()
         dialog.exec_()
 
         if dialog.mustApplySettings():
-            self.dataModel.serialSettings = dialog.get_settings()
+            self.dataModel.serial_settings = dialog.get_settings()
 
             self.refreshPortsList()
 
-            msg = f"New serial settings applied: {self.dataModel.serialSettings}"
+            msg = f"New serial settings applied: {self.dataModel.serial_settings}"
             self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
         else:
             logging.debug("New serial settings request canceled.")
@@ -534,24 +534,24 @@ class Gui(QtWidgets.QMainWindow):
         """
         self.refreshPortsList()  # also de-init
 
-        if self.dataModel.serialSettings.port is not None:
-            chosenCommPort = self.ui.DD_commPortSelector.findText(self.dataModel.serialSettings.port)
+        if self.dataModel.serial_settings.port is not None:
+            chosenCommPort = self.ui.DD_commPortSelector.findText(self.dataModel.serial_settings.port)
             if chosenCommPort == -1:
                 self.writeToLogWindow(
-                    f"No {self.dataModel.serialSettings.port} serial port currently available.", defs.LOG_COLOR_WARNING
+                    f"No {self.dataModel.serial_settings.port} serial port currently available.", defs.LOG_COLOR_WARNING
                 )
             else:
                 self.ui.DD_commPortSelector.setCurrentIndex(chosenCommPort)
 
-        if self.dataModel.serialSettings.baudrate is not None:
-            chosenBaudrate = self.ui.DD_baudrate.findText(str(self.dataModel.serialSettings.baudrate))
+        if self.dataModel.serial_settings.baudrate is not None:
+            chosenBaudrate = self.ui.DD_baudrate.findText(str(self.dataModel.serial_settings.baudrate))
             if chosenBaudrate == -1:
                 self.writeToLogWindow(
-                    f"No {self.dataModel.serialSettings.baudrate} baudrate available, manually added.",
+                    f"No {self.dataModel.serial_settings.baudrate} baudrate available, manually added.",
                     defs.LOG_COLOR_WARNING,
                 )
-                self.ui.DD_baudrate.addItem(str(self.dataModel.serialSettings.baudrate))
-                self.ui.DD_baudrate.setCurrentText(str(self.dataModel.serialSettings.baudrate))
+                self.ui.DD_baudrate.addItem(str(self.dataModel.serial_settings.baudrate))
+                self.ui.DD_baudrate.setCurrentText(str(self.dataModel.serial_settings.baudrate))
             else:
                 self.ui.DD_baudrate.setCurrentIndex(chosenBaudrate)
 
@@ -589,7 +589,7 @@ class Gui(QtWidgets.QMainWindow):
                 errorMsg = f"No available port to init serial communication."
                 raise Exception(errorMsg)
             else:
-                self.dataModel.serialSettings.port = selectedPort
+                self.dataModel.serial_settings.port = selectedPort
 
             baudrate = self.getPortBaudrate()
             if baudrate == "":
@@ -597,9 +597,9 @@ class Gui(QtWidgets.QMainWindow):
                 raise Exception(errorMsg)
             else:
                 baudrateInt = int(baudrate)
-                self.dataModel.serialSettings.baudrate = baudrateInt
+                self.dataModel.serial_settings.baudrate = baudrateInt
 
-            self.commHandler.serialSettings = self.dataModel.serialSettings
+            self.commHandler.serialSettings = self.dataModel.serial_settings
             self.commHandler.initPortAndReceiveThread()  # TODO: signal or not?
 
             msg = f"Connect request."
@@ -628,7 +628,7 @@ class Gui(QtWidgets.QMainWindow):
             result = self._parse_seq_data_field(seqFieldIndex)
             if result.status:
                 for block in result.data:
-                    if self.dataModel.parsedDataFields[block.channel_idx] is None:
+                    if self.dataModel.parsed_data_fields[block.channel_idx] is None:
                         self.setSeqSendButtonState(seqFieldIndex, False)
                         break
                 else:
@@ -659,10 +659,10 @@ class Gui(QtWidgets.QMainWindow):
         """
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"{defs.EXPORT_RX_TAG}{data}")
-        if self.dataModel.displayReceivedData:
+        self.dataModel.all_rx_tx_data.append(f"{defs.EXPORT_RX_TAG}{data}")
+        if self.dataModel.display_rx_data:
             msg = f"{dataString}"
-            if self.dataModel.rxNewLine:
+            if self.dataModel.new_line_on_rx:
                 # insert \n on RX data, after specified timeout
                 if self._logDisplayingRxData:
                     # we are in the middle of displaying RX data, check timestamp delta
@@ -697,11 +697,13 @@ class Gui(QtWidgets.QMainWindow):
             @param seqChannel: index of sequence channel index.
             @param dataChannel: index of data channel index.
         """
-        data = self.dataModel.parsedDataFields[dataChannel]
+        data = self.dataModel.parsed_data_fields[dataChannel]
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{defs.EXPORT_TX_TAG}{data}")
-        if self.dataModel.displayTransmittedData:
+        self.dataModel.all_rx_tx_data.append(
+            f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{defs.EXPORT_TX_TAG}{data}"
+        )
+        if self.dataModel.display_tx_data:
             msg = f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {dataString}"
 
             self.writeToLogWindow(msg, defs.TX_DATA_LOG_COLOR)
@@ -738,7 +740,7 @@ class Gui(QtWidgets.QMainWindow):
         Actions to take place once data field is updated (for example, from load configuration).
             @param channel: index of data field
         """
-        self.uiDataFields[channel].setText(self.dataModel.dataFields[channel])
+        self.uiDataFields[channel].setText(self.dataModel.data_fields[channel])
         self.onDataFieldChange(channel)
 
     @QtCore.pyqtSlot(int)
@@ -747,7 +749,7 @@ class Gui(QtWidgets.QMainWindow):
         Actions to take place once note field is updated (for example, from load configuration).
             @param channel: index of note field
         """
-        self.uiNoteFields[channel].setText(self.dataModel.noteFields[channel])
+        self.uiNoteFields[channel].setText(self.dataModel.note_fields[channel])
 
     @QtCore.pyqtSlot(int)
     def onSeqFieldUpdate(self, channel: int) -> None:
@@ -755,7 +757,7 @@ class Gui(QtWidgets.QMainWindow):
         Actions to take place once sequence field is updated (for example, from load configuration).
             @param channel: index of data field
         """
-        self.uiSeqFields[channel].setText(self.dataModel.seqFields[channel])
+        self.uiSeqFields[channel].setText(self.dataModel.seq_fields[channel])
         self.onSeqFieldChange(channel)
 
     @QtCore.pyqtSlot(int)
@@ -764,20 +766,20 @@ class Gui(QtWidgets.QMainWindow):
         Actions to take place once any data field is changed.
             @param channel: index of data field
         """
-        self.dataModel.dataFields[channel] = self.uiDataFields[channel].text()
+        self.dataModel.data_fields[channel] = self.uiDataFields[channel].text()
 
         result = self._parse_data_field(channel)
         self.colorize_text_field(self.uiDataFields[channel], result.status)
 
         if result.status == models.TextFieldStatus.OK:
             assert result.data is not None
-            self.dataModel.parsedDataFields[channel] = result.data
+            self.dataModel.parsed_data_fields[channel] = result.data
             if self.commHandler.isConnected():
                 self.setDataSendButtonState(channel, True)
             else:
                 self.setDataSendButtonState(channel, False)
         else:  # False or None (empty field)
-            self.dataModel.parsedDataFields[channel] = None
+            self.dataModel.parsed_data_fields[channel] = None
             self.setDataSendButtonState(channel, False)
 
         # update sequence fields - sequence fields depends on data fields.
@@ -791,7 +793,7 @@ class Gui(QtWidgets.QMainWindow):
             @param channel: index of note field
         """
         noteFieldText = self.uiNoteFields[channel].text()
-        self.dataModel.noteFields[channel] = noteFieldText.strip()
+        self.dataModel.note_fields[channel] = noteFieldText.strip()
 
     @QtCore.pyqtSlot(int)
     def onSeqFieldChange(self, channel: int) -> None:
@@ -801,16 +803,16 @@ class Gui(QtWidgets.QMainWindow):
 
         TODO: colorize sequence RED if any of selected data channels is not valid
         """
-        self.dataModel.seqFields[channel] = self.uiSeqFields[channel].text()
+        self.dataModel.seq_fields[channel] = self.uiSeqFields[channel].text()
 
         result = self._parse_seq_data_field(channel)
         self.colorize_text_field(self.uiSeqFields[channel], result.status)
 
         if result.status == models.TextFieldStatus.OK:
-            self.dataModel.parsedSeqFields[channel] = result.data
+            self.dataModel.parsed_seq_fields[channel] = result.data
             # check if seq button can be enabled (seq field is properly formatted. Are all data fields properly formatted?
             for block in result.data:
-                if self.dataModel.parsedDataFields[block.channel_idx] is None:
+                if self.dataModel.parsed_data_fields[block.channel_idx] is None:
                     self.setSeqSendButtonState(channel, False)
                     break
             else:
@@ -819,20 +821,17 @@ class Gui(QtWidgets.QMainWindow):
                 else:
                     self.setSeqSendButtonState(channel, False)
         else:  # False or None (empty field)
-            self.dataModel.parsedSeqFields[channel] = None
+            self.dataModel.parsed_seq_fields[channel] = None
             self.setSeqSendButtonState(channel, False)
 
     @QtCore.pyqtSlot(int)
     def onSendDataButton(self, channel: int) -> None:
-        """
-        Send data on a selected data channel.
-            @param channel: index of data field index
-        """
-        data = self.dataModel.parsedDataFields[channel]
+        """Send data on a selected data channel."""
+        data = self.dataModel.parsed_data_fields[channel]
         dataString = self.convertDataToChosenFormat(data)
 
-        self.dataModel.allRxTxData.append(f"CH{channel}{defs.EXPORT_TX_TAG}{data}")
-        if self.dataModel.displayTransmittedData:
+        self.dataModel.all_rx_tx_data.append(f"CH{channel}{defs.EXPORT_TX_TAG}{data}")
+        if self.dataModel.display_tx_data:
             self.writeToLogWindow(dataString, defs.TX_DATA_LOG_COLOR)
 
         self.commHandler.sigWrite.emit(data)
@@ -851,7 +850,10 @@ class Gui(QtWidgets.QMainWindow):
 
             thread = QtCore.QThread(self)
             worker = communication.SerialDataSequenceTransmitterThread(
-                self.commHandler.portHandler, channel, self.dataModel.parsedDataFields, self.dataModel.parsedSeqFields
+                self.commHandler.portHandler,
+                channel,
+                self.dataModel.parsed_data_fields,
+                self.dataModel.parsed_seq_fields,
             )
             worker.sigSequenceTransmittFinished.connect(self.onSendSequenceFinishEvent)
             worker.sigDataSendEvent.connect(self.onSequenceSendEvent)
@@ -878,7 +880,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         Clear log window.
         """
-        self.dataModel.allRxTxData = []
+        self.dataModel.all_rx_tx_data = []
         self.ui.TE_log.clear()
 
     @QtCore.pyqtSlot()
@@ -912,10 +914,10 @@ class Gui(QtWidgets.QMainWindow):
         )
         if filePath is not None:
             with open(filePath, "w+") as fileHandler:
-                for data in self.dataModel.allRxTxData:
+                for data in self.dataModel.all_rx_tx_data:
                     fileHandler.write(data + "\n")
 
-            self.dataModel.allRxTxData = []
+            self.dataModel.all_rx_tx_data = []
             self.writeToLogWindow(f"RX/TX data exported: {filePath}", defs.LOG_COLOR_GRAY)
         else:
             logging.debug("RX/TX data export request canceled.")
@@ -925,50 +927,50 @@ class Gui(QtWidgets.QMainWindow):
         """
         Action to take place once RX-to-log checkbox setting is altered (for example, on load configuration).
         """
-        self.ui.CB_rxToLog.setChecked(self.dataModel.displayReceivedData)
+        self.ui.CB_rxToLog.setChecked(self.dataModel.display_rx_data)
 
     @QtCore.pyqtSlot()
     def onRxDisplayModeChange(self) -> None:
         """
         Get RX-to-log checkbox settings from GUI.
         """
-        self.dataModel.displayReceivedData = self.ui.CB_rxToLog.isChecked()
+        self.dataModel.display_rx_data = self.ui.CB_rxToLog.isChecked()
 
     @QtCore.pyqtSlot()
     def onTxDisplayModeUpdate(self) -> None:
         """
         Action to take place once TX-to-log checkbox setting is altered (for example, on load configuration).
         """
-        self.ui.CB_txToLog.setChecked(self.dataModel.displayTransmittedData)
+        self.ui.CB_txToLog.setChecked(self.dataModel.display_tx_data)
 
     @QtCore.pyqtSlot()
     def onTxDisplayModeChange(self) -> None:
         """
         Get TX-to-log checkbox settings from GUI.
         """
-        self.dataModel.displayTransmittedData = self.ui.CB_txToLog.isChecked()
+        self.dataModel.display_tx_data = self.ui.CB_txToLog.isChecked()
 
     @QtCore.pyqtSlot()
     def onOutputRepresentationModeUpdate(self) -> None:
         """
         Action to take place once outputDataRepresentation setting is altered (for example, on load configuration).
         """
-        self.ui.RB_GROUP_outputRepresentation.button(self.dataModel.outputDataRepresentation).click()
+        self.ui.RB_GROUP_outputRepresentation.button(self.dataModel.output_data_representation).click()
 
     @QtCore.pyqtSlot()
     def onOutputRepresentationModeChange(self) -> None:
         """
         Get output representation type from GUI selection.
         """
-        self.dataModel.outputDataRepresentation = self.ui.RB_GROUP_outputRepresentation.checkedId()
+        self.dataModel.output_data_representation = self.ui.RB_GROUP_outputRepresentation.checkedId()
 
     @QtCore.pyqtSlot()
     def onRxNewLineUpdate(self) -> None:
         """
         Action to take place once RX new line setting is altered (for example, on load configuration).
         """
-        self.ui.CB_rxNewLine.setChecked(self.dataModel.rxNewLine)
-        if self.dataModel.rxNewLine:
+        self.ui.CB_rxNewLine.setChecked(self.dataModel.new_line_on_rx)
+        if self.dataModel.new_line_on_rx:
             self.ui.SB_rxTimeoutMs.setEnabled(True)
         else:
             self.ui.SB_rxTimeoutMs.setEnabled(False)
@@ -978,29 +980,29 @@ class Gui(QtWidgets.QMainWindow):
         """
         Get RX new line settings of log RX/TX data.
         """
-        self.dataModel.rxNewLine = self.ui.CB_rxNewLine.isChecked()
-        if self.dataModel.rxNewLine:
+        self.dataModel.new_line_on_rx = self.ui.CB_rxNewLine.isChecked()
+        if self.dataModel.new_line_on_rx:
             self.ui.SB_rxTimeoutMs.setEnabled(True)
         else:
             self.ui.SB_rxTimeoutMs.setEnabled(False)
 
-        return self.dataModel.rxNewLine
+        return self.dataModel.new_line_on_rx
 
     @QtCore.pyqtSlot()
     def onRxNewLineTimeoutUpdate(self) -> None:
         """
         Action to take place once RX new line timeout setting is altered (for example, on load configuration).
         """
-        self.ui.SB_rxTimeoutMs.setValue(self.dataModel.rxNewLineTimeout)
+        self.ui.SB_rxTimeoutMs.setValue(self.dataModel.new_line_on_rx_timeout_msec)
 
     @QtCore.pyqtSlot()
     def onRxNewLineTimeoutChange(self) -> None:
         """
         Get RX new line settings of log RX/TX data.
         """
-        self.dataModel.rxNewLineTimeout = self.ui.SB_rxTimeoutMs.value()
+        self.dataModel.new_line_on_rx_timeout_msec = self.ui.SB_rxTimeoutMs.value()
 
-        return self.dataModel.rxNewLineTimeout
+        return self.dataModel.new_line_on_rx_timeout_msec
 
     ################################################################################################
     # utility functions
@@ -1075,11 +1077,11 @@ class Gui(QtWidgets.QMainWindow):
         Convert chosen data to a string with selected format.
         """
         dataString = ""
-        if self.dataModel.outputDataRepresentation == defs.OutputRepresentation.STRING:
+        if self.dataModel.output_data_representation == defs.OutputRepresentation.STRING:
             dataString = self.listOfIntsToString(data)
-        elif self.dataModel.outputDataRepresentation == defs.OutputRepresentation.INT_LIST:
+        elif self.dataModel.output_data_representation == defs.OutputRepresentation.INT_LIST:
             dataString = self.listOfIntsToIntString(data)
-        elif self.dataModel.outputDataRepresentation == defs.OutputRepresentation.HEX_LIST:
+        elif self.dataModel.output_data_representation == defs.OutputRepresentation.HEX_LIST:
             dataString = self.listOfIntsToHexString(data)
         else:  # self.dataModel.outputDataRepresentation == defs.OutputRepresentation.ASCII_LIST
             dataString = self.listOfIntsToAsciiString(data)
