@@ -31,9 +31,9 @@ from serial_tool.gui.gui import Ui_root
 
 
 class Gui(QtWidgets.QMainWindow):
-    sigWrite = QtCore.pyqtSignal(str, str)
-    sigWarning = QtCore.pyqtSignal(str, str)
-    sigError = QtCore.pyqtSignal(str, str)
+    sig_write = QtCore.pyqtSignal(str, str)
+    sig_warning = QtCore.pyqtSignal(str, str)
+    sig_error = QtCore.pyqtSignal(str, str)
 
     sigClose = QtCore.pyqtSignal()
 
@@ -111,7 +111,7 @@ class Gui(QtWidgets.QMainWindow):
         # set up exception handler
         sys.excepthook = self._appExceptionHandler
 
-        self.sharedSignals = dataModel.SharedSignalsContainer(self.sigWrite, self.sigWarning, self.sigError)
+        self._signals = dataModel.SharedSignalsContainer(self.sig_write, self.sig_warning, self.sig_error)
 
         # prepare data and port handlers
         self.dataModel = dataModel.SerialToolSettings()
@@ -124,7 +124,7 @@ class Gui(QtWidgets.QMainWindow):
         self._logDisplayingRxData = False
 
         self.cfgHandler: cfgHandler.ConfigurationHandler = cfgHandler.ConfigurationHandler(
-            self.dataModel, self.sharedSignals
+            self.dataModel, self._signals
         )
 
         # init app and gui
@@ -180,9 +180,9 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.SB_rxTimeoutMs.valueChanged.connect(self.onRxNewLineTimeoutChange)
 
     def connectExecutionSignalsToSlots(self) -> None:
-        self.sigWrite.connect(self.writeToLogWindow)
-        self.sigWarning.connect(self.writeToLogWindow)
-        self.sigError.connect(self.writeToLogWindow)
+        self.sig_write.connect(self.writeToLogWindow)
+        self.sig_warning.connect(self.writeToLogWindow)
+        self.sig_error.connect(self.writeToLogWindow)
 
         self.sigClose.connect(self.onQuitApplicationEvent)
 
@@ -1182,7 +1182,7 @@ class Gui(QtWidgets.QMainWindow):
             errorMsg += "\n\n"
 
             try:
-                self.sigError.emit(errorMsg, defs.LOG_COLOR_ERROR)
+                self.sig_error.emit(errorMsg, defs.LOG_COLOR_ERROR)
             except Exception as err:
                 # at least, log to file if log over signal fails
                 logging.error(errorMsg)

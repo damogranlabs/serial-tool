@@ -11,11 +11,11 @@ from serial_tool import serial_hdlr
 
 class SharedSignalsContainer:
     def __init__(
-        self, sigWrite: QtCore.pyqtBoundSignal, sigWarning: QtCore.pyqtBoundSignal, sigError: QtCore.pyqtBoundSignal
+        self, write: QtCore.pyqtBoundSignal, warning: QtCore.pyqtBoundSignal, error: QtCore.pyqtBoundSignal
     ) -> None:
-        self.sigWrite = sigWrite
-        self.sigWarning = sigWarning
-        self.sigError = sigError
+        self.write = write
+        self.warning = warning
+        self.sigError = error
 
 
 class SerialToolSettings(QtCore.QObject):

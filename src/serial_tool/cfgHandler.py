@@ -91,7 +91,7 @@ class ConfigurationHandler:
             self.dataModel.setSerialSettings(serialSettings)
         except KeyError as err:
             msg = f"Unable to set serial settings from a configuration file: {err}"
-            self.signals.sigWarning.emit(msg, defs.LOG_COLOR_WARNING)
+            self.signals.warning.emit(msg, defs.LOG_COLOR_WARNING)
 
         try:
             for channel, data in wData[defs.CFG_TAG_DATA_FIELDS].items():
@@ -104,7 +104,7 @@ class ConfigurationHandler:
                 self.dataModel.setSeqField(int(channel), data)
         except KeyError as err:
             msg = f"Unable to set data/note/sequence settings from a configuration file: {err}"
-            self.signals.sigWarning.emit(msg, defs.LOG_COLOR_WARNING)
+            self.signals.warning.emit(msg, defs.LOG_COLOR_WARNING)
 
         try:
             self.dataModel.setRxDisplayMode(wData[defs.CFG_TAG_RXLOG])
@@ -114,7 +114,7 @@ class ConfigurationHandler:
             self.dataModel.setRxNewlineTimeout(wData[defs.CFG_TAG_RX_NEW_LINE_TIMEOUT])
         except KeyError as err:
             msg = f"Unable to set log settings from a configuration file: {err}"
-            self.signals.sigWarning.emit(msg, defs.LOG_COLOR_WARNING)
+            self.signals.warning.emit(msg, defs.LOG_COLOR_WARNING)
 
     def createDefaultConfiguration(self):
         """
