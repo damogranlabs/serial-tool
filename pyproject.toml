@@ -10,8 +10,12 @@ load-plugins = [
     "pylint-pytest"
 ]
 disable = [
-    "logging-fstring-interpolation"
-    
+    "logging-fstring-interpolation",
+    "missing-class-docstring"    
 ]
+extension-pkg-allow-list = [
+    "PyQt5"
+]
+
 
 [tool.mypy]
