@@ -22,7 +22,7 @@ from serial_tool import cfgHandler
 from serial_tool import dataModel
 from serial_tool import serial_hdlr
 from serial_tool import communication
-from serial_tool import setupDialog
+from serial_tool import setup_dialog
 from serial_tool import paths
 from serial_tool import validators
 
@@ -512,7 +512,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         Open serial settings dialog and set new port settings.
         """
-        dialog = setupDialog.SerialSetupDialog(self.dataModel.serialSettings)
+        dialog = setup_dialog.SerialSetupDialog(self.dataModel.serialSettings)
         dialog.setWindowModality(QtCore.Qt.ApplicationModal)
         dialog.showDialog()
         dialog.exec_()

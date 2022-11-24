@@ -4,7 +4,7 @@ import serial
 from PyQt5 import QtWidgets
 
 from serial_tool import serial_hdlr
-from serial_tool import setupDialog
+from serial_tool import setup_dialog
 
 
 def manual_test_widget() -> None:
@@ -15,7 +15,7 @@ def manual_test_widget() -> None:
     initialSerialDialogSettings.stopbits = serial.STOPBITS_TWO
     initialSerialDialogSettings.dataSize = serial.SIXBITS
 
-    dialog = setupDialog.SerialSetupDialog(initialSerialDialogSettings)
+    dialog = setup_dialog.SerialSetupDialog(initialSerialDialogSettings)
     dialog.showDialog()
 
     app.exec_()
