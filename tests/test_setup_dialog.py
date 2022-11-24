@@ -16,7 +16,7 @@ def manual_test_widget() -> None:
     initialSerialDialogSettings.dataSize = serial.SIXBITS
 
     dialog = setup_dialog.SerialSetupDialog(initialSerialDialogSettings)
-    dialog.showDialog()
+    dialog.display()
 
     app.exec_()
 

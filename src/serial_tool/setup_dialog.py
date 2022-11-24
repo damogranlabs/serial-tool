@@ -51,7 +51,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.PB_OK.clicked.connect(partial(self.onExit, True))
         self.ui.PB_cancel.clicked.connect(partial(self.onExit, False))
 
-    def showDialog(self) -> None:
+    def display(self) -> None:
         """
         Show dialog and raise it above parent widget.
         """
@@ -59,19 +59,18 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.raise_()
 
     @QtCore.pyqtSlot(bool)
-    def onExit(self, okButton: bool) -> None:
+    def on_exit(self, save_if_ok: bool) -> None:
         """
-        On OK, store dialog settings to self.dialogSettings. On Cancel or close, don't do nothing.
+        On OK, store dialog settings to settings. On Cancel or close, don't do nothing.
         On exit, close dialog.
-            @param okButton: if True, OK was pressed. Cancel/close otherwise.
         """
-        if okButton:
-            self._storeDialogValues()
+        if save_if_ok:
+            self._store_ui_settings()
             self.apply_settings_on_close = True
 
         self.close()
 
-    def _storeDialogValues(self) -> None:
+    def _store_ui_settings(self) -> None:
         """
         Store values from a current setup dialog into self.dialogSettings.
         """
@@ -83,13 +82,13 @@ class SerialSetupDialog(QtWidgets.QDialog):
         parityAsNumber = self.ui.RB_parityGroup.checkedId()
         self.settings.parity = serial_hdlr.parity_as_str(parityAsNumber)
 
-    def getDialogValues(self) -> serial_hdlr.SerialCommSettings:
+    def get_settings(self) -> serial_hdlr.SerialCommSettings:
         """
         Store and return dialog values.
         """
         return self.settings
 
-    def mustApplySettings(self) -> bool:
+    def must_apply_settings(self) -> bool:
         """
         Return True if dialog values must be applied, False otherwise.
         Only make sense to call this function once dialog is closed.
@@ -113,4 +112,4 @@ class SerialSetupDialog(QtWidgets.QDialog):
         roundButton = self.ui.RB_stopBitsGroup.button(serialSettings.stopbits)
         roundButton.click()
 
-        self._storeDialogValues()
+        self._store_ui_settings()

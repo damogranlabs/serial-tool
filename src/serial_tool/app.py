@@ -514,11 +514,11 @@ class Gui(QtWidgets.QMainWindow):
         """
         dialog = setup_dialog.SerialSetupDialog(self.dataModel.serialSettings)
         dialog.setWindowModality(QtCore.Qt.ApplicationModal)
-        dialog.showDialog()
+        dialog.display()
         dialog.exec_()
 
         if dialog.mustApplySettings():
-            self.dataModel.serialSettings = dialog.getDialogValues()
+            self.dataModel.serialSettings = dialog.get_settings()
 
             self.refreshPortsList()
 
