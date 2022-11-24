@@ -28,6 +28,10 @@ def parse_channel_data(text: str) -> models.ChannelTextFieldParserResult:
             # handle HEX numbers (can be one or more bytes)
             if part.lower().startswith("0x"):
                 part = part.lower()[2:]
+                if not part:  # `0x` and nothing after
+                    return models.ChannelTextFieldParserResult(
+                        models.TextFieldStatus.BAD, f"HEX data format detected, but no value specified: {text}"
+                    )
                 if len(part) % 2:
                     part = "0" + part
                 hex_numbers = list(bytearray.fromhex(part))

@@ -35,6 +35,7 @@ def test_parse_channel_data_valid(data_in: str, data_out: List[int]) -> None:
         ("1; !}", "Invalid character"),
         ("-255", "Out of range"),
         ("256", "Out of range"),
+        ("0x", "No actual number"),
     ],
 )
 def test_parse_channel_data_invalid_format(data_in: str, msg: str) -> None:
