@@ -1,8 +1,8 @@
 """
 Serial setup dialog window handler.
 """
-import sys
 from functools import partial
+from typing import Optional
 
 import serial
 from PyQt5 import QtCore, QtWidgets
@@ -13,27 +13,22 @@ from serial_tool import serial_hdlr
 
 
 class SerialSetupDialog(QtWidgets.QDialog):
-    def __init__(self, serialSettings: serial_hdlr.SerialCommSettings = None):
-        """
-        Serial settings dialog.
-            @param serialSettings: if None, new blank (default settings) are applied. Otherwise, pre-set default given values
-        """
+    def __init__(self, settings: Optional[serial_hdlr.SerialCommSettings] = None) -> None:
         QtWidgets.QDialog.__init__(self)
         self.ui = Ui_SerialSetupDialog()
         self.ui.setupUi(self)
 
-        if serialSettings is None:
-            self.dialogSettings: serial_hdlr.SerialCommSettings = serial_hdlr.SerialCommSettings()
-        else:
-            self.dialogSettings: serial_hdlr.SerialCommSettings = serialSettings
+        if settings is None:
+            settings = serial_hdlr.SerialCommSettings()
+        self.settings = settings
 
-        self.applySettingsOnClose = False
+        self.apply_settings_on_close = False
 
-        self.connectSignalsToSlots()
+        self._connect_signals_to_slots()
 
-        self.setDialogValues(self.dialogSettings)
+        self._set_ui_values(self.settings)
 
-    def connectSignalsToSlots(self):
+    def _connect_signals_to_slots(self) -> None:
         """
         Connect GUI to functions.
         """
@@ -56,7 +51,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.PB_OK.clicked.connect(partial(self.onExit, True))
         self.ui.PB_cancel.clicked.connect(partial(self.onExit, False))
 
-    def showDialog(self):
+    def showDialog(self) -> None:
         """
         Show dialog and raise it above parent widget.
         """
@@ -64,7 +59,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.raise_()
 
     @QtCore.pyqtSlot(bool)
-    def onExit(self, okButton: bool):
+    def onExit(self, okButton: bool) -> None:
         """
         On OK, store dialog settings to self.dialogSettings. On Cancel or close, don't do nothing.
         On exit, close dialog.
@@ -72,36 +67,36 @@ class SerialSetupDialog(QtWidgets.QDialog):
         """
         if okButton:
             self._storeDialogValues()
-            self.applySettingsOnClose = True
+            self.apply_settings_on_close = True
 
         self.close()
 
-    def _storeDialogValues(self):
+    def _storeDialogValues(self) -> None:
         """
         Store values from a current setup dialog into self.dialogSettings.
         """
-        self.dialogSettings.hwFlowControl = self.ui.CB_hwFlowCtrl.isChecked()
-        self.dialogSettings.swFlowControl = self.ui.CB_swFlowCtrl.isChecked()
+        self.settings.hwFlowControl = self.ui.CB_hwFlowCtrl.isChecked()
+        self.settings.swFlowControl = self.ui.CB_swFlowCtrl.isChecked()
 
-        self.dialogSettings.dataSize = self.ui.RB_dataSizeGroup.checkedId()
-        self.dialogSettings.stopbits = self.ui.RB_stopBitsGroup.checkedId()
+        self.settings.dataSize = self.ui.RB_dataSizeGroup.checkedId()
+        self.settings.stopbits = self.ui.RB_stopBitsGroup.checkedId()
         parityAsNumber = self.ui.RB_parityGroup.checkedId()
-        self.dialogSettings.parity = serial_hdlr.parity_as_str(parityAsNumber)
+        self.settings.parity = serial_hdlr.parity_as_str(parityAsNumber)
 
     def getDialogValues(self) -> serial_hdlr.SerialCommSettings:
         """
         Store and return dialog values.
         """
-        return self.dialogSettings
+        return self.settings
 
     def mustApplySettings(self) -> bool:
         """
         Return True if dialog values must be applied, False otherwise.
         Only make sense to call this function once dialog is closed.
         """
-        return self.applySettingsOnClose
+        return self.apply_settings_on_close
 
-    def setDialogValues(self, serialSettings: serial_hdlr.SerialCommSettings):
+    def _set_ui_values(self, serialSettings: serial_hdlr.SerialCommSettings) -> None:
         """
         Set current setup dialog settings and refresh internal self.dialogValues state.
         """
@@ -119,22 +114,3 @@ class SerialSetupDialog(QtWidgets.QDialog):
         roundButton.click()
 
         self._storeDialogValues()
-
-
-def main():
-    app = QtWidgets.QApplication(sys.argv)
-
-    initialSerialDialogSettings = serial_hdlr.SerialCommSettings()
-    initialSerialDialogSettings.swFlowControl = True
-    initialSerialDialogSettings.stopbits = serial.STOPBITS_TWO
-    initialSerialDialogSettings.dataSize = serial.SIXBITS
-
-    # setupDialog = SerialSetupDialog()
-    setupDialog = SerialSetupDialog(initialSerialDialogSettings)
-    setupDialog.showDialog()
-
-    ret = app.exec_()
-
-
-if __name__ == "__main__":
-    main()
