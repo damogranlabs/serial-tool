@@ -580,30 +580,23 @@ class Gui(QtWidgets.QMainWindow):
             self.stopAllSeqThreads()  # might be a problem with unfinished, blockin sequences
 
             self.commHandler.deinitPort()  # TODO: signal or not?
-            msg = f"Disconnect request."
-            self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
+            self.writeToLogWindow("Disconnect request.", defs.LOG_COLOR_GRAY)
         else:
             # currently disconnected, connect
-            selectedPort = self.getSelectedPort()
-            if selectedPort == "":
-                errorMsg = f"No available port to init serial communication."
-                raise Exception(errorMsg)
-            else:
-                self.dataModel.serial_settings.port = selectedPort
+            serial_port = self.getSelectedPort()
+            if not serial_port:
+                raise RuntimeError("No available port to init serial communication.")
+            self.dataModel.serial_settings.port = serial_port
 
             baudrate = self.getPortBaudrate()
-            if baudrate == "":
-                errorMsg = f"Set baudrate of serial port."
-                raise Exception(errorMsg)
-            else:
-                baudrateInt = int(baudrate)
-                self.dataModel.serial_settings.baudrate = baudrateInt
+            if not baudrate:
+                raise RuntimeError("Set baudrate of serial port.")
+            self.dataModel.serial_settings.baudrate = int(baudrate)
 
             self.commHandler.serialSettings = self.dataModel.serial_settings
             self.commHandler.initPortAndReceiveThread()  # TODO: signal or not?
 
-            msg = f"Connect request."
-            self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
+            self.writeToLogWindow("Connect request.", defs.LOG_COLOR_GRAY)
 
     ################################################################################################
     # application generated events
