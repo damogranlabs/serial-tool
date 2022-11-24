@@ -2,7 +2,6 @@
 build/
 log/
 Serial Tool LOG/
-tests/
 .pytest*
 venv_*/
 
