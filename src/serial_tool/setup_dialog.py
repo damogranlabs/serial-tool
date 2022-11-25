@@ -48,8 +48,8 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.RB_stopBitsGroup.setId(self.ui.RB_stopBits_two, serial.STOPBITS_TWO)
 
         # OK/cancel buttons
-        self.ui.PB_OK.clicked.connect(partial(self.onExit, True))
-        self.ui.PB_cancel.clicked.connect(partial(self.onExit, False))
+        self.ui.PB_OK.clicked.connect(partial(self.on_exit, True))
+        self.ui.PB_cancel.clicked.connect(partial(self.on_exit, False))
 
     def display(self) -> None:
         """

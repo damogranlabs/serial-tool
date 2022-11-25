@@ -13,8 +13,7 @@ from serial_tool import defines as defs
 from serial_tool import serial_hdlr
 
 
-###################################################################################################
-class SerialDataReceiverThread(QtCore.QObject):
+class _RxDataHdlr(QtCore.QObject):
     sigRxNotEmpty = QtCore.pyqtSignal()
 
     def __init__(self, portHandler: serial_hdlr.SerialPortHandler):
@@ -85,7 +84,7 @@ class SerialDataReceiverThread(QtCore.QObject):
         return receivedData
 
 
-class SerialDataSequenceTransmitterThread(QtCore.QObject):
+class TxDataSequenceHdlr(QtCore.QObject):
     sigSequenceTransmittFinished = QtCore.pyqtSignal(int)
     sigDataSendEvent = QtCore.pyqtSignal(int, int)
 
@@ -155,7 +154,7 @@ class SerialDataSequenceTransmitterThread(QtCore.QObject):
             self.sigSequenceTransmittFinished.emit(self.seqChannel)
 
 
-class SerialToolPortHandler(QtCore.QObject):
+class PortHdlr(QtCore.QObject):
     sigInitRequest = QtCore.pyqtSignal()
     sigDeinitRequest = QtCore.pyqtSignal()
 
@@ -169,7 +168,7 @@ class SerialToolPortHandler(QtCore.QObject):
         super().__init__()
         self.serialSettings = None
         self.portHandler: serial_hdlr.SerialPortHandler = None
-        self._rxWatcher: SerialDataReceiverThread = None
+        self._rxWatcher: _RxDataHdlr = None
         self._rxWatcherThread = None
 
         self.connectSignalsToSlots()
@@ -190,7 +189,7 @@ class SerialToolPortHandler(QtCore.QObject):
     def initPortAndReceiveThread(self):
         self.portHandler = serial_hdlr.SerialPortHandler()
         if self.portHandler.init(self.serialSettings):
-            self._rxWatcher = SerialDataReceiverThread(self.portHandler)
+            self._rxWatcher = _RxDataHdlr(self.portHandler)
             self._rxWatcher.sigRxNotEmpty.connect(self.getReceivedData)  # TODO
 
             self._rxWatcherThread = QtCore.QThread()

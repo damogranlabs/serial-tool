@@ -20,7 +20,7 @@ class SharedSignalsContainer:
         self.sigError = error
 
 
-class SerialToolSettings(QtCore.QObject):
+class RuntimeDataCache(QtCore.QObject):
     sig_serial_settings_update = QtCore.pyqtSignal()
     sigDataFieldUpdate = QtCore.pyqtSignal(int)
     sigNoteFieldUpdate = QtCore.pyqtSignal(int)
