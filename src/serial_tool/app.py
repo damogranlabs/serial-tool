@@ -18,7 +18,7 @@ from PyQt5 import QtWidgets
 import serial_tool
 from serial_tool import defines as defs
 from serial_tool import models
-from serial_tool import cfgHandler
+from serial_tool import cfg_hdlr
 from serial_tool import serial_hdlr
 from serial_tool import communication
 from serial_tool import setup_dialog
@@ -122,7 +122,7 @@ class Gui(QtWidgets.QMainWindow):
         # if true, log window is currently displaying RX data (to be used with '\n on RX data')
         self._logDisplayingRxData = False
 
-        self.cfg_hdlr = cfgHandler.ConfigurationHandler(self.data_cache, self._signals)
+        self.cfg_hdlr = cfg_hdlr.ConfigurationHdlr(self.data_cache, self._signals)
 
         # init app and gui
         self.connect_signals_to_slots()
@@ -206,7 +206,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self._setMruCfgPaths()
 
-        self.cfg_hdlr.createDefaultConfiguration()
+        self.cfg_hdlr.set_default_cfg()
 
         # serial port settings
         baudrateValidator = QtGui.QIntValidator(0, serialUtil.SerialBase.BAUDRATES[-1])
@@ -397,7 +397,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         if self.confirmActionDialog("Warning!", "Create new configuration?\nThis will discard any changes!"):
             self.data_cache.cfg_file_path = None
-            self.cfg_hdlr.createDefaultConfiguration()
+            self.cfg_hdlr.set_default_cfg()
 
             msg = "New default configuration created."
             self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
@@ -419,7 +419,7 @@ class Gui(QtWidgets.QMainWindow):
         filePath = self.getSaveFileLocation("Save configuration...", cfgFilePath, defs.CFG_FILE_EXTENSION_FILTER)
         if filePath is not None:
             self.data_cache.cfg_file_path = filePath
-            self.cfg_hdlr.saveConfiguration(filePath)
+            self.cfg_hdlr.save_cfg(filePath)
 
             paths.add_cfg_to_recently_used_cfgs(filePath)
             self._setMruCfgPaths()
@@ -449,13 +449,13 @@ class Gui(QtWidgets.QMainWindow):
                 filePath = self.getOpenFileLocation("Load configuration...", cfgFolder, defs.CFG_FILE_EXTENSION_FILTER)
                 if filePath is not None:
                     self.data_cache.cfg_file_path = filePath
-                    self.cfg_hdlr.loadConfiguration(filePath)
+                    self.cfg_hdlr.load_cfg(filePath)
                     refreshMenu = True
                 else:
                     logging.debug("Load configuration request canceled.")
         else:
             filePath = os.path.normpath(filePath)
-            self.cfg_hdlr.loadConfiguration(filePath)
+            self.cfg_hdlr.load_cfg(filePath)
             self.data_cache.cfg_file_path = filePath
             refreshMenu = True
 

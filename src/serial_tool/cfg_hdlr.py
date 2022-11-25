@@ -10,20 +10,17 @@ from serial_tool import serial_hdlr
 _CFG_VERSION = 2.0  # configuration file version (not main software version)
 
 
-class ConfigurationHandler:
-    def __init__(self, data: models.RuntimeDataCache, signals: models.SharedSignalsContainer):
+class ConfigurationHdlr:
+    def __init__(self, data_cache: models.RuntimeDataCache, signals: models.SharedSignalsContainer) -> None:
         """
         This class initialize thread that constantly poll RX buffer and store receive data in a list.
         On after data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
         """
-        self.data_cache = data
+        self.data_cache = data_cache
         self.signals = signals
 
-    def saveConfiguration(self, filePath: str):
-        """
-        Overwrite data with current settings in a json format.
-            @param filePath: path where file should be created.
-        """
+    def save_cfg(self, path: str) -> None:
+        """Overwrite data with current settings in a json format."""
         wData = {}
         wData[defs.CFG_TAG_FILE_VERSION] = _CFG_VERSION
         wData[defs.CFG_TAG_SERIAL_CFG] = {}
@@ -61,21 +58,21 @@ class ConfigurationHandler:
         wData[defs.CFG_TAG_RX_NEW_LINE] = self.data_cache.new_line_on_rx
         wData[defs.CFG_TAG_RX_NEW_LINE_TIMEOUT] = self.data_cache.new_line_on_rx_timeout_msec
 
-        with open(filePath, "w+", encoding="utf-8") as fileHandler:
-            json.dump(wData, fileHandler, indent=4)
+        with open(path, "w+", encoding="utf-8") as f:
+            json.dump(wData, f, indent=4)
 
-    def loadConfiguration(self, filePath: str):
+    def load_cfg(self, path: str) -> None:
         """
         Read (load) given json file and set new configuration.
             @param filePath: path to load file from.
         """
-        with open(filePath, "r", encoding="utf-8") as fileHandler:
-            wData = json.load(fileHandler)
+        with open(path, "r", encoding="utf-8") as f:
+            wData = json.load(f)
 
         if (defs.CFG_TAG_FILE_VERSION not in wData) or (wData[defs.CFG_TAG_FILE_VERSION] != _CFG_VERSION):
             msg = "Configuration file syntax has changed - unable to set configuration."
             msg += f"\nCurrent version: {_CFG_VERSION}, config file version: {wData[defs.CFG_TAG_FILE_VERSION]}"
-            raise Exception(msg)
+            raise RuntimeError(msg)
 
         try:
             serialSettings = serial_hdlr.SerialCommSettings()
@@ -116,7 +113,7 @@ class ConfigurationHandler:
             msg = f"Unable to set log settings from a configuration file: {err}"
             self.signals.warning.emit(msg, defs.LOG_COLOR_WARNING)
 
-    def createDefaultConfiguration(self):
+    def set_default_cfg(self) -> None:
         """
         Set instance of data model with default values.
         Will emit signals to update GUI.
