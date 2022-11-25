@@ -4,14 +4,14 @@ This file holds all configuration file save/load functions and handlers.
 import json
 
 from serial_tool import defines as defs
-from serial_tool import dataModel
+from serial_tool import models
 from serial_tool import serial_hdlr
 
 _CFG_VERSION = 2.0  # configuration file version (not main software version)
 
 
 class ConfigurationHandler:
-    def __init__(self, data: dataModel.RuntimeDataCache, signals: dataModel.SharedSignalsContainer):
+    def __init__(self, data: models.RuntimeDataCache, signals: models.SharedSignalsContainer):
         """
         This class initialize thread that constantly poll RX buffer and store receive data in a list.
         On after data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.

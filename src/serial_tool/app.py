@@ -19,7 +19,6 @@ import serial_tool
 from serial_tool import defines as defs
 from serial_tool import models
 from serial_tool import cfgHandler
-from serial_tool import dataModel
 from serial_tool import serial_hdlr
 from serial_tool import communication
 from serial_tool import setup_dialog
@@ -111,10 +110,10 @@ class Gui(QtWidgets.QMainWindow):
         # set up exception handler
         sys.excepthook = self._appExceptionHandler
 
-        self._signals = dataModel.SharedSignalsContainer(self.sig_write, self.sig_warning, self.sig_error)
+        self._signals = models.SharedSignalsContainer(self.sig_write, self.sig_warning, self.sig_error)
 
         # prepare data and port handlers
-        self.data_cache = dataModel.RuntimeDataCache()
+        self.data_cache = models.RuntimeDataCache()
         self.port_hdlr = communication.PortHdlr()
 
         # RX display data newline internal logic
