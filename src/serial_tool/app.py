@@ -36,7 +36,7 @@ class Gui(QtWidgets.QMainWindow):
 
     sigClose = QtCore.pyqtSignal()
 
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Main Serial Tool application window.
         """
@@ -45,7 +45,7 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
 
         # create lists of all similar items
-        self.uiDataFields: Tuple[QtWidgets.QLineEdit, ...] = (
+        self.ui_data_fields: Tuple[QtWidgets.QLineEdit, ...] = (
             self.ui.TI_data1,
             self.ui.TI_data2,
             self.ui.TI_data3,
@@ -55,7 +55,7 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.TI_data7,
             self.ui.TI_data8,
         )
-        self.uiDataSendButtons: Tuple[QtWidgets.QPushButton, ...] = (
+        self.ui_data_send_buttons: Tuple[QtWidgets.QPushButton, ...] = (
             self.ui.PB_send1,
             self.ui.PB_send2,
             self.ui.PB_send3,
@@ -66,7 +66,7 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.PB_send8,
         )
 
-        self.uiNoteFields: Tuple[QtWidgets.QLineEdit, ...] = (
+        self.ui_note_fields: Tuple[QtWidgets.QLineEdit, ...] = (
             self.ui.TI_note1,
             self.ui.TI_note2,
             self.ui.TI_note3,
@@ -77,20 +77,20 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.TI_note8,
         )
 
-        self.uiSeqFields: Tuple[QtWidgets.QLineEdit, ...] = (
+        self.ui_seq_fields: Tuple[QtWidgets.QLineEdit, ...] = (
             self.ui.TI_sequence1,
             self.ui.TI_sequence2,
             self.ui.TI_sequence3,
         )
-        self.uiSeqSendButtons: Tuple[QtWidgets.QPushButton, ...] = (
+        self.ui_seq_send_buttons: Tuple[QtWidgets.QPushButton, ...] = (
             self.ui.PB_sendSequence1,
             self.ui.PB_sendSequence2,
             self.ui.PB_sendSequence3,
         )
-        self._seqThreads: List[Optional[QtCore.QThread]] = [
+        self._seq_threads: List[Optional[QtCore.QThread]] = [
             None
         ] * defs.NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
-        self._seqSendWorkers: List[Optional[communication.TxDataSequenceHdlr]] = [
+        self._seq_tx_workers: List[Optional[communication.TxDataSequenceHdlr]] = [
             None
         ] * defs.NUM_OF_SEQ_CHANNELS  # actual sequence handlers
 
@@ -108,7 +108,7 @@ class Gui(QtWidgets.QMainWindow):
         )
 
         # set up exception handler
-        sys.excepthook = self._appExceptionHandler
+        sys.excepthook = self._app_exc_handler
 
         self._signals = models.SharedSignalsContainer(self.sig_write, self.sig_warning, self.sig_error)
 
@@ -118,9 +118,9 @@ class Gui(QtWidgets.QMainWindow):
 
         # RX display data newline internal logic
         # timestamp of a last RX data event
-        self._lastRxEventTimestamp = time.time()
+        self._last_rx_event_timestamp = time.time()
         # if true, log window is currently displaying RX data (to be used with '\n on RX data')
-        self._logDisplayingRxData = False
+        self._display_rx_data = False
 
         self.cfg_hdlr = cfg_hdlr.ConfigurationHdlr(self.data_cache, self._signals)
 
@@ -135,108 +135,107 @@ class Gui(QtWidgets.QMainWindow):
 
     def connect_signals_to_slots(self) -> None:
         # save/load dialog
-        self.ui.PB_fileMenu_newConfiguration.triggered.connect(self.onFileCreateNewConfiguration)
-        self.ui.PB_fileMenu_saveConfiguration.triggered.connect(self.onFileSaveConfiguration)
-        self.ui.PB_fileMenu_loadConfiguration.triggered.connect(self.onFileLoadConfiguration)
+        self.ui.PB_fileMenu_newConfiguration.triggered.connect(self.on_file_create_new_cfg)
+        self.ui.PB_fileMenu_saveConfiguration.triggered.connect(self.on_file_save_cfg)
+        self.ui.PB_fileMenu_loadConfiguration.triggered.connect(self.on_file_load_cfg)
 
         # help menu
-        self.ui.PB_helpMenu_about.triggered.connect(self.onHelpAbout)
-        self.ui.PB_helpMenu_docs.triggered.connect(self.onHelpDocs)
-        self.ui.PB_helpMenu_openLogFile.triggered.connect(self.onOpenLog)
+        self.ui.PB_helpMenu_about.triggered.connect(self.on_help_about)
+        self.ui.PB_helpMenu_docs.triggered.connect(self.on_help_docs)
+        self.ui.PB_helpMenu_openLogFile.triggered.connect(self.on_open_log)
 
         # SERIAL PORT setup
-        self.ui.PB_serialSetup.clicked.connect(self.setSerialSettingsWithDialog)
-        self.ui.PB_refreshCommPortsList.clicked.connect(self.refreshPortsList)
-        self.ui.PB_commPortCtrl.clicked.connect(self.onPortHandlerButton)
+        self.ui.PB_serialSetup.clicked.connect(self.set_serial_settings_with_dialog)
+        self.ui.PB_refreshCommPortsList.clicked.connect(self.refresh_ports_list)
+        self.ui.PB_commPortCtrl.clicked.connect(self.on_port_hdlr_button)
 
         # data note data send and button fields
-        for idx, data_field in enumerate(self.uiDataFields):
-            data_field.textChanged.connect(partial(self.onDataFieldChange, idx))
+        for idx, data_field in enumerate(self.ui_data_fields):
+            data_field.textChanged.connect(partial(self.on_data_field_change, idx))
 
-        for idx, data_send_pb in enumerate(self.uiDataSendButtons):
-            data_send_pb.clicked.connect(partial(self.onSendDataButton, idx))
+        for idx, data_send_pb in enumerate(self.ui_data_send_buttons):
+            data_send_pb.clicked.connect(partial(self.on_send_data_button, idx))
 
-        for idx, note_field in enumerate(self.uiNoteFields):
-            note_field.textChanged.connect(partial(self.onNoteFieldChange, idx))
+        for idx, note_field in enumerate(self.ui_note_fields):
+            note_field.textChanged.connect(partial(self.on_note_field_change, idx))
 
         # sequence fields
-        for idx, seq_field in enumerate(self.uiSeqFields):
-            seq_field.textChanged.connect(partial(self.onSeqFieldChange, idx))
+        for idx, seq_field in enumerate(self.ui_seq_fields):
+            seq_field.textChanged.connect(partial(self.on_seq_field_change, idx))
 
-        for idx, seq_send_pb in enumerate(self.uiSeqSendButtons):
-            seq_send_pb.clicked.connect(partial(self.onSendStopSequenceButton, idx))
+        for idx, seq_send_pb in enumerate(self.ui_seq_send_buttons):
+            seq_send_pb.clicked.connect(partial(self.on_send_stop_seq_button, idx))
 
         # log
-        self.ui.PB_clearLog.clicked.connect(self.clearLogWindow)
-        self.ui.PB_exportLog.clicked.connect(self.saveLogWindowToFile)
-        self.ui.PB_exportRxTxData.clicked.connect(self.saveRxTxDataToFile)
-        self.ui.CB_rxToLog.clicked.connect(self.onRxDisplayModeChange)
-        self.ui.CB_txToLog.clicked.connect(self.onTxDisplayModeChange)
-        self.ui.RB_GROUP_outputRepresentation.buttonClicked.connect(self.onOutputRepresentationModeChange)
-        self.ui.CB_rxNewLine.clicked.connect(self.onRxNewLineChange)
-        self.ui.SB_rxTimeoutMs.valueChanged.connect(self.onRxNewLineTimeoutChange)
+        self.ui.PB_clearLog.clicked.connect(self.clear_log_window)
+        self.ui.PB_exportLog.clicked.connect(self.save_log_window)
+        self.ui.PB_exportRxTxData.clicked.connect(self.save_rx_tx_data)
+        self.ui.CB_rxToLog.clicked.connect(self.on_rx_display_mode_change)
+        self.ui.CB_txToLog.clicked.connect(self.on_tx_display_mode_change)
+        self.ui.RB_GROUP_outputRepresentation.buttonClicked.connect(self.on_out_representation_mode_change)
+        self.ui.CB_rxNewLine.clicked.connect(self.on_rx_new_line_change)
+        self.ui.SB_rxTimeoutMs.valueChanged.connect(self.on_rx_new_line_timeout_change)
 
     def connect_app_signals_to_slots(self) -> None:
-        self.sig_write.connect(self.writeToLogWindow)
-        self.sig_warning.connect(self.writeToLogWindow)
-        self.sig_error.connect(self.writeToLogWindow)
+        self.sig_write.connect(self.log_text)
+        self.sig_warning.connect(self.log_text)
+        self.sig_error.connect(self.log_text)
 
-        self.sigClose.connect(self.onQuitApplicationEvent)
+        self.sigClose.connect(self.on_quit_app_event)
 
-        self.port_hdlr.sigConnectionSuccessfull.connect(self.onConnectEvent)
-        self.port_hdlr.sigConnectionClosed.connect(self.onDisconnectEvent)
-        self.port_hdlr.sigDataReceived.connect(self.onDataReceiveEvent)
+        self.port_hdlr.sigConnectionSuccessfull.connect(self.on_connect_event)
+        self.port_hdlr.sigConnectionClosed.connect(self.on_disconnect_event)
+        self.port_hdlr.sigDataReceived.connect(self.on_data_received_event)
 
     def connect_update_signals_to_slots(self) -> None:
-        self.data_cache.sig_serial_settings_update.connect(self.onSerialSettingsUpdate)
-        self.data_cache.sigDataFieldUpdate.connect(self.onDataFieldUpdate)
-        self.data_cache.sigNoteFieldUpdate.connect(self.onNoteFieldUpdate)
-        self.data_cache.sigSeqFieldUpdate.connect(self.onSeqFieldUpdate)
-        self.data_cache.sigRxDisplayModeUpdate.connect(self.onRxDisplayModeUpdate)
-        self.data_cache.sigTxDisplayModeUpdate.connect(self.onTxDisplayModeUpdate)
-        self.data_cache.sigOutputRepresentationModeUpdate.connect(self.onOutputRepresentationModeUpdate)
-        self.data_cache.sigRxNewLineUpdate.connect(self.onRxNewLineUpdate)
+        self.data_cache.sig_serial_settings_update.connect(self.on_serial_settings_update)
+        self.data_cache.sigDataFieldUpdate.connect(self.on_data_field_update)
+        self.data_cache.sigNoteFieldUpdate.connect(self.on_note_field_update)
+        self.data_cache.sigSeqFieldUpdate.connect(self.on_seq_field_update)
+        self.data_cache.sigRxDisplayModeUpdate.connect(self.on_rx_display_mode_update)
+        self.data_cache.sigTxDisplayModeUpdate.connect(self.on_tx_display_mode_update)
+        self.data_cache.sigOutputRepresentationModeUpdate.connect(self.on_out_representation_mode_update)
+        self.data_cache.sigRxNewLineUpdate.connect(self.on_rx_new_line_update)
 
     def init_gui(self) -> None:
         """
         Init GUI once created (check data/sequence fields, ...).
         """
         # update current window name with version string
-        self.setAplicationWindowName()
+        self.set_main_window_name()
 
-        self._setMruCfgPaths()
+        self._set_mru_cfg_paths()
 
         self.cfg_hdlr.set_default_cfg()
 
         # serial port settings
-        baudrateValidator = QtGui.QIntValidator(0, serialUtil.SerialBase.BAUDRATES[-1])
-        self.ui.DD_baudrate.setValidator(baudrateValidator)
-        baudratesAsString = list(map(str, serialUtil.SerialBase.BAUDRATES))
-        self.ui.DD_baudrate.addItems(baudratesAsString)
+        baudrate_validator = QtGui.QIntValidator(0, serialUtil.SerialBase.BAUDRATES[-1])
+        self.ui.DD_baudrate.setValidator(baudrate_validator)
+        self.ui.DD_baudrate.addItems([str(baudrate) for baudrate in serialUtil.SerialBase.BAUDRATES])
 
-        defaultBaudrateListIndex = serialUtil.SerialBase.BAUDRATES.index(defs.DEFAULT_BAUDRATE)
-        self.ui.DD_baudrate.setCurrentIndex(defaultBaudrateListIndex)
+        default_baudrate_idx = serialUtil.SerialBase.BAUDRATES.index(defs.DEFAULT_BAUDRATE)
+        self.ui.DD_baudrate.setCurrentIndex(default_baudrate_idx)
 
         # log fields
-        self.clearLogWindow()
+        self.clear_log_window()
 
         logging.info("GUI initialized.")
 
-    def _setMruCfgPaths(self) -> None:
+    def _set_mru_cfg_paths(self) -> None:
         """
         Set most recently used configurations to "File menu > Recently used configurations" list
         """
         self.ui.PB_fileMenu_recentlyUsedConfigurations.clear()
 
-        mruCfgFiles = paths.get_recently_used_cfgs(defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
-        for mruCfgFile in mruCfgFiles:
-            fileName = os.path.basename(mruCfgFile)
+        files = paths.get_recently_used_cfgs(defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
+        for file_path in files:
+            name = os.path.basename(file_path)
 
-            mruCfgAction = QtWidgets.QAction(fileName, self)
-            mruCfgAction.triggered.connect(partial(self.onFileLoadConfiguration, mruCfgFile))
-            self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(mruCfgAction)
+            action = QtWidgets.QAction(name, self)
+            action.triggered.connect(partial(self.on_file_load_cfg, file_path))
+            self.ui.PB_fileMenu_recentlyUsedConfigurations.addAction(action)
 
-    def setAplicationWindowName(self, name: Optional[str] = None) -> None:
+    def set_main_window_name(self, name: Optional[str] = None) -> None:
         """
         Set additional name to the main application GUI window.
 
@@ -249,56 +248,52 @@ class Gui(QtWidgets.QMainWindow):
 
         self.setWindowTitle(main_name)
 
-    def getSelectedPort(self) -> str:
-        """
-        Return name of currently selected serial port from a drop down menu.
-        """
+    def get_selected_port(self) -> str:
+        """Return name of currently selected serial port from a drop down menu."""
         return self.ui.DD_commPortSelector.currentText()
 
-    def getPortBaudrate(self) -> str:
-        """
-        Return selected/set baudrate from a drop down menu.
-        """
+    def get_selected_baudrate(self) -> str:
+        """Return selected/set baudrate from a drop down menu."""
         return self.ui.DD_baudrate.currentText()
 
-    def setDataSendButtonState(self, channel: int, state: bool) -> None:
+    def set_data_button_state(self, channel: int, state: bool) -> None:
         """
         Set chosen data data channel push button state to enabled/disabled.
             @param channel: index of data field channel
             @param state: if True, button is enabled. Disabled otherwise.
         """
-        self.uiDataSendButtons[channel].setEnabled(state)
+        self.ui_data_send_buttons[channel].setEnabled(state)
 
-    def setAllDataSendButtonState(self, state: bool) -> None:
+    def set_data_buttons_state(self, state: bool) -> None:
         """
         Set all data send push button state to enabled/disabled.
             @param state: if True, buttons are enabled. Disabled otherwise.
         """
-        for button in self.uiDataSendButtons:
+        for button in self.ui_data_send_buttons:
             button.setEnabled(state)
 
-    def setSeqSendButtonState(self, channel: int, state: bool) -> None:
+    def set_new_button_state(self, channel: int, state: bool) -> None:
         """
         Set chosen sequence data channel push button state to enabled/disabled.
             @param channel: index of sequence field channel
             @param state: if True, button is enabled. Disabled otherwise.
         """
-        self.uiSeqSendButtons[channel].setEnabled(state)
+        self.ui_seq_send_buttons[channel].setEnabled(state)
 
-    def setAllSeqSendButtonState(self, state: bool) -> None:
+    def set_new_buttons_state(self, state: bool) -> None:
         """
         Set all sequence send push button state to enabled/disabled.
             @param state: if True, buttons are enabled. Disabled otherwise.
         """
-        for button in self.uiSeqSendButtons:
+        for button in self.ui_seq_send_buttons:
             button.setEnabled(state)
 
-    def stopAllSeqThreads(self) -> None:
+    def stop_all_seq_tx_threads(self) -> None:
         """
         Stop all sequence threads.
         Ignore exceptions.
         """
-        for seqIndex, seqWorker in enumerate(self._seqSendWorkers):
+        for seqIndex, seqWorker in enumerate(self._seq_tx_workers):
             try:
                 if seqWorker is not None:
                     seqWorker.sigSequenceStopRequest.emit()
@@ -310,7 +305,7 @@ class Gui(QtWidgets.QMainWindow):
         color = models.TextFieldStatus.get_color(status)
         field.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {color}")
 
-    def setConnectionButtonState(self, state: bool) -> None:
+    def set_connection_buttons_state(self, state: bool) -> None:
         """
         Set comm port connection status button state (text and color).
             @param state:
@@ -328,17 +323,15 @@ class Gui(QtWidgets.QMainWindow):
                 f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.COMM_PORT_NOT_CONNECTED_COLOR}"
             )
 
-    def getRxNewLineTimeoutMs(self) -> int:
+    def get_rx_new_line_timeout_msec(self) -> int:
         """
         Return value from RX new line spinbox timeout setting.
         """
-        value = self.ui.SB_rxTimeoutMs.value() / 1e3  # (to ms conversion)
-
-        return int(value)
+        return int(self.ui.SB_rxTimeoutMs.value() // 1e3)  # (to ms conversion)
 
     @QtCore.pyqtSlot(str, str)
-    def writeToLogWindow(
-        self, msg: str, color: str = defs.LOG_COLOR_NORMAL, appendNewLine: bool = True, ensureInNewline: bool = True
+    def log_text(
+        self, msg: str, color: str = defs.LOG_COLOR_NORMAL, append_new_line: bool = True, ensure_new_line: bool = True
     ) -> None:
         """
         Write to log window with a given color.
@@ -347,17 +340,17 @@ class Gui(QtWidgets.QMainWindow):
             @param appendNewLine: if True, new line terminator is appended to a message
             @param ensureInNewline: if True, additional cursor position check is implemented so given msg is really displayed in new line.
         """
-        self._logDisplayingRxData = False
+        self._display_rx_data = False
 
-        if appendNewLine:
+        if append_new_line:
             msg = f"{msg}\n"
 
-        if ensureInNewline:
+        if ensure_new_line:
             if self.ui.TE_log.textCursor().position() != 0:
                 msg = f"\n{msg}"
 
         # if autoscroll is not in use, set previous location.
-        currentVerticalScrollBarPos = self.ui.TE_log.verticalScrollBar().value()
+        current_vertical_scrollbar_pos = self.ui.TE_log.verticalScrollBar().value()
         # always insert at the end of the log window
         self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)
 
@@ -368,11 +361,11 @@ class Gui(QtWidgets.QMainWindow):
         if self.ui.PB_autoScroll.isChecked():
             self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)
         else:
-            self.ui.TE_log.verticalScrollBar().setValue(currentVerticalScrollBarPos)
+            self.ui.TE_log.verticalScrollBar().setValue(current_vertical_scrollbar_pos)
 
         logging.debug(f"[LOG_WINDOW]: {msg.strip()}")
 
-    def writeHtmlToLogWindow(self, msg: str) -> None:
+    def log_html(self, msg: str) -> None:
         """
         Write HTML content to log window with a given color.
             @param msg: html formatted message to write to log window.
@@ -391,23 +384,22 @@ class Gui(QtWidgets.QMainWindow):
     # Menu bar slots
     ################################################################################################
     @QtCore.pyqtSlot()
-    def onFileCreateNewConfiguration(self) -> None:
+    def on_file_create_new_cfg(self) -> None:
         """
         Create new blank configuration and discard any current settings. User is previously asked for confirmation.
         """
-        if self.confirmActionDialog("Warning!", "Create new configuration?\nThis will discard any changes!"):
+        if self.confirm_action_dialog("Warning!", "Create new configuration?\nThis will discard any changes!"):
             self.data_cache.cfg_file_path = None
             self.cfg_hdlr.set_default_cfg()
 
-            msg = "New default configuration created."
-            self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
+            self.log_text("New default configuration created.", defs.LOG_COLOR_GRAY)
 
-            self.setAplicationWindowName()
+            self.set_main_window_name()
         else:
             logging.debug("New configuration request canceled.")
 
     @QtCore.pyqtSlot()
-    def onFileSaveConfiguration(self) -> None:
+    def on_file_save_cfg(self) -> None:
         """
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
@@ -416,75 +408,71 @@ class Gui(QtWidgets.QMainWindow):
         else:
             cfgFilePath = self.data_cache.cfg_file_path
 
-        filePath = self.getSaveFileLocation("Save configuration...", cfgFilePath, defs.CFG_FILE_EXTENSION_FILTER)
-        if filePath is not None:
-            self.data_cache.cfg_file_path = filePath
-            self.cfg_hdlr.save_cfg(filePath)
-
-            paths.add_cfg_to_recently_used_cfgs(filePath)
-            self._setMruCfgPaths()
-
-            msg = f"Configuration saved: {filePath}"
-            self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
-
-            self.setAplicationWindowName(filePath)
-        else:
+        path = self.ask_for_save_file_path("Save configuration...", cfgFilePath, defs.CFG_FILE_EXTENSION_FILTER)
+        if path is None:
             logging.debug("Save configuration request canceled.")
+        else:
+            self.data_cache.cfg_file_path = path
+            self.cfg_hdlr.save_cfg(path)
+
+            paths.add_cfg_to_recently_used_cfgs(path)
+            self._set_mru_cfg_paths()
+
+            self.log_text(f"Configuration saved: {path}", defs.LOG_COLOR_GRAY)
+            self.set_main_window_name(path)
 
     @QtCore.pyqtSlot()
-    def onFileLoadConfiguration(self, filePath: Optional[str] = None) -> None:
+    def on_file_load_cfg(self, path: Optional[str] = None) -> None:
         """
         Load configuration from a file and discard any current settings. User is previously asked for confirmation.
             @param filePath: if None, user is asked to entry file path.
         """
-        refreshMenu = False
+        refresh_menu = False
 
-        if filePath is None:
+        if path is None:
             if self.data_cache.cfg_file_path is None:
-                cfgFolder = paths.get_default_log_dir()
+                cfg_dir = paths.get_default_log_dir()
             else:
-                cfgFolder = os.path.dirname(self.data_cache.cfg_file_path)
+                cfg_dir = os.path.dirname(self.data_cache.cfg_file_path)
 
-            if self.confirmActionDialog("Warning!", "Loading new configuration?\nThis will discard any changes!"):
-                filePath = self.getOpenFileLocation("Load configuration...", cfgFolder, defs.CFG_FILE_EXTENSION_FILTER)
-                if filePath is not None:
-                    self.data_cache.cfg_file_path = filePath
-                    self.cfg_hdlr.load_cfg(filePath)
-                    refreshMenu = True
+            if self.confirm_action_dialog("Warning!", "Loading new configuration?\nThis will discard any changes!"):
+                path = self.ask_for_open_file_path("Load configuration...", cfg_dir, defs.CFG_FILE_EXTENSION_FILTER)
+                if path is not None:
+                    self.data_cache.cfg_file_path = path
+                    self.cfg_hdlr.load_cfg(path)
+                    refresh_menu = True
                 else:
                     logging.debug("Load configuration request canceled.")
         else:
-            filePath = os.path.normpath(filePath)
-            self.cfg_hdlr.load_cfg(filePath)
-            self.data_cache.cfg_file_path = filePath
-            refreshMenu = True
+            path = os.path.normpath(path)
+            self.cfg_hdlr.load_cfg(path)
+            self.data_cache.cfg_file_path = path
+            refresh_menu = True
 
-        if refreshMenu:
-            paths.add_cfg_to_recently_used_cfgs(filePath)
-            self._setMruCfgPaths()
+        assert path is not None
+        if refresh_menu:
+            paths.add_cfg_to_recently_used_cfgs(path)
+            self._set_mru_cfg_paths()
 
-            msg = f"Configuration loaded: {filePath}"
-            self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
-
-            self.setAplicationWindowName(filePath)
+            self.log_text(f"Configuration loaded: {path}", defs.LOG_COLOR_GRAY)
+            self.set_main_window_name(path)
 
     @QtCore.pyqtSlot()
-    def onHelpAbout(self) -> None:
+    def on_help_about(self) -> None:
         """
         Print current version and info links to log window.
         """
-        aboutLines = []
-        aboutLines.append(f"<br>************ Serial Tool v{serial_tool.__version__} ************")
+        lines = []
+        lines.append(f"<br>************ Serial Tool v{serial_tool.__version__} ************")
         # add extra new line
-        aboutLines.append(f'Domen Jurkovic @ <a href="{defs.LINK_DAMOGRANLABS}">Damogran Labs</a><br>')
-        aboutLines.append(f'GitHub (docs, releases): <a href="{defs.LINK_GITHUB}">{defs.LINK_GITHUB}</a>')
-        aboutLines.append(f'Homepage: <a href="{defs.LINK_HOMEPAGE}">{defs.LINK_HOMEPAGE}</a>')
+        lines.append(f'Domen Jurkovic @ <a href="{defs.LINK_DAMOGRANLABS}">Damogran Labs</a><br>')
+        lines.append(f'GitHub (docs, releases): <a href="{defs.LINK_GITHUB}">{defs.LINK_GITHUB}</a>')
+        lines.append(f'Homepage: <a href="{defs.LINK_HOMEPAGE}">{defs.LINK_HOMEPAGE}</a>')
 
-        mergedLines = "<br>".join(aboutLines)
-        self.writeHtmlToLogWindow(mergedLines)
+        self.log_html("<br>".join(lines))
 
     @QtCore.pyqtSlot()
-    def onHelpDocs(self) -> None:
+    def on_help_docs(self) -> None:
         """
         Open Github README page in a web browser.
         """
@@ -493,7 +481,7 @@ class Gui(QtWidgets.QMainWindow):
         logging.debug("Online docs opened.")
 
     @QtCore.pyqtSlot()
-    def onOpenLog(self) -> None:
+    def on_open_log(self) -> None:
         """
         Open Serial Tool log file.
         """
@@ -505,7 +493,7 @@ class Gui(QtWidgets.QMainWindow):
     # serial settings slots
     ################################################################################################
     @QtCore.pyqtSlot()
-    def setSerialSettingsWithDialog(self) -> None:
+    def set_serial_settings_with_dialog(self) -> None:
         """
         Open serial settings dialog and set new port settings.
         """
@@ -517,46 +505,45 @@ class Gui(QtWidgets.QMainWindow):
         if dialog.must_apply_settings():
             self.data_cache.serial_settings = dialog.get_settings()
 
-            self.refreshPortsList()
+            self.refresh_ports_list()
 
-            msg = f"New serial settings applied: {self.data_cache.serial_settings}"
-            self.writeToLogWindow(msg, defs.LOG_COLOR_GRAY)
+            self.log_text(f"New serial settings applied: {self.data_cache.serial_settings}", defs.LOG_COLOR_GRAY)
         else:
             logging.debug("New serial settings request canceled.")
 
     @QtCore.pyqtSlot()
-    def onSerialSettingsUpdate(self) -> None:
+    def on_serial_settings_update(self) -> None:
         """
         Load new serial settings dialog values from data model.
         """
-        self.refreshPortsList()  # also de-init
+        self.refresh_ports_list()  # also de-init
 
         if self.data_cache.serial_settings.port is not None:
-            chosenCommPort = self.ui.DD_commPortSelector.findText(self.data_cache.serial_settings.port)
-            if chosenCommPort == -1:
-                self.writeToLogWindow(
+            port = self.ui.DD_commPortSelector.findText(self.data_cache.serial_settings.port)
+            if port == -1:
+                self.log_text(
                     f"No {self.data_cache.serial_settings.port} serial port currently available.",
                     defs.LOG_COLOR_WARNING,
                 )
             else:
-                self.ui.DD_commPortSelector.setCurrentIndex(chosenCommPort)
+                self.ui.DD_commPortSelector.setCurrentIndex(port)
 
         if self.data_cache.serial_settings.baudrate is not None:
-            chosenBaudrate = self.ui.DD_baudrate.findText(str(self.data_cache.serial_settings.baudrate))
-            if chosenBaudrate == -1:
-                self.writeToLogWindow(
+            baudrate = self.ui.DD_baudrate.findText(str(self.data_cache.serial_settings.baudrate))
+            if baudrate == -1:
+                self.log_text(
                     f"No {self.data_cache.serial_settings.baudrate} baudrate available, manually added.",
                     defs.LOG_COLOR_WARNING,
                 )
                 self.ui.DD_baudrate.addItem(str(self.data_cache.serial_settings.baudrate))
                 self.ui.DD_baudrate.setCurrentText(str(self.data_cache.serial_settings.baudrate))
             else:
-                self.ui.DD_baudrate.setCurrentIndex(chosenBaudrate)
+                self.ui.DD_baudrate.setCurrentIndex(baudrate)
 
         logging.debug("New serial settings applied.")
 
     @QtCore.pyqtSlot()
-    def refreshPortsList(self) -> None:
+    def refresh_ports_list(self) -> None:
         """
         Refresh list of available serial port list. Will close current port.
         """
@@ -564,29 +551,29 @@ class Gui(QtWidgets.QMainWindow):
 
         self.port_hdlr.deinitPort()  # TODO: signal or not?
 
-        availablePorts = serial_hdlr.SerialPortHandler().get_available_ports()
+        ports = serial_hdlr.SerialPortHandler().get_available_ports()
         self.ui.DD_commPortSelector.clear()
-        self.ui.DD_commPortSelector.addItems(list(reversed(availablePorts)))
+        self.ui.DD_commPortSelector.addItems(list(reversed(ports)))
 
     @QtCore.pyqtSlot()
-    def onPortHandlerButton(self) -> None:
+    def on_port_hdlr_button(self) -> None:
         """
         Connect/disconnect from a port with serial settings.
         """
         if self.ui.PB_commPortCtrl.text() == defs.COMM_PORT_CONNECTED_TEXT:
             # currently connected, stop all sequences and disconnect
-            self.stopAllSeqThreads()  # might be a problem with unfinished, blockin sequences
+            self.stop_all_seq_tx_threads()  # might be a problem with unfinished, blockin sequences
 
             self.port_hdlr.deinitPort()  # TODO: signal or not?
-            self.writeToLogWindow("Disconnect request.", defs.LOG_COLOR_GRAY)
+            self.log_text("Disconnect request.", defs.LOG_COLOR_GRAY)
         else:
             # currently disconnected, connect
-            serial_port = self.getSelectedPort()
+            serial_port = self.get_selected_port()
             if not serial_port:
                 raise RuntimeError("No available port to init serial communication.")
             self.data_cache.serial_settings.port = serial_port
 
-            baudrate = self.getPortBaudrate()
+            baudrate = self.get_selected_baudrate()
             if not baudrate:
                 raise RuntimeError("Set baudrate of serial port.")
             self.data_cache.serial_settings.baudrate = int(baudrate)
@@ -594,128 +581,126 @@ class Gui(QtWidgets.QMainWindow):
             self.port_hdlr.serialSettings = self.data_cache.serial_settings
             self.port_hdlr.initPortAndReceiveThread()  # TODO: signal or not?
 
-            self.writeToLogWindow("Connect request.", defs.LOG_COLOR_GRAY)
+            self.log_text("Connect request.", defs.LOG_COLOR_GRAY)
 
     ################################################################################################
     # application generated events
     ################################################################################################
     @QtCore.pyqtSlot()
-    def onConnectEvent(self) -> None:
+    def on_connect_event(self) -> None:
         """
         This function is called once connection to port is successfully created.
         """
-        self.setConnectionButtonState(True)
+        self.set_connection_buttons_state(True)
         self.ui.DD_commPortSelector.setEnabled(False)
         self.ui.DD_baudrate.setEnabled(False)
 
-        for idx, _ in enumerate(self.uiDataFields):
+        for idx, _ in enumerate(self.ui_data_fields):
             result = self._parse_data_field(idx)
             if result.status == models.TextFieldStatus.OK:
-                self.setDataSendButtonState(idx, True)
+                self.set_data_button_state(idx, True)
             else:
-                self.setDataSendButtonState(idx, False)
+                self.set_data_button_state(idx, False)
 
-        for seqFieldIndex, _ in enumerate(self.uiSeqFields):
-            result = self._parse_seq_data_field(seqFieldIndex)
+        for idx, _ in enumerate(self.ui_seq_fields):
+            result = self._parse_seq_data_field(idx)
             if result.status:
                 for block in result.data:
                     if self.data_cache.parsed_data_fields[block.channel_idx] is None:
-                        self.setSeqSendButtonState(seqFieldIndex, False)
+                        self.set_new_button_state(idx, False)
                         break
                 else:
-                    self.setSeqSendButtonState(seqFieldIndex, True)
+                    self.set_new_button_state(idx, True)
             else:
-                self.setSeqSendButtonState(seqFieldIndex, False)
+                self.set_new_button_state(idx, False)
 
         logging.debug("\tEvent: connect")
 
     @QtCore.pyqtSlot()
-    def onDisconnectEvent(self) -> None:
+    def on_disconnect_event(self) -> None:
         """
         This function is called once connection to port is closed.
         """
-        self.setConnectionButtonState(False)
+        self.set_connection_buttons_state(False)
         self.ui.DD_commPortSelector.setEnabled(True)
         self.ui.DD_baudrate.setEnabled(True)
 
-        self.setAllDataSendButtonState(False)
-        self.setAllSeqSendButtonState(False)
+        self.set_data_buttons_state(False)
+        self.set_new_buttons_state(False)
 
         logging.debug("\tEvent: disconnect")
 
     @QtCore.pyqtSlot(list)
-    def onDataReceiveEvent(self, data: List[int]) -> None:
+    def on_data_received_event(self, data: List[int]) -> None:
         """
         This function is called once data is received on a serial port.
         """
-        dataString = self._convert_data(data, self.data_cache.output_data_representation)
+        data_str = self._convert_data(data, self.data_cache.output_data_representation)
 
         self.data_cache.all_rx_tx_data.append(f"{defs.EXPORT_RX_TAG}{data}")
         if self.data_cache.display_rx_data:
-            msg = f"{dataString}"
+            msg = f"{data_str}"
             if self.data_cache.new_line_on_rx:
                 # insert \n on RX data, after specified timeout
-                if self._logDisplayingRxData:
+                if self._display_rx_data:
                     # we are in the middle of displaying RX data, check timestamp delta
-                    if (time.time() - self._lastRxEventTimestamp) > self.getRxNewLineTimeoutMs():
-                        msg = f"\n{dataString}"
+                    if (time.time() - self._last_rx_event_timestamp) > self.get_rx_new_line_timeout_msec():
+                        msg = f"\n{data_str}"
                     # else: # not enough time has passed, just add data without new line
                 # else: # some RX data or other message was displayed in log window since last RX data display
             # else: # no RX on new line is needed, just add RX data
-            self.writeToLogWindow(msg, defs.RX_DATA_LOG_COLOR, False, False)
-            self._logDisplayingRxData = True
+            self.log_text(msg, defs.RX_DATA_LOG_COLOR, False, False)
+            self._display_rx_data = True
 
-        self._lastRxEventTimestamp = time.time()
+        self._last_rx_event_timestamp = time.time()
 
-        logging.debug(f"\tEvent: data received: {dataString}")
+        logging.debug(f"\tEvent: data received: {data_str}")
 
     @QtCore.pyqtSlot(int)
-    def onSendSequenceFinishEvent(self, channel: int) -> None:
+    def on_seq_finish_event(self, channel: int) -> None:
         """
         This function is called once sequence sending thread is finished.
             @param channel: sequence channel.
         """
-        self.uiSeqSendButtons[channel].setText(defs.SEQ_BUTTON_START_TEXT)
-        self.uiSeqSendButtons[channel].setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: None")
-        self._seqThreads[channel] = None
+        self.ui_seq_send_buttons[channel].setText(defs.SEQ_BUTTON_START_TEXT)
+        self.ui_seq_send_buttons[channel].setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: None")
+        self._seq_threads[channel] = None
 
         logging.debug(f"\tEvent: sequence {channel + 1} finished")
 
     @QtCore.pyqtSlot(int, int)
-    def onSequenceSendEvent(self, seqChannel: int, dataChannel: int) -> None:
+    def on_seq_send_event(self, seq: int, channel: int) -> None:
         """
         This function is called once data is send from send sequence thread.
             @param seqChannel: index of sequence channel index.
             @param dataChannel: index of data channel index.
         """
-        data = self.data_cache.parsed_data_fields[dataChannel]
+        data = self.data_cache.parsed_data_fields[channel]
         assert data is not None
         data_str = self._convert_data(data, self.data_cache.output_data_representation)
 
-        self.data_cache.all_rx_tx_data.append(
-            f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}{defs.EXPORT_TX_TAG}{data}"
-        )
+        self.data_cache.all_rx_tx_data.append(f"{defs.SEQ_TAG}{seq+1}_CH{channel+1}{defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
-            msg = f"{defs.SEQ_TAG}{seqChannel+1}_CH{dataChannel+1}: {data_str}"
+            msg = f"{defs.SEQ_TAG}{seq+1}_CH{channel+1}: {data_str}"
 
-            self.writeToLogWindow(msg, defs.TX_DATA_LOG_COLOR)
+            self.log_text(msg, defs.TX_DATA_LOG_COLOR)
 
-        logging.debug(f"\tEvent: sequence {seqChannel + 1}, data channel {dataChannel + 1} send request")
+        logging.debug(f"\tEvent: sequence {seq + 1}, data channel {channel + 1} send request")
 
     @QtCore.pyqtSlot(int)
-    def stopSequenceRequestEvent(self, channel: int) -> None:
+    def stop_seq_request_event(self, channel: int) -> None:
         """
         Display "stop" request sequence action.
             @param channel: sequence button channel.
         """
-        worker = self._seqSendWorkers[channel]
+        worker = self._seq_tx_workers[channel]
         assert worker is not None
         worker.sigSequenceStopRequest.emit()
 
         logging.debug(f"\tEvent: sequence {channel + 1} stop request")
 
     @QtCore.pyqtSlot()
-    def onQuitApplicationEvent(self) -> None:
+    def on_quit_app_event(self) -> None:
         """
         Deinit serial port, close GUI.
         """
@@ -727,117 +712,117 @@ class Gui(QtWidgets.QMainWindow):
     # data/sequence fields/buttons slots
     ################################################################################################
     @QtCore.pyqtSlot(int)
-    def onDataFieldUpdate(self, channel: int) -> None:
+    def on_data_field_update(self, channel: int) -> None:
         """
         Actions to take place once data field is updated (for example, from load configuration).
             @param channel: index of data field
         """
-        self.uiDataFields[channel].setText(self.data_cache.data_fields[channel])
-        self.onDataFieldChange(channel)
+        self.ui_data_fields[channel].setText(self.data_cache.data_fields[channel])
+        self.on_data_field_change(channel)
 
     @QtCore.pyqtSlot(int)
-    def onNoteFieldUpdate(self, channel: int) -> None:
+    def on_note_field_update(self, channel: int) -> None:
         """
         Actions to take place once note field is updated (for example, from load configuration).
             @param channel: index of note field
         """
-        self.uiNoteFields[channel].setText(self.data_cache.note_fields[channel])
+        self.ui_note_fields[channel].setText(self.data_cache.note_fields[channel])
 
     @QtCore.pyqtSlot(int)
-    def onSeqFieldUpdate(self, channel: int) -> None:
+    def on_seq_field_update(self, channel: int) -> None:
         """
         Actions to take place once sequence field is updated (for example, from load configuration).
             @param channel: index of data field
         """
-        self.uiSeqFields[channel].setText(self.data_cache.seq_fields[channel])
-        self.onSeqFieldChange(channel)
+        self.ui_seq_fields[channel].setText(self.data_cache.seq_fields[channel])
+        self.on_seq_field_change(channel)
 
     @QtCore.pyqtSlot(int)
-    def onDataFieldChange(self, channel: int) -> None:
+    def on_data_field_change(self, channel: int) -> None:
         """
         Actions to take place once any data field is changed.
             @param channel: index of data field
         """
-        self.data_cache.data_fields[channel] = self.uiDataFields[channel].text()
+        self.data_cache.data_fields[channel] = self.ui_data_fields[channel].text()
 
         result = self._parse_data_field(channel)
-        self.colorize_text_field(self.uiDataFields[channel], result.status)
+        self.colorize_text_field(self.ui_data_fields[channel], result.status)
 
         if result.status == models.TextFieldStatus.OK:
             assert result.data is not None
             self.data_cache.parsed_data_fields[channel] = result.data
             if self.port_hdlr.isConnected():
-                self.setDataSendButtonState(channel, True)
+                self.set_data_button_state(channel, True)
             else:
-                self.setDataSendButtonState(channel, False)
+                self.set_data_button_state(channel, False)
         else:  # False or None (empty field)
             self.data_cache.parsed_data_fields[channel] = None
-            self.setDataSendButtonState(channel, False)
+            self.set_data_button_state(channel, False)
 
         # update sequence fields - sequence fields depends on data fields.
-        for seqFieldIndex, _ in enumerate(self.uiSeqFields):
-            self.onSeqFieldChange(seqFieldIndex)
+        for idx, _ in enumerate(self.ui_seq_fields):
+            self.on_seq_field_change(idx)
 
     @QtCore.pyqtSlot(int)
-    def onNoteFieldChange(self, channel: int) -> None:
+    def on_note_field_change(self, channel: int) -> None:
         """
         Actions to take place once any of note field is changed.
             @param channel: index of note field
         """
-        noteFieldText = self.uiNoteFields[channel].text()
+        noteFieldText = self.ui_note_fields[channel].text()
         self.data_cache.note_fields[channel] = noteFieldText.strip()
 
     @QtCore.pyqtSlot(int)
-    def onSeqFieldChange(self, channel: int) -> None:
+    def on_seq_field_change(self, channel: int) -> None:
         """
         Actions to take place once any sequence field is changed.
             @param channel: index of sequence field
 
         TODO: colorize sequence RED if any of selected data channels is not valid
         """
-        self.data_cache.seq_fields[channel] = self.uiSeqFields[channel].text()
+        self.data_cache.seq_fields[channel] = self.ui_seq_fields[channel].text()
 
         result = self._parse_seq_data_field(channel)
-        self.colorize_text_field(self.uiSeqFields[channel], result.status)
+        self.colorize_text_field(self.ui_seq_fields[channel], result.status)
 
         if result.status == models.TextFieldStatus.OK:
             self.data_cache.parsed_seq_fields[channel] = result.data
             # check if seq button can be enabled (seq field is properly formatted. Are all data fields properly formatted?
             for block in result.data:
                 if self.data_cache.parsed_data_fields[block.channel_idx] is None:
-                    self.setSeqSendButtonState(channel, False)
+                    self.set_new_button_state(channel, False)
                     break
             else:
                 if self.port_hdlr.isConnected():
-                    self.setSeqSendButtonState(channel, True)
+                    self.set_new_button_state(channel, True)
                 else:
-                    self.setSeqSendButtonState(channel, False)
+                    self.set_new_button_state(channel, False)
         else:  # False or None (empty field)
             self.data_cache.parsed_seq_fields[channel] = None
-            self.setSeqSendButtonState(channel, False)
+            self.set_new_button_state(channel, False)
 
     @QtCore.pyqtSlot(int)
-    def onSendDataButton(self, channel: int) -> None:
+    def on_send_data_button(self, channel: int) -> None:
         """Send data on a selected data channel."""
         data = self.data_cache.parsed_data_fields[channel]
         assert data is not None
-        dataString = self._convert_data(data, self.data_cache.output_data_representation)
+        data_str = self._convert_data(data, self.data_cache.output_data_representation)
 
         self.data_cache.all_rx_tx_data.append(f"CH{channel}{defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
-            self.writeToLogWindow(dataString, defs.TX_DATA_LOG_COLOR)
+            self.log_text(data_str, defs.TX_DATA_LOG_COLOR)
 
         self.port_hdlr.sigWrite.emit(data)
 
     @QtCore.pyqtSlot(int)
-    def onSendStopSequenceButton(self, channel: int) -> None:
+    def on_send_stop_seq_button(self, channel: int) -> None:
         """
         Start sending data sequence.
             @param channel: sequence field channel.
         """
-        if self.uiSeqSendButtons[channel].text() == defs.SEQ_BUTTON_START_TEXT:
-            self.uiSeqSendButtons[channel].setText(defs.SEQ_BUTTON_STOP_TEXT)
-            self.uiSeqSendButtons[channel].setStyleSheet(
+        if self.ui_seq_send_buttons[channel].text() == defs.SEQ_BUTTON_START_TEXT:
+            self.ui_seq_send_buttons[channel].setText(defs.SEQ_BUTTON_STOP_TEXT)
+            self.ui_seq_send_buttons[channel].setStyleSheet(
                 f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.SEQ_ACTIVE_COLOR}"
             )
 
@@ -848,28 +833,28 @@ class Gui(QtWidgets.QMainWindow):
                 self.data_cache.parsed_data_fields,
                 self.data_cache.parsed_seq_fields,
             )
-            worker.sigSequenceTransmittFinished.connect(self.onSendSequenceFinishEvent)
-            worker.sigDataSendEvent.connect(self.onSequenceSendEvent)
+            worker.sigSequenceTransmittFinished.connect(self.on_seq_finish_event)
+            worker.sigDataSendEvent.connect(self.on_seq_send_event)
 
             worker.moveToThread(thread)
             thread.started.connect(worker.run)
 
-            self._seqThreads[channel] = thread
-            self._seqSendWorkers[channel] = worker
+            self._seq_threads[channel] = thread
+            self._seq_tx_workers[channel] = worker
 
             thread.start()
         else:
-            worker = self._seqSendWorkers[channel]
+            worker = self._seq_tx_workers[channel]
             assert worker is not None
             worker.sigSequenceStopRequest.emit()
 
-            self.writeToLogWindow(f"Sequence {channel+1} stop request!", defs.LOG_COLOR_WARNING)
+            self.log_text(f"Sequence {channel+1} stop request!", defs.LOG_COLOR_WARNING)
 
     ################################################################################################
     # log settings slots
     ################################################################################################
     @QtCore.pyqtSlot()
-    def clearLogWindow(self) -> None:
+    def clear_log_window(self) -> None:
         """
         Clear log window.
         """
@@ -877,88 +862,88 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.TE_log.clear()
 
     @QtCore.pyqtSlot()
-    def saveLogWindowToFile(self) -> None:
+    def save_log_window(self) -> None:
         """
         Save (export) content of a current log window to a file.
         Pick destination with default OS pop-up window.
         """
-        defaultLogFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_LOG_EXPORT_FILENAME)
-        filePath = self.getSaveFileLocation(
-            "Save log window content...", defaultLogFilePath, defs.LOG_EXPORT_FILE_EXTENSION_FILTER
+        default_path = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_LOG_EXPORT_FILENAME)
+        path = self.ask_for_save_file_path(
+            "Save log window content...", default_path, defs.LOG_EXPORT_FILE_EXTENSION_FILTER
         )
-        if filePath is not None:
-            with open(filePath, "w+") as fileHandler:
-                contentToLog = self.ui.TE_log.toPlainText()
-                fileHandler.writelines(contentToLog)
+        if path is not None:
+            with open(path, "w+", encoding="utf-8") as fileHandler:
+                lines = self.ui.TE_log.toPlainText()
+                fileHandler.writelines(lines)
 
-            self.writeToLogWindow(f"Log window content saved to: {filePath}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"Log window content saved to: {path}", defs.LOG_COLOR_GRAY)
         else:
             logging.debug("Save log window content request canceled.")
 
     @QtCore.pyqtSlot()
-    def saveRxTxDataToFile(self) -> None:
+    def save_rx_tx_data(self) -> None:
         """
         Save (export) content of all RX/TX data to a file.
         Pick destination with default OS pop-up window.
         """
-        defaultLogFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_DATA_EXPORT_FILENAME)
-        filePath = self.getSaveFileLocation(
-            "Save raw RX/TX data...", defaultLogFilePath, defs.DATA_EXPORT_FILE_EXTENSION_FILTER
+        default_path = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_DATA_EXPORT_FILENAME)
+        path = self.ask_for_save_file_path(
+            "Save raw RX/TX data...", default_path, defs.DATA_EXPORT_FILE_EXTENSION_FILTER
         )
-        if filePath is not None:
-            with open(filePath, "w+") as fileHandler:
+        if path is not None:
+            with open(path, "w+", encoding="utf-8") as fileHandler:
                 for data in self.data_cache.all_rx_tx_data:
                     fileHandler.write(data + "\n")
 
             self.data_cache.all_rx_tx_data = []
-            self.writeToLogWindow(f"RX/TX data exported: {filePath}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"RX/TX data exported: {path}", defs.LOG_COLOR_GRAY)
         else:
             logging.debug("RX/TX data export request canceled.")
 
     @QtCore.pyqtSlot()
-    def onRxDisplayModeUpdate(self) -> None:
+    def on_rx_display_mode_update(self) -> None:
         """
         Action to take place once RX-to-log checkbox setting is altered (for example, on load configuration).
         """
         self.ui.CB_rxToLog.setChecked(self.data_cache.display_rx_data)
 
     @QtCore.pyqtSlot()
-    def onRxDisplayModeChange(self) -> None:
+    def on_rx_display_mode_change(self) -> None:
         """
         Get RX-to-log checkbox settings from GUI.
         """
         self.data_cache.display_rx_data = self.ui.CB_rxToLog.isChecked()
 
     @QtCore.pyqtSlot()
-    def onTxDisplayModeUpdate(self) -> None:
+    def on_tx_display_mode_update(self) -> None:
         """
         Action to take place once TX-to-log checkbox setting is altered (for example, on load configuration).
         """
         self.ui.CB_txToLog.setChecked(self.data_cache.display_tx_data)
 
     @QtCore.pyqtSlot()
-    def onTxDisplayModeChange(self) -> None:
+    def on_tx_display_mode_change(self) -> None:
         """
         Get TX-to-log checkbox settings from GUI.
         """
         self.data_cache.display_tx_data = self.ui.CB_txToLog.isChecked()
 
     @QtCore.pyqtSlot()
-    def onOutputRepresentationModeUpdate(self) -> None:
+    def on_out_representation_mode_update(self) -> None:
         """
         Action to take place once outputDataRepresentation setting is altered (for example, on load configuration).
         """
         self.ui.RB_GROUP_outputRepresentation.button(self.data_cache.output_data_representation).click()
 
     @QtCore.pyqtSlot()
-    def onOutputRepresentationModeChange(self) -> None:
+    def on_out_representation_mode_change(self) -> None:
         """
         Get output representation type from GUI selection.
         """
         self.data_cache.output_data_representation = self.ui.RB_GROUP_outputRepresentation.checkedId()
 
     @QtCore.pyqtSlot()
-    def onRxNewLineUpdate(self) -> None:
+    def on_rx_new_line_update(self) -> None:
         """
         Action to take place once RX new line setting is altered (for example, on load configuration).
         """
@@ -969,7 +954,7 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.SB_rxTimeoutMs.setEnabled(False)
 
     @QtCore.pyqtSlot()
-    def onRxNewLineChange(self) -> None:
+    def on_rx_new_line_change(self) -> None:
         """
         Get RX new line settings of log RX/TX data.
         """
@@ -979,23 +964,19 @@ class Gui(QtWidgets.QMainWindow):
         else:
             self.ui.SB_rxTimeoutMs.setEnabled(False)
 
-        return self.data_cache.new_line_on_rx
-
     @QtCore.pyqtSlot()
-    def onRxNewLineTimeoutUpdate(self) -> None:
+    def on_rx_new_line_timeout_update(self) -> None:
         """
         Action to take place once RX new line timeout setting is altered (for example, on load configuration).
         """
         self.ui.SB_rxTimeoutMs.setValue(self.data_cache.new_line_on_rx_timeout_msec)
 
     @QtCore.pyqtSlot()
-    def onRxNewLineTimeoutChange(self) -> None:
+    def on_rx_new_line_timeout_change(self) -> None:
         """
         Get RX new line settings of log RX/TX data.
         """
         self.data_cache.new_line_on_rx_timeout_msec = self.ui.SB_rxTimeoutMs.value()
-
-        return self.data_cache.new_line_on_rx_timeout_msec
 
     ################################################################################################
     # utility functions
@@ -1004,13 +985,13 @@ class Gui(QtWidgets.QMainWindow):
         """Get string from a data field and return parsed data"""
         assert 0 <= channel < defs.NUM_OF_DATA_CHANNELS
 
-        text = self.uiDataFields[channel].text()
+        text = self.ui_data_fields[channel].text()
         return validators.parse_channel_data(text)
 
     def _parse_seq_data_field(self, channel: int) -> models.SequenceTextFieldParserResult:
         """Get data from a sequence field and return parsed data"""
         assert 0 <= channel < defs.NUM_OF_SEQ_CHANNELS
-        seq = self.uiSeqFields[channel]
+        seq = self.ui_seq_fields[channel]
         text = seq.text()
 
         return validators.parse_seq_data(text)
@@ -1035,26 +1016,26 @@ class Gui(QtWidgets.QMainWindow):
 
         return output_data
 
-    def getSaveFileLocation(
-        self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt"
+    def ask_for_save_file_path(
+        self, name: str, dir_path: Optional[str] = None, filter_ext: str = "*.txt"
     ) -> Optional[str]:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
         See getFileLocation() for parameters.
         """
-        return self.getFileLocation(name, True, folderPath, filterExtension)
+        return self.ask_for_file_path(name, True, dir_path, filter_ext)
 
-    def getOpenFileLocation(
-        self, name: str, folderPath: Optional[str] = None, filterExtension: str = "*.txt"
+    def ask_for_open_file_path(
+        self, name: str, dir_path: Optional[str] = None, filter_ext: str = "*.txt"
     ) -> Optional[str]:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
         See getFileLocation() for parameters.
         """
-        return self.getFileLocation(name, False, folderPath, filterExtension)
+        return self.ask_for_file_path(name, False, dir_path, filter_ext)
 
-    def getFileLocation(
-        self, name: str, saveType: bool = True, folderPath: Optional[str] = None, filterExtension: Optional[str] = None
+    def ask_for_file_path(
+        self, name: str, mode: bool = True, dir_path: Optional[str] = None, filter_ext: Optional[str] = None
     ) -> Optional[str]:
         """
         Get path where file should be saved with default os GUI pop-up. Returns None on cancel or exit.
@@ -1064,25 +1045,25 @@ class Gui(QtWidgets.QMainWindow):
                 paths.get_default_log_dir() is used by default.
             @param filterExtension: file extension filter (can be merged list: '"*.txt, "*.json", "*.log"')
         """
-        if folderPath is None:
-            folderPath = paths.get_default_log_dir()
+        if dir_path is None:
+            dir_path = paths.get_default_log_dir()
         else:
-            folderPath = os.path.normpath(folderPath)
+            dir_path = os.path.normpath(dir_path)
 
-        if filterExtension is None:
-            filterExtension = ""
+        if filter_ext is None:
+            filter_ext = ""
 
-        if saveType:
-            fileName, _ = QtWidgets.QFileDialog.getSaveFileName(self, name, folderPath, filterExtension)
+        if mode:
+            name, _ = QtWidgets.QFileDialog.getSaveFileName(self, name, dir_path, filter_ext)
         else:
-            fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self, name, folderPath, filterExtension)
-        if fileName != "":
-            fileName = os.path.normpath(fileName)
-            return fileName
-        else:
+            name, _ = QtWidgets.QFileDialog.getOpenFileName(self, name, dir_path, filter_ext)
+
+        if name == "":
             return None
+        else:
+            return os.path.normpath(name)
 
-    def confirmActionDialog(
+    def confirm_action_dialog(
         self,
         name: str,
         question: str,
@@ -1112,7 +1093,7 @@ class Gui(QtWidgets.QMainWindow):
 
         return retval == QtWidgets.QMessageBox.Ok
 
-    def _appExceptionHandler(self, excType, excValue, tracebackObj) -> None:
+    def _app_exc_handler(self, excType, excValue, tracebackObj) -> None:
         """
         Global function to catch unhandled exceptions.
 
@@ -1136,7 +1117,7 @@ class Gui(QtWidgets.QMainWindow):
                 # at least, log to file if log over signal fails
                 logging.error(errorMsg)
 
-            self.stopAllSeqThreads()
+            self.stop_all_seq_tx_threads()
             self.port_hdlr.deinitPort()
 
         except Exception as err:
