@@ -43,6 +43,10 @@ class Gui(QtWidgets.QMainWindow):
         QtWidgets.QMainWindow.__init__(self)
         self.ui = Ui_root()
         self.ui.setupUi(self)
+        self._set_taskbar_icon()
+
+        # set up exception handler
+        sys.excepthook = self._app_exc_handler
 
         # create lists of all similar items
         self.ui_data_fields: Tuple[QtWidgets.QLineEdit, ...] = (
@@ -107,9 +111,6 @@ class Gui(QtWidgets.QMainWindow):
             self.ui.RB_outputRepresentationAsciiList, models.OutputRepresentation.ASCII_LIST
         )
 
-        # set up exception handler
-        sys.excepthook = self._app_exc_handler
-
         self._signals = models.SharedSignalsContainer(self.sig_write, self.sig_warning, self.sig_error)
 
         # prepare data and port handlers
@@ -133,6 +134,14 @@ class Gui(QtWidgets.QMainWindow):
         self.init_gui()
 
         self.raise_()
+
+    def _set_taskbar_icon(self) -> None:
+        # windows specific: https://stackoverflow.com/a/27872625/9200430
+        if os.name == "nt":
+            import ctypes
+
+            app_id = "damogranlabs.serialtool"
+            ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
     def connect_signals_to_slots(self) -> None:
         # save/load dialog
@@ -294,12 +303,12 @@ class Gui(QtWidgets.QMainWindow):
         Stop all sequence threads.
         Ignore exceptions.
         """
-        for seqIndex, seqWorker in enumerate(self._seq_tx_workers):
+        for idx, seq_worker in enumerate(self._seq_tx_workers):
             try:
-                if seqWorker is not None:
-                    seqWorker.sig_seq_stop_request.emit()
+                if seq_worker is not None:
+                    seq_worker.sig_seq_stop_request.emit()
             except Exception as err:
-                logging.error(f"Unable to stop sequence {seqIndex+1} thread.\n{err}")
+                logging.error(f"Unable to stop sequence {idx+1} thread.\n{err}")
 
     def colorize_text_field(self, field: QtWidgets.QLineEdit, status: models.TextFieldStatus) -> None:
         """Colorize given text input field with pre-defined scheme (see status parameter)."""
@@ -405,11 +414,11 @@ class Gui(QtWidgets.QMainWindow):
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
         if self.data_cache.cfg_file_path is None:
-            cfgFilePath = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_CFG_FILE_NAME)
+            cfg_file_path = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_CFG_FILE_NAME)
         else:
-            cfgFilePath = self.data_cache.cfg_file_path
+            cfg_file_path = self.data_cache.cfg_file_path
 
-        path = self.ask_for_save_file_path("Save configuration...", cfgFilePath, defs.CFG_FILE_EXTENSION_FILTER)
+        path = self.ask_for_save_file_path("Save configuration...", cfg_file_path, defs.CFG_FILE_EXTENSION_FILTER)
         if path is None:
             logging.debug("Save configuration request canceled.")
         else:
@@ -1000,7 +1009,7 @@ class Gui(QtWidgets.QMainWindow):
 
         return validators.parse_seq_data(text)
 
-    def _convert_data(self, data: List[int], new_format: Union[int, defs.OutputRepresentation]) -> str:
+    def _convert_data(self, data: List[int], new_format: Union[int, models.OutputRepresentation]) -> str:
         """Convert chosen data to a string with selected format."""
         if new_format == models.OutputRepresentation.STRING:
             # Convert list of integers to a string, without data separator.
