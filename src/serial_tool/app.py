@@ -34,7 +34,7 @@ class Gui(QtWidgets.QMainWindow):
     sig_warning = QtCore.pyqtSignal(str, str)
     sig_error = QtCore.pyqtSignal(str, str)
 
-    sigClose = QtCore.pyqtSignal()
+    sig_close = QtCore.pyqtSignal()
 
     def __init__(self) -> None:
         """
@@ -182,7 +182,7 @@ class Gui(QtWidgets.QMainWindow):
         self.sig_warning.connect(self.log_text)
         self.sig_error.connect(self.log_text)
 
-        self.sigClose.connect(self.on_quit_app_event)
+        self.sig_close.connect(self.on_quit_app_event)
 
         self.port_hdlr.sig_connection_successful.connect(self.on_connect_event)
         self.port_hdlr.sig_connection_closed.connect(self.on_disconnect_event)
@@ -1117,7 +1117,7 @@ class Gui(QtWidgets.QMainWindow):
             self.port_hdlr.deinit_port()
         except Exception as err:
             logging.error(f"Error in exception handling function.\n{err}")
-            self.sigClose.emit()
+            self.sig_close.emit()
 
 
 def init_logger() -> None:
