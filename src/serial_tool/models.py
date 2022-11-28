@@ -14,6 +14,22 @@ class OutputRepresentation:
     ASCII_LIST = 3
 
 
+class SequenceInfo:
+    def __init__(self, channel_idx: int, delay_msec: int = 0, repeat: int = 1):
+        """
+        Each item in sequence field list is of this type and holds
+            @param channel_idx: index of data channel index as described in GUI fields
+            @param delay_msec: delay after this channel data is sent in milliseconds.
+            @param repeat: number of times this channel is sent with given data and delay
+        """
+        self.channel_idx: int = channel_idx
+        self.delay_msec: int = delay_msec
+        self.repeat: int = repeat
+
+    def __str__(self):
+        return f"({self.channel_idx}{defs.SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{defs.SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
+
+
 class TextFieldStatus(enum.Enum):
     OK = "valid"
     BAD = "invalid"
@@ -53,8 +69,8 @@ class ChannelTextFieldParserResult(_TextFieldParserResult[List[int]]):
         super().__init__(status, msg, data)
 
 
-class SequenceTextFieldParserResult(_TextFieldParserResult[List[defs.SequenceInfo]]):
-    def __init__(self, status: TextFieldStatus, msg: str = "", data: Optional[List[defs.SequenceInfo]] = None) -> None:
+class SequenceTextFieldParserResult(_TextFieldParserResult[List[SequenceInfo]]):
+    def __init__(self, status: TextFieldStatus, msg: str = "", data: Optional[List[SequenceInfo]] = None) -> None:
         super().__init__(status, msg, data)
 
 
@@ -91,7 +107,7 @@ class RuntimeDataCache(QtCore.QObject):
         self.note_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
 
         self.seq_fields: List[str] = [""] * defs.NUM_OF_SEQ_CHANNELS
-        self.parsed_seq_fields: List[Optional[List[defs.SequenceInfo]]] = [None] * defs.NUM_OF_SEQ_CHANNELS
+        self.parsed_seq_fields: List[Optional[List[SequenceInfo]]] = [None] * defs.NUM_OF_SEQ_CHANNELS
 
         self.all_rx_tx_data: List[str] = []
 
@@ -131,7 +147,7 @@ class RuntimeDataCache(QtCore.QObject):
         self.display_tx_data = is_enabled
         self.sigTxDisplayModeUpdate.emit()
 
-    def set_output_representation_mode(self, mode: defs.OutputRepresentation) -> None:
+    def set_output_representation_mode(self, mode: OutputRepresentation) -> None:
         """Update output representation field and emit a signal at the end."""
         self.output_data_representation = mode
         self.sigOutputRepresentationModeUpdate.emit()

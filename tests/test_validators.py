@@ -46,14 +46,14 @@ def test_parse_channel_data_invalid_format(data_in: str, msg: str) -> None:
 @pytest.mark.parametrize(
     "data_in,data_out",
     [
-        ("(1, 2)", [defs.SequenceInfo(0, 2)]),
-        ("(2, 3, 4)", [defs.SequenceInfo(1, 3, 4)]),
-        ("(1, 2); (2, 3, 4)", [defs.SequenceInfo(0, 2), defs.SequenceInfo(1, 3, 4)]),
+        ("(1, 2)", [models.SequenceInfo(0, 2)]),
+        ("(2, 3, 4)", [models.SequenceInfo(1, 3, 4)]),
+        ("(1, 2); (2, 3, 4)", [models.SequenceInfo(0, 2), models.SequenceInfo(1, 3, 4)]),
         # special cases
-        ("( 1   , 2    );   ", [defs.SequenceInfo(0, 2)]),  # allow extra spaces end char
+        ("( 1   , 2    );   ", [models.SequenceInfo(0, 2)]),  # allow extra spaces end char
     ],
 )
-def test_parse_seq_data_valid(data_in: str, data_out: List[defs.SequenceInfo]) -> None:
+def test_parse_seq_data_valid(data_in: str, data_out: List[models.SequenceInfo]) -> None:
     result = validators.parse_seq_data(data_in)
     assert result.status == models.TextFieldStatus.OK, result.msg
 

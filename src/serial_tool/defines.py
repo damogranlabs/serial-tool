@@ -3,22 +3,6 @@ This file holds definitions of default serial tool settings, strings and interna
 """
 
 
-class SequenceInfo:
-    def __init__(self, channel_idx: int, delay_msec: int = 0, repeat: int = 1):
-        """
-        Each item in sequence field list is of this type and holds
-            @param channelIndex: index of data channel index as described in GUI fields
-            @param delayMS: delay after this channel data is sent in milliseconds.
-            @param repeat: number of times this channel is sent with given data and delay
-        """
-        self.channel_idx: int = channel_idx
-        self.delay_msec: int = delay_msec
-        self.repeat: int = repeat
-
-    def __str__(self):
-        return f"({self.channel_idx}{SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
-
-
 LOG_FORMAT = "%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s"
 LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 

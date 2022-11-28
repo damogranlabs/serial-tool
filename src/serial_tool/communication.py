@@ -94,7 +94,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
         port_hdlr: serial_hdlr.SerialPortHandler,
         seq_idx: int,
         parsed_data_fields: List[Optional[List[int]]],
-        parsed_seq_data: List[defs.SequenceInfo],
+        parsed_seq_data: List[models.SequenceInfo],
     ) -> None:
         """
         This class initialize thread that sends sequence (block of data and delay) over given serial port.

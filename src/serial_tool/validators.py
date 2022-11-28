@@ -90,7 +90,7 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
     if text == "":
         return models.SequenceTextFieldParserResult(models.TextFieldStatus.EMPTY)
 
-    parsed_blocks_data: List[defs.SequenceInfo] = []
+    parsed_blocks_data: List[models.SequenceInfo] = []
     blocks = text.strip(defs.SEQ_BLOCK_SEPARATOR).split(defs.SEQ_BLOCK_SEPARATOR)
     for block in blocks:
         block = block.strip()
@@ -130,7 +130,7 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
                     f"Invalid delay, must be a positive number: {delay_msec}, block: {block}",
                 )
 
-            seq_data = defs.SequenceInfo(channel_idx, delay_msec)
+            seq_data = models.SequenceInfo(channel_idx, delay_msec)
             if len(data) == 3:  # repeat is specified
                 repeat_num = int(data[2].strip())
                 if repeat_num < 1:
