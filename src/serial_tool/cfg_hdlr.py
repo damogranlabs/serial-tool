@@ -128,5 +128,5 @@ class ConfigurationHdlr:
 
         self.data_cache.set_rx_display_ode(True)
         self.data_cache.set_tx_display_mode(True)
-        self.data_cache.set_output_representation_mode(defs.OutputRepresentation.STRING)
+        self.data_cache.set_output_representation_mode(models.OutputRepresentation.STRING)
         self.data_cache.set_new_line_on_rx_mode(False)

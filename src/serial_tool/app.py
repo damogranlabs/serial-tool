@@ -95,16 +95,16 @@ class Gui(QtWidgets.QMainWindow):
         ] * defs.NUM_OF_SEQ_CHANNELS  # actual sequence handlers
 
         self.ui.RB_GROUP_outputRepresentation.setId(
-            self.ui.RB_outputRepresentationString, defs.OutputRepresentation.STRING
+            self.ui.RB_outputRepresentationString, models.OutputRepresentation.STRING
         )
         self.ui.RB_GROUP_outputRepresentation.setId(
-            self.ui.RB_outputRepresentationIntList, defs.OutputRepresentation.INT_LIST
+            self.ui.RB_outputRepresentationIntList, models.OutputRepresentation.INT_LIST
         )
         self.ui.RB_GROUP_outputRepresentation.setId(
-            self.ui.RB_outputRepresentationHexList, defs.OutputRepresentation.HEX_LIST
+            self.ui.RB_outputRepresentationHexList, models.OutputRepresentation.HEX_LIST
         )
         self.ui.RB_GROUP_outputRepresentation.setId(
-            self.ui.RB_outputRepresentationAsciiList, defs.OutputRepresentation.ASCII_LIST
+            self.ui.RB_outputRepresentationAsciiList, models.OutputRepresentation.ASCII_LIST
         )
 
         # set up exception handler
@@ -1002,14 +1002,14 @@ class Gui(QtWidgets.QMainWindow):
 
     def _convert_data(self, data: List[int], new_format: Union[int, defs.OutputRepresentation]) -> str:
         """Convert chosen data to a string with selected format."""
-        if new_format == defs.OutputRepresentation.STRING:
+        if new_format == models.OutputRepresentation.STRING:
             # Convert list of integers to a string, without data separator.
             output_data = "".join([chr(num) for num in data])
-        elif new_format == defs.OutputRepresentation.INT_LIST:
+        elif new_format == models.OutputRepresentation.INT_LIST:
             # Convert list of integers to a string of integer values.
             int_data = [str(num) for num in data]
             output_data = defs.RX_DATA_LIST_SEPARATOR.join(int_data) + defs.RX_DATA_LIST_SEPARATOR
-        elif new_format == defs.OutputRepresentation.HEX_LIST:
+        elif new_format == models.OutputRepresentation.HEX_LIST:
             # Convert list of integers to a string of hex values.
             # format always as 0x** (two fields for data value)
             hex_data = ["{0:#0{1}x}".format(num, 4) for num in data]

@@ -3,13 +3,6 @@ This file holds definitions of default serial tool settings, strings and interna
 """
 
 
-class OutputRepresentation:
-    STRING = 0
-    INT_LIST = 1
-    HEX_LIST = 2
-    ASCII_LIST = 3
-
-
 class SequenceInfo:
     def __init__(self, channel_idx: int, delay_msec: int = 0, repeat: int = 1):
         """

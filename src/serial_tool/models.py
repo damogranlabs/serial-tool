@@ -7,6 +7,13 @@ from serial_tool import defines as defs
 from serial_tool import serial_hdlr
 
 
+class OutputRepresentation:
+    STRING = 0
+    INT_LIST = 1
+    HEX_LIST = 2
+    ASCII_LIST = 3
+
+
 class TextFieldStatus(enum.Enum):
     OK = "valid"
     BAD = "invalid"
@@ -88,7 +95,7 @@ class RuntimeDataCache(QtCore.QObject):
 
         self.all_rx_tx_data: List[str] = []
 
-        self.output_data_representation = defs.OutputRepresentation.STRING
+        self.output_data_representation = OutputRepresentation.STRING
         self.display_rx_data = True
         self.display_tx_data = True
         self.new_line_on_rx = False
