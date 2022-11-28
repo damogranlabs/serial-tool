@@ -1,9 +1,6 @@
 """
 This file holds definitions of default serial tool settings, strings and internal data values.
 """
-import enum
-
-from typing import Dict
 
 
 class OutputRepresentation:
@@ -27,12 +24,6 @@ class SequenceInfo:
 
     def __str__(self):
         return f"({self.channel_idx}{SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
-
-
-class SequencesData:
-    def __init__(self) -> None:
-        self.status = False
-        self.channels: Dict[int, SequenceInfo] = {}  # {idx: <Sequence info>}
 
 
 LOG_FORMAT = "%(asctime)s.%(msecs)03d %(levelname)+8s: %(message)s"

@@ -114,7 +114,8 @@ class Gui(QtWidgets.QMainWindow):
 
         # prepare data and port handlers
         self.data_cache = models.RuntimeDataCache()
-        self.port_hdlr = communication.PortHdlr()
+        self._ser_port_hdlr = serial_hdlr.SerialPortHandler()
+        self.port_hdlr = communication.PortHdlr(self.data_cache.serial_settings, self._ser_port_hdlr)
 
         # RX display data newline internal logic
         # timestamp of a last RX data event
@@ -183,9 +184,9 @@ class Gui(QtWidgets.QMainWindow):
 
         self.sigClose.connect(self.on_quit_app_event)
 
-        self.port_hdlr.sigConnectionSuccessfull.connect(self.on_connect_event)
-        self.port_hdlr.sigConnectionClosed.connect(self.on_disconnect_event)
-        self.port_hdlr.sigDataReceived.connect(self.on_data_received_event)
+        self.port_hdlr.sig_connection_successful.connect(self.on_connect_event)
+        self.port_hdlr.sig_connection_closed.connect(self.on_disconnect_event)
+        self.port_hdlr.sig_data_received.connect(self.on_data_received_event)
 
     def connect_update_signals_to_slots(self) -> None:
         self.data_cache.sig_serial_settings_update.connect(self.on_serial_settings_update)
@@ -296,7 +297,7 @@ class Gui(QtWidgets.QMainWindow):
         for seqIndex, seqWorker in enumerate(self._seq_tx_workers):
             try:
                 if seqWorker is not None:
-                    seqWorker.sigSequenceStopRequest.emit()
+                    seqWorker.sig_seq_stop_request.emit()
             except Exception as err:
                 logging.error(f"Unable to stop sequence {seqIndex+1} thread.\n{err}")
 
@@ -549,7 +550,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         logging.debug("Serial port list refresh request.")
 
-        self.port_hdlr.deinitPort()  # TODO: signal or not?
+        self.port_hdlr.deinit_port()
 
         ports = serial_hdlr.SerialPortHandler().get_available_ports()
         self.ui.DD_commPortSelector.clear()
@@ -564,7 +565,7 @@ class Gui(QtWidgets.QMainWindow):
             # currently connected, stop all sequences and disconnect
             self.stop_all_seq_tx_threads()  # might be a problem with unfinished, blockin sequences
 
-            self.port_hdlr.deinitPort()  # TODO: signal or not?
+            self.port_hdlr.deinit_port()
             self.log_text("Disconnect request.", defs.LOG_COLOR_GRAY)
         else:
             # currently disconnected, connect
@@ -578,8 +579,8 @@ class Gui(QtWidgets.QMainWindow):
                 raise RuntimeError("Set baudrate of serial port.")
             self.data_cache.serial_settings.baudrate = int(baudrate)
 
-            self.port_hdlr.serialSettings = self.data_cache.serial_settings
-            self.port_hdlr.initPortAndReceiveThread()  # TODO: signal or not?
+            self.port_hdlr.serial_settings = self.data_cache.serial_settings
+            self.port_hdlr.init_port_and_rx_thread()
 
             self.log_text("Connect request.", defs.LOG_COLOR_GRAY)
 
@@ -695,7 +696,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         worker = self._seq_tx_workers[channel]
         assert worker is not None
-        worker.sigSequenceStopRequest.emit()
+        worker.sig_seq_stop_request.emit()
 
         logging.debug(f"\tEvent: sequence {channel + 1} stop request")
 
@@ -704,7 +705,7 @@ class Gui(QtWidgets.QMainWindow):
         """
         Deinit serial port, close GUI.
         """
-        self.port_hdlr.deinitPort()
+        self.port_hdlr.deinit_port()
 
         self.close()
 
@@ -751,7 +752,7 @@ class Gui(QtWidgets.QMainWindow):
         if result.status == models.TextFieldStatus.OK:
             assert result.data is not None
             self.data_cache.parsed_data_fields[channel] = result.data
-            if self.port_hdlr.isConnected():
+            if self.port_hdlr.is_connected():
                 self.set_data_button_state(channel, True)
             else:
                 self.set_data_button_state(channel, False)
@@ -769,8 +770,8 @@ class Gui(QtWidgets.QMainWindow):
         Actions to take place once any of note field is changed.
             @param channel: index of note field
         """
-        noteFieldText = self.ui_note_fields[channel].text()
-        self.data_cache.note_fields[channel] = noteFieldText.strip()
+        text = self.ui_note_fields[channel].text()
+        self.data_cache.note_fields[channel] = text.strip()
 
     @QtCore.pyqtSlot(int)
     def on_seq_field_change(self, channel: int) -> None:
@@ -793,7 +794,7 @@ class Gui(QtWidgets.QMainWindow):
                     self.set_new_button_state(channel, False)
                     break
             else:
-                if self.port_hdlr.isConnected():
+                if self.port_hdlr.is_connected():
                     self.set_new_button_state(channel, True)
                 else:
                     self.set_new_button_state(channel, False)
@@ -812,7 +813,7 @@ class Gui(QtWidgets.QMainWindow):
         if self.data_cache.display_tx_data:
             self.log_text(data_str, defs.TX_DATA_LOG_COLOR)
 
-        self.port_hdlr.sigWrite.emit(data)
+        self.port_hdlr.sig_write.emit(data)
 
     @QtCore.pyqtSlot(int)
     def on_send_stop_seq_button(self, channel: int) -> None:
@@ -826,15 +827,18 @@ class Gui(QtWidgets.QMainWindow):
                 f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.SEQ_ACTIVE_COLOR}"
             )
 
+            seq_data = self.data_cache.parsed_seq_fields[channel]
+            assert seq_data is not None
+
             thread = QtCore.QThread(self)
             worker = communication.TxDataSequenceHdlr(
-                self.port_hdlr.portHandler,
+                self.port_hdlr.port_hdlr,
                 channel,
                 self.data_cache.parsed_data_fields,
-                self.data_cache.parsed_seq_fields,
+                seq_data,
             )
-            worker.sigSequenceTransmittFinished.connect(self.on_seq_finish_event)
-            worker.sigDataSendEvent.connect(self.on_seq_send_event)
+            worker.sig_seq_tx_finished.connect(self.on_seq_finish_event)
+            worker.sig_data_send_event.connect(self.on_seq_send_event)
 
             worker.moveToThread(thread)
             thread.started.connect(worker.run)
@@ -846,7 +850,7 @@ class Gui(QtWidgets.QMainWindow):
         else:
             worker = self._seq_tx_workers[channel]
             assert worker is not None
-            worker.sigSequenceStopRequest.emit()
+            worker.sig_seq_stop_request.emit()
 
             self.log_text(f"Sequence {channel+1} stop request!", defs.LOG_COLOR_WARNING)
 
@@ -1093,33 +1097,24 @@ class Gui(QtWidgets.QMainWindow):
 
         return retval == QtWidgets.QMessageBox.Ok
 
-    def _app_exc_handler(self, excType, excValue, tracebackObj) -> None:
-        """
-        Global function to catch unhandled exceptions.
+    def _app_exc_handler(self, exc_type, exc_value, traceback_obj) -> None:
+        """Global function to catch unhandled exceptions."""
+        msg = "\n" + " *" * 20
+        msg += "\nUnhandled unexpected exception occurred! Program will try to continue with execution."
+        msg += f"\n\tExc. type: {exc_type}"
+        msg += f"\n\tExc. value: {exc_value}"
+        msg += f"\n\tExc. traceback: {traceback.format_tb(traceback_obj)}"
+        msg += "\n\n"
 
-        @param excType: exception type
-        @param excValue: exception value
-        @param tracebackObj: traceback object
-        """
         try:
-            errorMsg = (
-                "\n * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *"
-            )
-            errorMsg += f"\nUnhandled unexpected exception occurred! Program will try to continue with execution."
-            errorMsg += f"\n\tExc. type: {excType}"
-            errorMsg += f"\n\tExc. value: {excValue}"
-            errorMsg += f"\n\tExc. traceback: {traceback.format_tb(tracebackObj)}"
-            errorMsg += "\n\n"
+            self.sig_error.emit(msg, defs.LOG_COLOR_ERROR)
+        except Exception as err:
+            # at least, log to file if log over signal fails
+            logging.error(f"{msg}\n{err}")
 
-            try:
-                self.sig_error.emit(errorMsg, defs.LOG_COLOR_ERROR)
-            except Exception as err:
-                # at least, log to file if log over signal fails
-                logging.error(errorMsg)
-
+        try:
             self.stop_all_seq_tx_threads()
-            self.port_hdlr.deinitPort()
-
+            self.port_hdlr.deinit_port()
         except Exception as err:
             logging.error(f"Error in exception handling function.\n{err}")
             self.sigClose.emit()

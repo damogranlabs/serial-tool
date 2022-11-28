@@ -80,15 +80,11 @@ class RuntimeDataCache(QtCore.QObject):
         self.cfg_file_path: Optional[str] = None
 
         self.data_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
-        self.parsed_data_fields: List[Optional[List[int]]] = [
-            None
-        ] * defs.NUM_OF_DATA_CHANNELS  # list of integers (bytes), as they are send over serial port
+        self.parsed_data_fields: List[Optional[List[int]]] = [None] * defs.NUM_OF_DATA_CHANNELS
         self.note_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
 
         self.seq_fields: List[str] = [""] * defs.NUM_OF_SEQ_CHANNELS
-        self.parsed_seq_fields: List[Optional[defs.SequenceInfo]] = [
-            None
-        ] * defs.NUM_OF_SEQ_CHANNELS  # list of parsed sequence blocks
+        self.parsed_seq_fields: List[Optional[List[defs.SequenceInfo]]] = [None] * defs.NUM_OF_SEQ_CHANNELS
 
         self.all_rx_tx_data: List[str] = []
 
