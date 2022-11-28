@@ -118,7 +118,7 @@ class ConfigurationHdlr:
         Set instance of data model with default values.
         Will emit signals to update GUI.
         """
-        self.data_cache.set_serial_settings(serial_hdlr.SerialCommSettings())
+        self.data_cache.set_serial_settings(self.data_cache.serial_settings)
         for idx in range(defs.NUM_OF_DATA_CHANNELS):
             self.data_cache.set_data_field(idx, "")
             self.data_cache.set_note_field(idx, "")
