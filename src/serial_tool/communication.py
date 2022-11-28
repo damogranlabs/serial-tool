@@ -9,7 +9,7 @@ from typing import List, Optional
 
 from PyQt5 import QtCore
 
-from serial_tool import defines as defs
+from serial_tool import models
 from serial_tool import serial_hdlr
 
 
