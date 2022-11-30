@@ -8,7 +8,7 @@ import sys
 import time
 import traceback
 import webbrowser
-from typing import List, Optional, Tuple, Union
+from typing import List, Optional, Tuple
 
 import serial.serialutil as serialUtil
 from PyQt5 import QtCore
@@ -953,7 +953,9 @@ class Gui(QtWidgets.QMainWindow):
         """
         Get output representation type from GUI selection.
         """
-        self.data_cache.output_data_representation = self.ui.RB_GROUP_outputRepresentation.checkedId()
+        self.data_cache.output_data_representation = models.OutputRepresentation(
+            self.ui.RB_GROUP_outputRepresentation.checkedId()
+        )
 
     @QtCore.pyqtSlot()
     def on_rx_new_line_update(self) -> None:
@@ -1009,7 +1011,7 @@ class Gui(QtWidgets.QMainWindow):
 
         return validators.parse_seq_data(text)
 
-    def _convert_data(self, data: List[int], new_format: Union[int, models.OutputRepresentation]) -> str:
+    def _convert_data(self, data: List[int], new_format: models.OutputRepresentation) -> str:
         """Convert chosen data to a string with selected format."""
         if new_format == models.OutputRepresentation.STRING:
             # Convert list of integers to a string, without data separator.

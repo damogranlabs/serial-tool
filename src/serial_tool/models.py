@@ -7,7 +7,7 @@ from serial_tool import defines as defs
 from serial_tool import serial_hdlr
 
 
-class OutputRepresentation:
+class OutputRepresentation(enum.IntEnum):
     STRING = 0
     INT_LIST = 1
     HEX_LIST = 2
