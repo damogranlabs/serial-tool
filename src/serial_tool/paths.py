@@ -64,7 +64,7 @@ def add_cfg_to_recently_used_cfgs(file_path: str) -> None:
 
                 lines.insert(0, f"{file_path}\n")
                 lines = list(dict.fromkeys(lines))  # remove duplicates
-                lines = lines[defs.MAX_NUM_OF_RECENTLY_USED_CFGS :]  # shorten number of entries
+                lines = lines[: defs.MAX_NUM_OF_RECENTLY_USED_CFGS]  # shorten number of entries
 
                 f.seek(0)  # strange \x00 appeared without this
                 f.truncate(0)
