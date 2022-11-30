@@ -26,21 +26,21 @@ class ConfigurationHdlr:
         data[defs.CFG_TAG_SERIAL_CFG] = {}
         data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_PORT] = self.data_cache.serial_settings.port
         data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_BAUDRATE] = self.data_cache.serial_settings.baudrate
-        data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_DATASIZE] = self.data_cache.serial_settings.dataSize
-        data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_STOPBITS] = self.data_cache.serial_settings.stopbits
+        data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_DATASIZE] = self.data_cache.serial_settings.data_size
+        data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_STOPBITS] = self.data_cache.serial_settings.stop_bits
         data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_PARITY] = self.data_cache.serial_settings.parity
         data[defs.CFG_TAG_SERIAL_CFG][
             defs.CFG_TAG_SERIAL_CFG_SWFLOWCONTROL
-        ] = self.data_cache.serial_settings.swFlowControl
+        ] = self.data_cache.serial_settings.sw_flow_ctrl
         data[defs.CFG_TAG_SERIAL_CFG][
             defs.CFG_TAG_SERIAL_CFG_HWFLOWCONTROL
-        ] = self.data_cache.serial_settings.hwFlowControl
+        ] = self.data_cache.serial_settings.hw_flow_ctrl
         data[defs.CFG_TAG_SERIAL_CFG][
             defs.CFG_TAG_SERIAL_CFG_READTIMEOUTMS
-        ] = self.data_cache.serial_settings.readTimeoutMs
+        ] = self.data_cache.serial_settings.rx_timeout_ms
         data[defs.CFG_TAG_SERIAL_CFG][
             defs.CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS
-        ] = self.data_cache.serial_settings.writeTimeoutMs
+        ] = self.data_cache.serial_settings.tx_timeout_ms
 
         data[defs.CFG_TAG_DATA_FIELDS] = {}
         for idx, field in enumerate(self.data_cache.data_fields):
@@ -77,14 +77,18 @@ class ConfigurationHdlr:
         try:
             settings = serial_hdlr.SerialCommSettings()
             settings.port = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_PORT]
-            settings.baudrate = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_BAUDRATE]
-            settings.dataSize = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_DATASIZE]
-            settings.stopbits = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_STOPBITS]
+            cfg_baudrate = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_BAUDRATE]
+            if cfg_baudrate is None:
+                settings.baudrate = defs.DEFAULT_BAUDRATE
+            else:
+                settings.baudrate = cfg_baudrate
+            settings.data_size = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_DATASIZE]
+            settings.stop_bits = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_STOPBITS]
             settings.parity = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_PARITY]
-            settings.swFlowControl = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_SWFLOWCONTROL]
-            settings.hwFlowControl = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_HWFLOWCONTROL]
-            settings.readTimeoutMs = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_READTIMEOUTMS]
-            settings.writeTimeoutMs = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS]
+            settings.sw_flow_ctrl = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_SWFLOWCONTROL]
+            settings.hw_flow_ctrl = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_HWFLOWCONTROL]
+            settings.rx_timeout_ms = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_READTIMEOUTMS]
+            settings.tx_timeout_ms = data[defs.CFG_TAG_SERIAL_CFG][defs.CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS]
             self.data_cache.set_serial_settings(settings)
         except KeyError as err:
             msg = f"Unable to set serial settings from a configuration file: {err}"

@@ -213,17 +213,15 @@ class Gui(QtWidgets.QMainWindow):
 
         self._set_mru_cfg_paths()
 
-        self.cfg_hdlr.set_default_cfg()
-
         # serial port settings
         baudrate_validator = QtGui.QIntValidator(0, serialutil.SerialBase.BAUDRATES[-1])
         self.ui.DD_baudrate.setValidator(baudrate_validator)
         self.ui.DD_baudrate.addItems([str(baudrate) for baudrate in serialutil.SerialBase.BAUDRATES])
+        baudrate_idx = self.ui.DD_baudrate.findText(str(defs.DEFAULT_BAUDRATE))
+        self.ui.DD_baudrate.setCurrentIndex(baudrate_idx)
 
-        default_baudrate_idx = serialutil.SerialBase.BAUDRATES.index(defs.DEFAULT_BAUDRATE)
-        self.ui.DD_baudrate.setCurrentIndex(default_baudrate_idx)
+        self.cfg_hdlr.set_default_cfg()
 
-        # log fields
         self.clear_log_window()
 
         logging.info("GUI initialized.")
@@ -535,17 +533,16 @@ class Gui(QtWidgets.QMainWindow):
             else:
                 self.ui.DD_commPortSelector.setCurrentIndex(port)
 
-        if self.data_cache.serial_settings.baudrate is not None:
-            baudrate = self.ui.DD_baudrate.findText(str(self.data_cache.serial_settings.baudrate))
-            if baudrate == -1:
-                self.log_text(
-                    f"No {self.data_cache.serial_settings.baudrate} baudrate available, manually added.",
-                    defs.LOG_COLOR_WARNING,
-                )
-                self.ui.DD_baudrate.addItem(str(self.data_cache.serial_settings.baudrate))
-                self.ui.DD_baudrate.setCurrentText(str(self.data_cache.serial_settings.baudrate))
-            else:
-                self.ui.DD_baudrate.setCurrentIndex(baudrate)
+        baudrate = self.ui.DD_baudrate.findText(str(self.data_cache.serial_settings.baudrate))
+        if baudrate == -1:
+            self.log_text(
+                f"No {self.data_cache.serial_settings.baudrate} baudrate available, manually added.",
+                defs.LOG_COLOR_WARNING,
+            )
+            self.ui.DD_baudrate.addItem(str(self.data_cache.serial_settings.baudrate))
+            self.ui.DD_baudrate.setCurrentText(str(self.data_cache.serial_settings.baudrate))
+        else:
+            self.ui.DD_baudrate.setCurrentIndex(baudrate)
 
         logging.debug("New serial settings applied.")
 

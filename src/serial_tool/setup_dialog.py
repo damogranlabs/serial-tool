@@ -74,11 +74,11 @@ class SerialSetupDialog(QtWidgets.QDialog):
         """
         Store values from a current setup dialog into self.dialogSettings.
         """
-        self.settings.hwFlowControl = self.ui.CB_hwFlowCtrl.isChecked()
-        self.settings.swFlowControl = self.ui.CB_swFlowCtrl.isChecked()
+        self.settings.hw_flow_ctrl = self.ui.CB_hwFlowCtrl.isChecked()
+        self.settings.sw_flow_ctrl = self.ui.CB_swFlowCtrl.isChecked()
 
-        self.settings.dataSize = self.ui.RB_dataSizeGroup.checkedId()
-        self.settings.stopbits = self.ui.RB_stopBitsGroup.checkedId()
+        self.settings.data_size = self.ui.RB_dataSizeGroup.checkedId()
+        self.settings.stop_bits = self.ui.RB_stopBitsGroup.checkedId()
         parityAsNumber = self.ui.RB_parityGroup.checkedId()
         self.settings.parity = serial_hdlr.parity_as_str(parityAsNumber)
 
@@ -99,17 +99,17 @@ class SerialSetupDialog(QtWidgets.QDialog):
         """
         Set current setup dialog settings and refresh internal self.dialogValues state.
         """
-        self.ui.CB_hwFlowCtrl.setChecked(serialSettings.swFlowControl)
-        self.ui.CB_swFlowCtrl.setChecked(serialSettings.hwFlowControl)
+        self.ui.CB_hwFlowCtrl.setChecked(serialSettings.sw_flow_ctrl)
+        self.ui.CB_swFlowCtrl.setChecked(serialSettings.hw_flow_ctrl)
 
-        roundButton = self.ui.RB_dataSizeGroup.button(serialSettings.dataSize)
+        roundButton = self.ui.RB_dataSizeGroup.button(serialSettings.data_size)
         roundButton.click()
 
         parityAsNumber = serial_hdlr.parity_as_int(serialSettings.parity)
         roundButton = self.ui.RB_parityGroup.button(parityAsNumber)
         roundButton.click()
 
-        roundButton = self.ui.RB_stopBitsGroup.button(serialSettings.stopbits)
+        roundButton = self.ui.RB_stopBitsGroup.button(serialSettings.stop_bits)
         roundButton.click()
 
         self._store_ui_settings()

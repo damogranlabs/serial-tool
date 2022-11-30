@@ -11,9 +11,9 @@ def manual_test_widget() -> None:
     app = QtWidgets.QApplication(sys.argv)
 
     initialSerialDialogSettings = serial_hdlr.SerialCommSettings()
-    initialSerialDialogSettings.swFlowControl = True
-    initialSerialDialogSettings.stopbits = serial.STOPBITS_TWO
-    initialSerialDialogSettings.dataSize = serial.SIXBITS
+    initialSerialDialogSettings.sw_flow_ctrl = True
+    initialSerialDialogSettings.stop_bits = serial.STOPBITS_TWO
+    initialSerialDialogSettings.data_size = serial.SIXBITS
 
     dialog = setup_dialog.SerialSetupDialog(initialSerialDialogSettings)
     dialog.display()

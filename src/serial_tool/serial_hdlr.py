@@ -9,34 +9,31 @@ from serial_tool import defines as defs
 
 
 class SerialCommSettings:
-    def __init__(self):
+    def __init__(self) -> None:
         self.port: Optional[str] = None
-        self.baudrate: Optional[int] = None
-        self.dataSize: int = serial.EIGHTBITS  # serial.SerialBase.BYTESIZES
-        self.stopbits: int = serial.STOPBITS_ONE  # serialutil.SerialBase.STOPBITS
+        self.baudrate: int = defs.DEFAULT_BAUDRATE
+        self.data_size: int = serial.EIGHTBITS  # serial.SerialBase.BYTESIZES
+        self.stop_bits: int = serial.STOPBITS_ONE  # serialutil.SerialBase.STOPBITS
         self.parity: str = serial.PARITY_NONE  # serialutil.SerialBase.PARITIES
-        self.swFlowControl: bool = False  # XON/XOFF
-        self.hwFlowControl: bool = False  # RTS/CTS
-        self.readTimeoutMs: int = defs.SERIAL_READ_TIMEOUT_MS
-        self.writeTimeoutMs: int = defs.SERIAL_WRITE_TIMEOUT_MS
+        self.sw_flow_ctrl: bool = False  # XON/XOFF
+        self.hw_flow_ctrl: bool = False  # RTS/CTS
+        self.rx_timeout_ms: int = defs.SERIAL_READ_TIMEOUT_MS
+        self.tx_timeout_ms: int = defs.SERIAL_WRITE_TIMEOUT_MS
 
-    def __str__(self):
+    def __str__(self) -> str:
         """
         Overwrite default __str__method and return a string of all arguments.
         """
-        settings = f"Data size: {self.dataSize}, "
-        settings += f"Stop bits: {self.stopbits}, "
+        settings = f"Data size: {self.data_size}, "
+        settings += f"Stop bits: {self.stop_bits}, "
         settings += f"Parity: {serial.PARITY_NAMES[self.parity]}, "
-        settings += f"HW Flow Ctrl: {self.hwFlowControl}, "
-        settings += f"SW Flow Ctrl: {self.swFlowControl}, "
-        settings += f"RX timeout: {self.readTimeoutMs} ms, "
-        settings += f"TX timeout: {self.writeTimeoutMs} ms"
+        settings += f"HW Flow Ctrl: {self.hw_flow_ctrl}, "
+        settings += f"SW Flow Ctrl: {self.sw_flow_ctrl}, "
+        settings += f"RX timeout: {self.rx_timeout_ms} ms, "
+        settings += f"TX timeout: {self.tx_timeout_ms} ms"
 
         if self.port is not None:
-            portSettings = f"{self.port}"
-            if self.baudrate is not None:
-                portSettings = f"{portSettings} @ {self.baudrate}"
-            settings = f"{portSettings}, {settings}"
+            settings = f"{self.port} @ {self.baudrate}, {settings}"
 
         return settings
 
@@ -71,7 +68,7 @@ def parity_as_str(parity: int) -> str:
 
 ###################################################################################################
 class SerialPortHandler:
-    def __init__(self):
+    def __init__(self) -> None:
         """
         Non-threaded serial port communication class.
         Holds all needed functions to init, read and write to/from serial port.
@@ -93,14 +90,14 @@ class SerialPortHandler:
             self._port = aioserial.AioSerial(
                 port=settings.port,
                 baudrate=settings.baudrate,
-                bytesize=settings.dataSize,
+                bytesize=settings.data_size,
                 parity=settings.parity,
-                stopbits=settings.stopbits,
-                xonxoff=settings.swFlowControl,
-                rtscts=settings.hwFlowControl,
+                stopbits=settings.stop_bits,
+                xonxoff=settings.sw_flow_ctrl,
+                rtscts=settings.hw_flow_ctrl,
                 dsrdtr=False,  # disable hardware (DSR/DTR) flow control
-                timeout=settings.readTimeoutMs / 1000,
-                write_timeout=settings.writeTimeoutMs / 1000,
+                timeout=settings.rx_timeout_ms / 1000,
+                write_timeout=settings.tx_timeout_ms / 1000,
             )
 
             self.settings = settings
