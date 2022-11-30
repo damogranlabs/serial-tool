@@ -7,7 +7,7 @@ import traceback
 import webbrowser
 from typing import List, Optional, Tuple
 
-import serial.serialutil as serialUtil
+from serial import serialutil
 from PyQt5 import QtCore
 from PyQt5 import QtGui
 from PyQt5 import QtWidgets
@@ -216,11 +216,11 @@ class Gui(QtWidgets.QMainWindow):
         self.cfg_hdlr.set_default_cfg()
 
         # serial port settings
-        baudrate_validator = QtGui.QIntValidator(0, serialUtil.SerialBase.BAUDRATES[-1])
+        baudrate_validator = QtGui.QIntValidator(0, serialutil.SerialBase.BAUDRATES[-1])
         self.ui.DD_baudrate.setValidator(baudrate_validator)
-        self.ui.DD_baudrate.addItems([str(baudrate) for baudrate in serialUtil.SerialBase.BAUDRATES])
+        self.ui.DD_baudrate.addItems([str(baudrate) for baudrate in serialutil.SerialBase.BAUDRATES])
 
-        default_baudrate_idx = serialUtil.SerialBase.BAUDRATES.index(defs.DEFAULT_BAUDRATE)
+        default_baudrate_idx = serialutil.SerialBase.BAUDRATES.index(defs.DEFAULT_BAUDRATE)
         self.ui.DD_baudrate.setCurrentIndex(default_baudrate_idx)
 
         # log fields

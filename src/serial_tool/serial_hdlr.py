@@ -13,8 +13,8 @@ class SerialCommSettings:
         self.port: Optional[str] = None
         self.baudrate: Optional[int] = None
         self.dataSize: int = serial.EIGHTBITS  # serial.SerialBase.BYTESIZES
-        self.stopbits: int = serial.STOPBITS_ONE  # serialUtil.SerialBase.STOPBITS
-        self.parity: str = serial.PARITY_NONE  # serialUtil.SerialBase.PARITIES
+        self.stopbits: int = serial.STOPBITS_ONE  # serialutil.SerialBase.STOPBITS
+        self.parity: str = serial.PARITY_NONE  # serialutil.SerialBase.PARITIES
         self.swFlowControl: bool = False  # XON/XOFF
         self.hwFlowControl: bool = False  # RTS/CTS
         self.readTimeoutMs: int = defs.SERIAL_READ_TIMEOUT_MS
