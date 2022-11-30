@@ -1,6 +1,3 @@
-"""
-Main application window GUI handler.
-"""
 import logging
 from functools import partial
 import os
