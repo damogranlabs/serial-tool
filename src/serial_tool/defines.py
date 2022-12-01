@@ -9,7 +9,7 @@ LOG_DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
 ###################################################################################################
 # default serial settings
 DEFAULT_BAUDRATE = 115200
-SERIAL_READ_TIMEOUT_MS = 300
+SERIAL_READ_TIMEOUT_MS = 10000
 SERIAL_WRITE_TIMEOUT_MS = 300
 DEFAULT_RX_NEWLINE_TIMEOUT_MS = 10
 
