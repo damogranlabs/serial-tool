@@ -154,7 +154,8 @@ class SerialPortHandler:
 
     async def async_read_data(self) -> bytes:
         """
-        Asynchronously read data from a serial port and return one byte. Might be an empty byte (b''), which indicates no new received data.
+        Asynchronously read data from a serial port and return one byte.
+        Might be an empty byte (b''), which indicates no new received data.
         Raise exception on error.
         """
         byte = await self._port.read_async()  # will wait until one byte will not be received.
