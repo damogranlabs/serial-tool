@@ -60,7 +60,7 @@ class _RxDataHdlr(QtCore.QObject):
                             self._rx_not_empty_notified = True  # prevent notifying multiple times for new data
                             self.sig_rx_not_empty.emit()
                 except Exception as err:
-                    raise Exception(f"Exception caught in receive thread readData() function:\n{err}") from err
+                    raise Exception(f"Exception caught in receive thread read_data() function:\n{err}") from err
 
         except Exception as err:
             logging.error(f"Exception in data receiving thread:\n{err}")
