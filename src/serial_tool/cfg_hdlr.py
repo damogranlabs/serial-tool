@@ -12,10 +12,7 @@ _CFG_VERSION = 2.0  # configuration file version (not main software version)
 
 class ConfigurationHdlr:
     def __init__(self, data_cache: models.RuntimeDataCache, signals: models.SharedSignalsContainer) -> None:
-        """
-        This class initialize thread that constantly poll RX buffer and store receive data in a list.
-        On after data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
-        """
+        """Handler of user config data (channels, notes, sequences) and save/load actions"""
         self.data_cache = data_cache
         self.signals = signals
 
@@ -62,10 +59,7 @@ class ConfigurationHdlr:
             json.dump(data, f, indent=4)
 
     def load_cfg(self, path: str) -> None:
-        """
-        Read (load) given json file and set new configuration.
-            @param filePath: path to load file from.
-        """
+        """Read (load) given json file and set new configuration."""
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
