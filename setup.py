@@ -22,7 +22,7 @@ setup(
     url="https://github.com/damogranlabs/serial-tool",
     author="Domen Jurkovic",
     author_email="domen.jurkovic@damogranlabs.com",
-    description="Serial Tool is a utility for developing, debugging and " "validating serial communication with PC.",
+    description="Serial Tool is a utility for developing, debugging and validating serial communication with PC.",
     long_description=read_file("README.md"),
     keywords=["serial tool", "UART", "serial", "RS232"],
     version=get_version("src/serial_tool/__init__.py"),
