@@ -435,8 +435,8 @@ class Gui(QtWidgets.QMainWindow):
             self.data_cache.cfg_file_path = path
             refresh_menu = True
 
-        assert path is not None
         if refresh_menu:
+            assert path is not None
             paths.add_cfg_to_recently_used_cfgs(path)
             self._set_mru_cfg_paths()
 
