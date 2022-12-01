@@ -1,6 +1,3 @@
-"""
-This file holds all configuration file save/load functions and handlers.
-"""
 import json
 
 from serial_tool import defines as defs
