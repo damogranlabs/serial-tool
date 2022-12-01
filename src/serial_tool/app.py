@@ -1144,6 +1144,9 @@ def init_logger() -> None:
     file_hdlr.setLevel(logging.DEBUG)
     logger.addHandler(file_hdlr)
 
+    asyncio_logger = logging.getLogger("asyncio")
+    asyncio_logger.setLevel(logging.WARNING)
+
     logging.info(f"Logger initialized: {file_path}")
 
 
