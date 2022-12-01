@@ -608,7 +608,7 @@ class Gui(QtWidgets.QMainWindow):
 
         for idx, _ in enumerate(self.ui_seq_fields):
             result = self._parse_seq_data_field(idx)
-            if result.status:
+            if result.status == models.TextFieldStatus.OK:
                 for block in result.data:
                     if self.data_cache.parsed_data_fields[block.channel_idx] is None:
                         self.set_new_button_state(idx, False)
@@ -753,7 +753,6 @@ class Gui(QtWidgets.QMainWindow):
         self.colorize_text_field(self.ui_data_fields[channel], result.status)
 
         if result.status == models.TextFieldStatus.OK:
-            assert result.data is not None
             self.data_cache.parsed_data_fields[channel] = result.data
             if self.port_hdlr.is_connected():
                 self.set_data_button_state(channel, True)
