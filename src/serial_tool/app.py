@@ -409,7 +409,8 @@ class Gui(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def on_file_load_cfg(self, path: Optional[str] = None) -> None:
         """
-        Load configuration from a file and discard any current settings. User is previously asked for confirmation.
+        Load configuration from a file and discard any current settings. 
+        User is previously asked for confirmation.
 
         Args:
             path: if None, user is asked to entry file path.

@@ -1,3 +1,5 @@
+CFG_FORMAT_VERSION = 2.0  # configuration file format version (not main software version)
+
 NUM_OF_MAX_RECENTLY_USED_CFG_GUI = 8  # how many entries GUI will show.
 
 CFG_FILE_EXT_FILTER = "*.json"

@@ -1,11 +1,11 @@
+import logging
+
 import json
 
 from serial_tool import defines as defs
 from serial_tool.base import user_cfg_defs
 from serial_tool import models
 from serial_tool import serial_hdlr
-
-_CFG_VERSION = 2.0  # configuration file version (not main software version)
 
 
 class ConfigurationHdlr:
@@ -17,7 +17,7 @@ class ConfigurationHdlr:
     def save_cfg(self, path: str) -> None:
         """Overwrite data with current settings in a json format."""
         data = {}
-        data[user_cfg_defs.KEY_FILE_VER] = _CFG_VERSION
+        data[user_cfg_defs.KEY_FILE_VER] = user_cfg_defs.CFG_FORMAT_VERSION
 
         ser_cfg_data = {}
         ser_cfg_data[user_cfg_defs.KEY_SER_PORT] = self.data_cache.serial_settings.port
@@ -55,10 +55,15 @@ class ConfigurationHdlr:
         with open(path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        if (user_cfg_defs.KEY_FILE_VER not in data) or (data[user_cfg_defs.KEY_FILE_VER] != _CFG_VERSION):
-            msg = "Configuration file syntax has changed - unable to set configuration."
-            msg += f"\nCurrent version: {_CFG_VERSION}, config file version: {data[user_cfg_defs.KEY_FILE_VER]}"
-            raise RuntimeError(msg)
+        if user_cfg_defs.KEY_FILE_VER not in data:
+            msg = f"Missing `{user_cfg_defs.KEY_FILE_VER}` key in configuration file. Possibly unknown data format."
+            self.signals.warning.emit(msg, defs.LOG_COLOR_WARNING)
+            logging.debug(f"Trying to load configuration file with missing `{user_cfg_defs.KEY_FILE_VER}` field...")
+        elif data[user_cfg_defs.KEY_FILE_VER] != user_cfg_defs.CFG_FORMAT_VERSION:
+            msg = "Configuration file format has changed - expect invalid/missing configuration data."
+            msg += f"\nCurrent version: {user_cfg_defs.CFG_FORMAT_VERSION}, config file version: {data[user_cfg_defs.KEY_FILE_VER]}"
+            self.signals.warning.emit(msg, defs.LOG_COLOR_WARNING)
+            logging.debug("Trying to load configuration file with different format version...")
 
         try:
             settings = serial_hdlr.SerialCommSettings()
