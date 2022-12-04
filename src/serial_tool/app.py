@@ -13,6 +13,7 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 import serial_tool
+from serial_tool.base import user_cfg_defs
 from serial_tool import defines as defs
 from serial_tool import models
 from serial_tool import cfg_hdlr
@@ -227,7 +228,7 @@ class Gui(QtWidgets.QMainWindow):
         """Set most recently used configurations to "File menu > Recently used configurations" list"""
         self.ui.PB_fileMenu_recentlyUsedConfigurations.clear()
 
-        files = paths.get_recently_used_cfgs(defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
+        files = paths.get_recently_used_cfgs(user_cfg_defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
         for file_path in files:
             name = os.path.basename(file_path)
 
@@ -388,11 +389,11 @@ class Gui(QtWidgets.QMainWindow):
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
         if self.data_cache.cfg_file_path is None:
-            cfg_file_path = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_CFG_FILE_NAME)
+            cfg_file_path = os.path.join(paths.get_default_log_dir(), user_cfg_defs.DEFAULT_CFG_FILE_NAME)
         else:
             cfg_file_path = self.data_cache.cfg_file_path
 
-        path = self.ask_for_save_file_path("Save configuration...", cfg_file_path, defs.CFG_FILE_EXTENSION_FILTER)
+        path = self.ask_for_save_file_path("Save configuration...", cfg_file_path, user_cfg_defs.CFG_FILE_EXT_FILTER)
         if path is None:
             logging.debug("Save configuration request canceled.")
         else:
@@ -422,7 +423,7 @@ class Gui(QtWidgets.QMainWindow):
                 cfg_dir = os.path.dirname(self.data_cache.cfg_file_path)
 
             if self.confirm_action_dialog("Warning!", "Loading new configuration?\nThis will discard any changes!"):
-                path = self.ask_for_open_file_path("Load configuration...", cfg_dir, defs.CFG_FILE_EXTENSION_FILTER)
+                path = self.ask_for_open_file_path("Load configuration...", cfg_dir, user_cfg_defs.CFG_FILE_EXT_FILTER)
                 if path is not None:
                     self.data_cache.cfg_file_path = path
                     self.cfg_hdlr.load_cfg(path)

@@ -70,34 +70,8 @@ SEQ_BLOCK_DATA_SEPARATOR = ","
 SEQ_BLOCK_START_CHAR = "("
 SEQ_BLOCK_END_CHAR = ")"
 
-
-###################################################################################################
-# configuration file tags
-CFG_TAG_FILE_VERSION = "version"
-CFG_TAG_SERIAL_CFG = "serialSettings"
-CFG_TAG_SERIAL_CFG_PORT = "port"
-CFG_TAG_SERIAL_CFG_BAUDRATE = "baudrate"
-CFG_TAG_SERIAL_CFG_DATASIZE = "dataSize"
-CFG_TAG_SERIAL_CFG_STOPBITS = "stopbits"
-CFG_TAG_SERIAL_CFG_PARITY = "parity"
-CFG_TAG_SERIAL_CFG_SWFLOWCONTROL = "swFlowControl"
-CFG_TAG_SERIAL_CFG_HWFLOWCONTROL = "hwFlowControl"
-CFG_TAG_SERIAL_CFG_READTIMEOUTMS = "readTimeoutMs"
-CFG_TAG_SERIAL_CFG_WRITETIMEOUTMS = "writeTimeoutMs"
-CFG_TAG_DATA_FIELDS = "dataFields"
-CFG_TAG_NOTE_FIELDS = "noteFields"
-CFG_TAG_SEQ_FIELDS = "sequenceFields"
-CFG_TAG_RXLOG = "rxToLog"
-CFG_TAG_TXLOG = "txToLog"
-CFG_TAG_OUTPUT_REPRESENTATION = "outputDataRepresentation"
-CFG_TAG_RX_NEW_LINE = "newLineOnRxData"
-CFG_TAG_RX_NEW_LINE_TIMEOUT = "newLineOnRxTimeout"
-
-MAX_NUM_OF_RECENTLY_USED_CFGS = 20
-
 ###################################################################################################
 # extensions
-CFG_FILE_EXTENSION_FILTER = "*.json"
 LOG_EXPORT_FILE_EXTENSION_FILTER = "*.log"
 DATA_EXPORT_FILE_EXTENSION_FILTER = "*.log"
 
@@ -105,10 +79,8 @@ DATA_EXPORT_FILE_EXTENSION_FILTER = "*.log"
 # default paths and file names
 SERIAL_TOOL_APPDATA_FOLDER_NAME = "SerialTool"
 SERIAL_TOOL_LOG_FILENAME = "SerialTool.log"
-DEFAULT_CFG_FILE_NAME = "SerialToolCfg.json"
 DEFAULT_LOG_EXPORT_FILENAME = "logWindow.log"
 DEFAULT_DATA_EXPORT_FILENAME = "rxTxData.log"
-RECENTLY_USED_CFG_FILE_NAME = "_recentlyUsedConfigurations.txt"
 
 ###################################################################################################
 # other settings
