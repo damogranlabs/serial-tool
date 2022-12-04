@@ -1,6 +1,3 @@
-"""
-This file holds all serial communication utility functions and handlers.
-"""
 import asyncio
 import logging
 import time
@@ -32,9 +29,7 @@ class _RxDataHdlr(QtCore.QObject):
         self._rx_thread_stop_flag = False
 
     def run(self) -> None:
-        """
-        This is the main Receive Data function that is run when thread is started.
-        """
+        """Wait and receive data in async mode. It is run as a thread."""
         try:
             self._port_hdlr.isConnected(True)
 
@@ -50,6 +45,8 @@ class _RxDataHdlr(QtCore.QObject):
                     if byte == b"":
                         continue  # nothing received
                     else:
+                        if not self._rx_thread_stop_flag:
+                            return
                         # receive data available, read all
                         rx_data = self._port_hdlr.read_data()
                         with self._rx_data_lock:
@@ -67,15 +64,11 @@ class _RxDataHdlr(QtCore.QObject):
             raise
 
     def request_stop(self) -> None:
-        """
-        Stop thread by setting self._receiveThreadStopFlag to True. Application must manually wait for
-        """
+        """Request to stop RX thread. On exit, thread might still be running."""
         self._rx_thread_stop_flag = True
 
     def get_rx_data(self) -> List[int]:
-        """
-        Return all currently received data as a copy.
-        """
+        """Return all currently received data as a copy."""
         with self._rx_data_lock:
             rx_data = self.rx_data.copy()
             self.rx_data.clear()
@@ -97,11 +90,13 @@ class TxDataSequenceHdlr(QtCore.QObject):
         parsed_seq_data: List[models.SequenceInfo],
     ) -> None:
         """
-        This class initialize thread that sends sequence (block of data and delay) over given serial port.
-            @param portHandler: must be already existing port handler.
-            @param seqChannel: sequence field index
-            @param parsedDataFields: list of parsed data fields.
-            @param parsedSeqBlocks: list of parsed sequence blocks.
+        This class initialize thread that sends specified sequence over given serial port.
+
+        Args:
+            port_hdlr: Initialized serial port handler.
+            seq_idx: Index of sequence field that needs to be transmitted.
+            parsed_data_fields: list of parsed data fields.
+            parsed_seq_data: parsed sequence field info.
         """
         super().__init__()
 
@@ -120,9 +115,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
         self._stop_seq_request = True
 
     def run(self) -> None:
-        """
-        This is the main send sequence function that is run when thread is started.
-        """
+        """Execute transmission of sequence data. It is run as a thread."""
         self._port_hdlr.isConnected(True)
 
         try:
@@ -166,6 +159,7 @@ class PortHdlr(QtCore.QObject):
     def __init__(
         self, serial_settings: serial_hdlr.SerialCommSettings, port_hdlr: serial_hdlr.SerialPortHandler
     ) -> None:
+        """Main wrapper around low level serial port handler. This class also holds instances of RX/TX threads."""
         super().__init__()
         self.serial_settings = serial_settings
         self.port_hdlr = port_hdlr
