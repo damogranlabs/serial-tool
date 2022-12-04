@@ -67,14 +67,16 @@ def parity_as_str(parity: int) -> str:
 
 
 ###################################################################################################
-class SerialPortHandler:
-    def __init__(self) -> None:
+class SerialPort:
+    def __init__(self, serial_settings: Optional[SerialCommSettings] = None) -> None:
         """
         Non-threaded serial port communication class.
         Holds all needed functions to init, read and write to/from serial port.
         """
         self._port = aioserial.AioSerial()
-        self.settings: SerialCommSettings = SerialCommSettings()
+        if serial_settings is None:
+            serial_settings = SerialCommSettings()
+        self.settings = serial_settings
 
     def get_available_ports(self) -> List[str]:
         """
@@ -110,7 +112,7 @@ class SerialPortHandler:
             else:
                 return False
 
-    def isConnected(self, raise_exc: bool = False) -> bool:
+    def is_connected(self, raise_exc: bool = False) -> bool:
         """Return True if connection to serial port is established, False otherwise."""
         status = self._port.is_open
         if status:
@@ -134,12 +136,12 @@ class SerialPortHandler:
 
     def flush_read_buff(self) -> None:
         """Try to flush RX buffed (if port is open)."""
-        self.isConnected(True)
+        self.is_connected(True)
         self._port.reset_input_buffer()
 
     def flush_write_buff(self) -> None:
         """Try to flush TX buffer (if port is open)."""
-        self.isConnected(True)
+        self.is_connected(True)
         self._port.reset_input_buffer()
 
     def write_data(self, data: List[int], raise_exc: bool = True) -> int:

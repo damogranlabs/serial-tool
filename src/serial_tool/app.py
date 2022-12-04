@@ -110,8 +110,8 @@ class Gui(QtWidgets.QMainWindow):
 
         # prepare data and port handlers
         self.data_cache = models.RuntimeDataCache()
-        self._ser_port_hdlr = serial_hdlr.SerialPortHandler()
-        self.port_hdlr = communication.PortHdlr(self.data_cache.serial_settings, self._ser_port_hdlr)
+        self.ser_port = serial_hdlr.SerialPort(self.data_cache.serial_settings)
+        self.port_hdlr = communication.PortHdlr(self.data_cache.serial_settings, self.ser_port)
 
         # RX display data newline internal logic
         # timestamp of a last RX data event
@@ -524,7 +524,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.port_hdlr.deinit_port()
 
-        ports = serial_hdlr.SerialPortHandler().get_available_ports()
+        ports = serial_hdlr.SerialPort().get_available_ports()
         self.ui.DD_commPortSelector.clear()
         self.ui.DD_commPortSelector.addItems(list(reversed(ports)))
 
@@ -763,7 +763,7 @@ class Gui(QtWidgets.QMainWindow):
 
             thread = QtCore.QThread(self)
             worker = communication.TxDataSequenceHdlr(
-                self.port_hdlr.port_hdlr,
+                self.port_hdlr.ser_port,
                 seq_idx,
                 self.data_cache.parsed_data_fields,
                 seq_data,

@@ -13,14 +13,14 @@ from serial_tool import serial_hdlr
 class _RxDataHdlr(QtCore.QObject):
     sig_rx_not_empty = QtCore.pyqtSignal()
 
-    def __init__(self, port_hdlr: serial_hdlr.SerialPortHandler) -> None:
+    def __init__(self, port_hdlr: serial_hdlr.SerialPort) -> None:
         """
         This class initialize thread that read available data with asyncio read and store receive data in a list.
         On data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
         """
         super().__init__()
 
-        self._port_hdlr: serial_hdlr.SerialPortHandler = port_hdlr
+        self._port_hdlr: serial_hdlr.SerialPort = port_hdlr
 
         self.rx_data: List[int] = []
         self._rx_data_lock = threading.Lock()
@@ -31,7 +31,7 @@ class _RxDataHdlr(QtCore.QObject):
     def run(self) -> None:
         """Wait and receive data in async mode. It is run as a thread."""
         try:
-            self._port_hdlr.isConnected(True)
+            self._port_hdlr.is_connected(True)
 
             # clear RX data list
             with self._rx_data_lock:
@@ -84,7 +84,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
 
     def __init__(
         self,
-        port_hdlr: serial_hdlr.SerialPortHandler,
+        port_hdlr: serial_hdlr.SerialPort,
         seq_idx: int,
         parsed_data_fields: List[Optional[List[int]]],
         parsed_seq_data: List[models.SequenceInfo],
@@ -116,7 +116,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
 
     def run(self) -> None:
         """Execute transmission of sequence data. It is run as a thread."""
-        self._port_hdlr.isConnected(True)
+        self._port_hdlr.is_connected(True)
 
         try:
             while not self._stop_seq_request:
@@ -156,13 +156,11 @@ class PortHdlr(QtCore.QObject):
     sig_connection_successful = QtCore.pyqtSignal()
     sig_connection_closed = QtCore.pyqtSignal()
 
-    def __init__(
-        self, serial_settings: serial_hdlr.SerialCommSettings, port_hdlr: serial_hdlr.SerialPortHandler
-    ) -> None:
-        """Main wrapper around low level serial port handler. This class also holds instances of RX/TX threads."""
+    def __init__(self, serial_settings: serial_hdlr.SerialCommSettings, ser_port: serial_hdlr.SerialPort) -> None:
+        """Main wrapper around low level serial port handler. This class also holds instance of RX threads."""
         super().__init__()
         self.serial_settings = serial_settings
-        self.port_hdlr = port_hdlr
+        self.ser_port = ser_port
 
         self._rx_data_hdlr: Optional[_RxDataHdlr] = None
         self._rx_watcher_thread: Optional[QtCore.QThread] = None
@@ -176,11 +174,11 @@ class PortHdlr(QtCore.QObject):
         self.sig_write.connect(self.write_data)
 
     def is_connected(self) -> bool:
-        return self.port_hdlr.isConnected()
+        return self.ser_port.is_connected()
 
     def init_port_and_rx_thread(self) -> None:
-        if self.port_hdlr.init(self.serial_settings):
-            self._rx_data_hdlr = _RxDataHdlr(self.port_hdlr)
+        if self.ser_port.init(self.serial_settings):
+            self._rx_data_hdlr = _RxDataHdlr(self.ser_port)
             self._rx_data_hdlr.sig_rx_not_empty.connect(self.get_rx_data)
 
             self._rx_watcher_thread = QtCore.QThread()
@@ -202,12 +200,12 @@ class PortHdlr(QtCore.QObject):
             self._rx_watcher_thread = None
             self._rx_data_hdlr = None
 
-        self.port_hdlr.close_port()
+        self.ser_port.close_port()
 
         self.sig_connection_closed.emit()
 
     def write_data(self, data: List[int]) -> None:
-        self.port_hdlr.write_data(data)
+        self.ser_port.write_data(data)
 
     def get_rx_data(self) -> None:
         assert self._rx_data_hdlr is not None
