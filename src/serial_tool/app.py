@@ -14,6 +14,7 @@ from PyQt5 import QtWidgets
 
 import serial_tool
 from serial_tool.base import user_cfg_defs
+from serial_tool.base import colors
 from serial_tool import defines as defs
 from serial_tool import models
 from serial_tool import cfg_hdlr
@@ -296,12 +297,12 @@ class Gui(QtWidgets.QMainWindow):
         if is_enabled:
             self.ui.PB_commPortCtrl.setText(defs.COMM_PORT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(
-                f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.COMM_PORT_CONNECTED_COLOR}"
+                f"{defs.DEFAULT_FONT_STYLE} background-color: {colors.COMM_PORT_CONNECTED}"
             )
         else:
             self.ui.PB_commPortCtrl.setText(defs.COMM_PORT_NOT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(
-                f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.COMM_PORT_NOT_CONNECTED_COLOR}"
+                f"{defs.DEFAULT_FONT_STYLE} background-color: {colors.COMM_PORT_NOT_CONNECTED}"
             )
 
     def get_rx_new_line_timeout_msec(self) -> int:
@@ -310,7 +311,7 @@ class Gui(QtWidgets.QMainWindow):
 
     @QtCore.pyqtSlot(str, str)
     def log_text(
-        self, msg: str, color: str = defs.LOG_COLOR_NORMAL, append_new_line: bool = True, ensure_new_line: bool = True
+        self, msg: str, color: str = colors.LOG_NORMAL, append_new_line: bool = True, ensure_new_line: bool = True
     ) -> None:
         """
         Write to log window with a given color.
@@ -338,7 +339,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.ui.TE_log.setTextColor(QtGui.QColor(color))
         self.ui.TE_log.insertPlainText(msg)
-        self.ui.TE_log.setTextColor(QtGui.QColor(defs.LOG_COLOR_NORMAL))
+        self.ui.TE_log.setTextColor(QtGui.QColor(colors.LOG_NORMAL))
 
         if self.ui.PB_autoScroll.isChecked():
             self.ui.TE_log.moveCursor(QtGui.QTextCursor.End)
@@ -377,7 +378,7 @@ class Gui(QtWidgets.QMainWindow):
             self.data_cache.cfg_file_path = None
             self.cfg_hdlr.set_default_cfg()
 
-            self.log_text("New default configuration created.", defs.LOG_COLOR_GRAY)
+            self.log_text("New default configuration created.", colors.LOG_GRAY)
 
             self.set_main_window_name()
         else:
@@ -403,13 +404,13 @@ class Gui(QtWidgets.QMainWindow):
             paths.add_cfg_to_recently_used_cfgs(path)
             self._set_mru_cfg_paths()
 
-            self.log_text(f"Configuration saved: {path}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"Configuration saved: {path}", colors.LOG_GRAY)
             self.set_main_window_name(path)
 
     @QtCore.pyqtSlot()
     def on_file_load_cfg(self, path: Optional[str] = None) -> None:
         """
-        Load configuration from a file and discard any current settings. 
+        Load configuration from a file and discard any current settings.
         User is previously asked for confirmation.
 
         Args:
@@ -442,7 +443,7 @@ class Gui(QtWidgets.QMainWindow):
             paths.add_cfg_to_recently_used_cfgs(path)
             self._set_mru_cfg_paths()
 
-            self.log_text(f"Configuration loaded: {path}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"Configuration loaded: {path}", colors.LOG_GRAY)
             self.set_main_window_name(path)
 
     @QtCore.pyqtSlot()
@@ -487,7 +488,7 @@ class Gui(QtWidgets.QMainWindow):
 
             self.refresh_ports_list()
 
-            self.log_text(f"New serial settings applied: {self.data_cache.serial_settings}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"New serial settings applied: {self.data_cache.serial_settings}", colors.LOG_GRAY)
         else:
             logging.debug("New serial settings request canceled.")
 
@@ -501,7 +502,7 @@ class Gui(QtWidgets.QMainWindow):
             if port == -1:
                 self.log_text(
                     f"No {self.data_cache.serial_settings.port} serial port currently available.",
-                    defs.LOG_COLOR_WARNING,
+                    colors.LOG_WARNING,
                 )
             else:
                 self.ui.DD_commPortSelector.setCurrentIndex(port)
@@ -510,7 +511,7 @@ class Gui(QtWidgets.QMainWindow):
         if baudrate == -1:
             self.log_text(
                 f"No {self.data_cache.serial_settings.baudrate} baudrate available, manually added.",
-                defs.LOG_COLOR_WARNING,
+                colors.LOG_WARNING,
             )
             self.ui.DD_baudrate.addItem(str(self.data_cache.serial_settings.baudrate))
             self.ui.DD_baudrate.setCurrentText(str(self.data_cache.serial_settings.baudrate))
@@ -538,7 +539,7 @@ class Gui(QtWidgets.QMainWindow):
             self.stop_all_seq_tx_threads()  # might be a problem with unfinished, blockin sequences
 
             self.port_hdlr.deinit_port()
-            self.log_text("Disconnect request.", defs.LOG_COLOR_GRAY)
+            self.log_text("Disconnect request.", colors.LOG_GRAY)
         else:
             # currently disconnected, connect
             serial_port = self.get_selected_port()
@@ -554,7 +555,7 @@ class Gui(QtWidgets.QMainWindow):
             self.port_hdlr.serial_settings = self.data_cache.serial_settings
             self.port_hdlr.init_port_and_rx_thread()
 
-            self.log_text("Connect request.", defs.LOG_COLOR_GRAY)
+            self.log_text("Connect request.", colors.LOG_GRAY)
 
     ################################################################################################
     # application generated events
@@ -616,7 +617,7 @@ class Gui(QtWidgets.QMainWindow):
                     # else: # not enough time has passed, just add data without new line
                 # else: # some RX data or other message was displayed in log window since last RX data display
             # else: # no RX on new line is needed, just add RX data
-            self.log_text(msg, defs.RX_DATA_LOG_COLOR, False, False)
+            self.log_text(msg, colors.LOG_RX_DATA, False, False)
             self._display_rx_data = True
 
         self._last_rx_event_timestamp = time.time()
@@ -643,7 +644,7 @@ class Gui(QtWidgets.QMainWindow):
         if self.data_cache.display_tx_data:
             msg = f"{defs.SEQ_TAG}{seq_idx+1}_CH{ch_idx+1}: {data_str}"
 
-            self.log_text(msg, defs.TX_DATA_LOG_COLOR)
+            self.log_text(msg, colors.LOG_TX_DATA)
 
         logging.debug(f"\tEvent: sequence {seq_idx + 1}, data channel {ch_idx + 1} send request")
 
@@ -747,7 +748,7 @@ class Gui(QtWidgets.QMainWindow):
 
         self.data_cache.all_rx_tx_data.append(f"CH{ch_idx}{defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
-            self.log_text(data_str, defs.TX_DATA_LOG_COLOR)
+            self.log_text(data_str, colors.LOG_TX_DATA)
 
         self.port_hdlr.sig_write.emit(data)
 
@@ -757,7 +758,7 @@ class Gui(QtWidgets.QMainWindow):
         if self.ui_seq_send_buttons[seq_idx].text() == defs.SEQ_BUTTON_START_TEXT:
             self.ui_seq_send_buttons[seq_idx].setText(defs.SEQ_BUTTON_STOP_TEXT)
             self.ui_seq_send_buttons[seq_idx].setStyleSheet(
-                f"{defs.DEFAULT_FONT_STYLE} background-color: {defs.SEQ_ACTIVE_COLOR}"
+                f"{defs.DEFAULT_FONT_STYLE} background-color: {colors.SEQ_ACTIVE}"
             )
 
             seq_data = self.data_cache.parsed_seq_fields[seq_idx]
@@ -785,7 +786,7 @@ class Gui(QtWidgets.QMainWindow):
             assert worker is not None
             worker.sig_seq_stop_request.emit()
 
-            self.log_text(f"Sequence {seq_idx+1} stop request!", defs.LOG_COLOR_WARNING)
+            self.log_text(f"Sequence {seq_idx+1} stop request!", colors.LOG_WARNING)
 
     ################################################################################################
     # log settings slots
@@ -810,7 +811,7 @@ class Gui(QtWidgets.QMainWindow):
                 lines = self.ui.TE_log.toPlainText()
                 fileHandler.writelines(lines)
 
-            self.log_text(f"Log window content saved to: {path}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"Log window content saved to: {path}", colors.LOG_GRAY)
         else:
             logging.debug("Save log window content request canceled.")
 
@@ -830,7 +831,7 @@ class Gui(QtWidgets.QMainWindow):
                     fileHandler.write(data + "\n")
 
             self.data_cache.all_rx_tx_data = []
-            self.log_text(f"RX/TX data exported: {path}", defs.LOG_COLOR_GRAY)
+            self.log_text(f"RX/TX data exported: {path}", colors.LOG_GRAY)
         else:
             logging.debug("RX/TX data export request canceled.")
 
@@ -1027,7 +1028,7 @@ class Gui(QtWidgets.QMainWindow):
         msg += "\n\n"
 
         try:
-            self.sig_error.emit(msg, defs.LOG_COLOR_ERROR)
+            self.sig_error.emit(msg, colors.LOG_ERROR)
         except Exception as err:
             # at least, log to file if log over signal fails
             logging.error(f"{msg}\n{err}")

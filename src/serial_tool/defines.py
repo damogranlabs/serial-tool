@@ -22,29 +22,6 @@ LINK_GITHUB_DOCS = "https://github.com/damogranlabs/serial-tool/blob/master/READ
 LINK_SOURCEFORGE = "http://sourceforge.net/p/serial-tool/"
 
 ###################################################################################################
-# colors
-_RED = "#d45353"
-_GREEN = "#9dff96"
-_ORANGE = "#f5881b"
-
-DAMOGRANLABS_BLUE_COLOR = "#4f7fd7"
-DAMOGRANLABS_GRAY_COLOR = "#646464"
-
-COMM_PORT_CONNECTED_COLOR = _GREEN
-COMM_PORT_NOT_CONNECTED_COLOR = _RED
-
-SEQ_ACTIVE_COLOR = _ORANGE
-INPUT_VALID_COLOR = _GREEN
-INPUT_NONE_COLOR = "None"
-INPUT_ERROR_COLOR = _RED
-LOG_COLOR_NORMAL = "#000000"
-LOG_COLOR_GRAY = DAMOGRANLABS_GRAY_COLOR
-LOG_COLOR_ERROR = "#FF0000"
-LOG_COLOR_WARNING = "#ff8000"  # orange
-RX_DATA_LOG_COLOR = DAMOGRANLABS_GRAY_COLOR
-TX_DATA_LOG_COLOR = DAMOGRANLABS_BLUE_COLOR
-
-###################################################################################################
 # button strings
 COMM_PORT_CONNECTED_TEXT = "CONNECTED"
 COMM_PORT_NOT_CONNECTED_TEXT = "not connected"

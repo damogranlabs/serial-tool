@@ -4,6 +4,7 @@ from typing import Generic, List, Optional, TypeVar
 from PyQt5 import QtCore
 
 from serial_tool import defines as defs
+from serial_tool.base import colors
 from serial_tool import serial_hdlr
 
 
@@ -38,11 +39,11 @@ class TextFieldStatus(enum.Enum):
     @staticmethod
     def get_color(status: "TextFieldStatus") -> str:
         if status == TextFieldStatus.OK:
-            return defs.INPUT_VALID_COLOR
+            return colors.INPUT_VALID
         elif status == TextFieldStatus.BAD:
-            return defs.INPUT_ERROR_COLOR
+            return colors.INPUT_ERROR
         elif status == TextFieldStatus.EMPTY:
-            return defs.INPUT_NONE_COLOR
+            return colors.INPUT_NONE
         else:
             raise ValueError(f"Unable to determine color for status: {status}")
 
