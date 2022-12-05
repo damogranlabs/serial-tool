@@ -3,8 +3,8 @@ from typing import Generic, List, Optional, TypeVar
 
 from PyQt5 import QtCore
 
-from serial_tool import defines as defs
-from serial_tool.base import colors
+from serial_tool.defines import colors
+from serial_tool.defines import ui_defs
 from serial_tool import serial_hdlr
 
 
@@ -28,7 +28,7 @@ class SequenceInfo:
         self.repeat: int = repeat
 
     def __str__(self):
-        return f"({self.channel_idx}{defs.SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{defs.SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
+        return f"({self.channel_idx}{ui_defs.SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{ui_defs.SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
 
 
 class TextFieldStatus(enum.Enum):
@@ -103,12 +103,12 @@ class RuntimeDataCache(QtCore.QObject):
 
         self.cfg_file_path: Optional[str] = None
 
-        self.data_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
-        self.parsed_data_fields: List[Optional[List[int]]] = [None] * defs.NUM_OF_DATA_CHANNELS
-        self.note_fields: List[str] = [""] * defs.NUM_OF_DATA_CHANNELS
+        self.data_fields: List[str] = [""] * ui_defs.NUM_OF_DATA_CHANNELS
+        self.parsed_data_fields: List[Optional[List[int]]] = [None] * ui_defs.NUM_OF_DATA_CHANNELS
+        self.note_fields: List[str] = [""] * ui_defs.NUM_OF_DATA_CHANNELS
 
-        self.seq_fields: List[str] = [""] * defs.NUM_OF_SEQ_CHANNELS
-        self.parsed_seq_fields: List[Optional[List[SequenceInfo]]] = [None] * defs.NUM_OF_SEQ_CHANNELS
+        self.seq_fields: List[str] = [""] * ui_defs.NUM_OF_SEQ_CHANNELS
+        self.parsed_seq_fields: List[Optional[List[SequenceInfo]]] = [None] * ui_defs.NUM_OF_SEQ_CHANNELS
 
         self.all_rx_tx_data: List[str] = []
 
@@ -116,7 +116,7 @@ class RuntimeDataCache(QtCore.QObject):
         self.display_rx_data = True
         self.display_tx_data = True
         self.new_line_on_rx = False
-        self.new_line_on_rx_timeout_msec: int = defs.DEFAULT_RX_NEWLINE_TIMEOUT_MS
+        self.new_line_on_rx_timeout_msec: int = ui_defs.DEFAULT_RX_NEWLINE_TIMEOUT_MS
 
     def set_serial_settings(self, settings: serial_hdlr.SerialCommSettings) -> None:
         """Update serial settings and emit a signal at the end."""

@@ -5,20 +5,20 @@ import serial
 from serial.tools.list_ports import comports
 from serial.serialutil import SerialException
 
-from serial_tool import defines as defs
+from serial_tool.defines import base
 
 
 class SerialCommSettings:
     def __init__(self) -> None:
         self.port: Optional[str] = None
-        self.baudrate: int = defs.DEFAULT_BAUDRATE
+        self.baudrate: int = base.DEFAULT_BAUDRATE
         self.data_size: int = serial.EIGHTBITS  # serial.SerialBase.BYTESIZES
         self.stop_bits: int = serial.STOPBITS_ONE  # serialutil.SerialBase.STOPBITS
         self.parity: str = serial.PARITY_NONE  # serialutil.SerialBase.PARITIES
         self.sw_flow_ctrl: bool = False  # XON/XOFF
         self.hw_flow_ctrl: bool = False  # RTS/CTS
-        self.rx_timeout_ms: int = defs.SERIAL_READ_TIMEOUT_MS
-        self.tx_timeout_ms: int = defs.SERIAL_WRITE_TIMEOUT_MS
+        self.rx_timeout_ms: int = base.SERIAL_RX_TIMEOUT_MS
+        self.tx_timeout_ms: int = base.SERIAL_TX_TIMEOUT_MS
 
     def __str__(self) -> str:
         """

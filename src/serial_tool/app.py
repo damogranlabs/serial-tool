@@ -13,9 +13,10 @@ from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 
 import serial_tool
-from serial_tool.base import user_cfg_defs
-from serial_tool.base import colors
-from serial_tool import defines as defs
+from serial_tool.defines import base
+from serial_tool.defines import cfg_defs
+from serial_tool.defines import colors
+from serial_tool.defines import ui_defs
 from serial_tool import models
 from serial_tool import cfg_hdlr
 from serial_tool import serial_hdlr
@@ -90,10 +91,10 @@ class Gui(QtWidgets.QMainWindow):
         )
         self._seq_threads: List[Optional[QtCore.QThread]] = [
             None
-        ] * defs.NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
+        ] * ui_defs.NUM_OF_SEQ_CHANNELS  # threads of sequence handlers
         self._seq_tx_workers: List[Optional[communication.TxDataSequenceHdlr]] = [
             None
-        ] * defs.NUM_OF_SEQ_CHANNELS  # actual sequence handlers
+        ] * ui_defs.NUM_OF_SEQ_CHANNELS  # actual sequence handlers
 
         self.ui.RB_GROUP_outputRepresentation.setId(
             self.ui.RB_outputRepresentationString, models.OutputRepresentation.STRING
@@ -216,7 +217,7 @@ class Gui(QtWidgets.QMainWindow):
         baudrate_validator = QtGui.QIntValidator(0, serialutil.SerialBase.BAUDRATES[-1])
         self.ui.DD_baudrate.setValidator(baudrate_validator)
         self.ui.DD_baudrate.addItems([str(baudrate) for baudrate in serialutil.SerialBase.BAUDRATES])
-        baudrate_idx = self.ui.DD_baudrate.findText(str(defs.DEFAULT_BAUDRATE))
+        baudrate_idx = self.ui.DD_baudrate.findText(str(base.DEFAULT_BAUDRATE))
         self.ui.DD_baudrate.setCurrentIndex(baudrate_idx)
 
         self.cfg_hdlr.set_default_cfg()
@@ -229,7 +230,7 @@ class Gui(QtWidgets.QMainWindow):
         """Set most recently used configurations to "File menu > Recently used configurations" list"""
         self.ui.PB_fileMenu_recentlyUsedConfigurations.clear()
 
-        files = paths.get_recently_used_cfgs(user_cfg_defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
+        files = paths.get_recently_used_cfgs(ui_defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI)
         for file_path in files:
             name = os.path.basename(file_path)
 
@@ -239,7 +240,7 @@ class Gui(QtWidgets.QMainWindow):
 
     def set_main_window_name(self, name: Optional[str] = None) -> None:
         """Set additional name to the main application GUI window."""
-        main_name = f"{defs.APPLICATION_NAME} v{serial_tool.__version__}"
+        main_name = f"{ui_defs.APP_NAME} v{serial_tool.__version__}"
         if name:
             main_name += f" - {name}"
 
@@ -283,7 +284,7 @@ class Gui(QtWidgets.QMainWindow):
     def colorize_text_field(self, field: QtWidgets.QLineEdit, status: models.TextFieldStatus) -> None:
         """Colorize given text input field with pre-defined scheme (see status parameter)."""
         color = models.TextFieldStatus.get_color(status)
-        field.setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: {color}")
+        field.setStyleSheet(f"{ui_defs.DEFAULT_FONT_STYLE} background-color: {color}")
 
     def set_connection_buttons_state(self, is_enabled: bool) -> None:
         """
@@ -295,14 +296,14 @@ class Gui(QtWidgets.QMainWindow):
                 - if False: text = not connected, color = red
         """
         if is_enabled:
-            self.ui.PB_commPortCtrl.setText(defs.COMM_PORT_CONNECTED_TEXT)
+            self.ui.PB_commPortCtrl.setText(ui_defs.COMM_PORT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(
-                f"{defs.DEFAULT_FONT_STYLE} background-color: {colors.COMM_PORT_CONNECTED}"
+                f"{ui_defs.DEFAULT_FONT_STYLE} background-color: {colors.COMM_PORT_CONNECTED}"
             )
         else:
-            self.ui.PB_commPortCtrl.setText(defs.COMM_PORT_NOT_CONNECTED_TEXT)
+            self.ui.PB_commPortCtrl.setText(ui_defs.COMM_PORT_NOT_CONNECTED_TEXT)
             self.ui.PB_commPortCtrl.setStyleSheet(
-                f"{defs.DEFAULT_FONT_STYLE} background-color: {colors.COMM_PORT_NOT_CONNECTED}"
+                f"{ui_defs.DEFAULT_FONT_STYLE} background-color: {colors.COMM_PORT_NOT_CONNECTED}"
             )
 
     def get_rx_new_line_timeout_msec(self) -> int:
@@ -390,11 +391,11 @@ class Gui(QtWidgets.QMainWindow):
         Save current configuration to a file. File path is selected with default os GUI pop-up.
         """
         if self.data_cache.cfg_file_path is None:
-            cfg_file_path = os.path.join(paths.get_default_log_dir(), user_cfg_defs.DEFAULT_CFG_FILE_NAME)
+            cfg_file_path = os.path.join(paths.get_default_log_dir(), base.DEFAULT_CFG_FILE_NAME)
         else:
             cfg_file_path = self.data_cache.cfg_file_path
 
-        path = self.ask_for_save_file_path("Save configuration...", cfg_file_path, user_cfg_defs.CFG_FILE_EXT_FILTER)
+        path = self.ask_for_save_file_path("Save configuration...", cfg_file_path, base.CFG_FILE_EXT_FILTER)
         if path is None:
             logging.debug("Save configuration request canceled.")
         else:
@@ -425,7 +426,7 @@ class Gui(QtWidgets.QMainWindow):
                 cfg_dir = os.path.dirname(self.data_cache.cfg_file_path)
 
             if self.confirm_action_dialog("Warning!", "Loading new configuration?\nThis will discard any changes!"):
-                path = self.ask_for_open_file_path("Load configuration...", cfg_dir, user_cfg_defs.CFG_FILE_EXT_FILTER)
+                path = self.ask_for_open_file_path("Load configuration...", cfg_dir, base.CFG_FILE_EXT_FILTER)
                 if path is not None:
                     self.data_cache.cfg_file_path = path
                     self.cfg_hdlr.load_cfg(path)
@@ -452,16 +453,16 @@ class Gui(QtWidgets.QMainWindow):
         lines = []
         lines.append(f"<br>************ Serial Tool v{serial_tool.__version__} ************")
         # add extra new line
-        lines.append(f'Domen Jurkovic @ <a href="{defs.LINK_DAMOGRANLABS}">Damogran Labs</a><br>')
-        lines.append(f'GitHub (docs, releases): <a href="{defs.LINK_GITHUB}">{defs.LINK_GITHUB}</a>')
-        lines.append(f'Homepage: <a href="{defs.LINK_HOMEPAGE}">{defs.LINK_HOMEPAGE}</a>')
+        lines.append(f'Domen Jurkovic @ <a href="{base.LINK_DAMGORANLABS}">Damogran Labs</a><br>')
+        lines.append(f'GitHub (docs, releases): <a href="{base.LINK_REPOSITORY}">{base.LINK_REPOSITORY}</a>')
+        lines.append(f'Homepage: <a href="{base.LINK_HOMEPAGE}">{base.LINK_HOMEPAGE}</a>')
 
         self.log_html("<br>".join(lines))
 
     @QtCore.pyqtSlot()
     def on_help_docs(self) -> None:
         """Open Github README page in a web browser."""
-        webbrowser.open(defs.LINK_GITHUB_DOCS, new=2)  # new=2 new tab
+        webbrowser.open(base.LINK_DOCS, new=2)  # new=2 new tab
 
         logging.debug("Online docs opened.")
 
@@ -534,7 +535,7 @@ class Gui(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot()
     def on_port_hdlr_button(self) -> None:
         """Connect/disconnect from a port with serial settings."""
-        if self.ui.PB_commPortCtrl.text() == defs.COMM_PORT_CONNECTED_TEXT:
+        if self.ui.PB_commPortCtrl.text() == ui_defs.COMM_PORT_CONNECTED_TEXT:
             # currently connected, stop all sequences and disconnect
             self.stop_all_seq_tx_threads()  # might be a problem with unfinished, blockin sequences
 
@@ -605,7 +606,7 @@ class Gui(QtWidgets.QMainWindow):
         """This function is called once data is received on a serial port."""
         data_str = self._convert_data(data, self.data_cache.output_data_representation)
 
-        self.data_cache.all_rx_tx_data.append(f"{defs.EXPORT_RX_TAG}{data}")
+        self.data_cache.all_rx_tx_data.append(f"{ui_defs.EXPORT_RX_TAG}{data}")
         if self.data_cache.display_rx_data:
             msg = f"{data_str}"
             if self.data_cache.new_line_on_rx:
@@ -627,8 +628,8 @@ class Gui(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(int)
     def on_seq_finish_event(self, seq_idx: int) -> None:
         """This function is called once sequence sending thread is finished."""
-        self.ui_seq_send_buttons[seq_idx].setText(defs.SEQ_BUTTON_START_TEXT)
-        self.ui_seq_send_buttons[seq_idx].setStyleSheet(f"{defs.DEFAULT_FONT_STYLE} background-color: None")
+        self.ui_seq_send_buttons[seq_idx].setText(ui_defs.SEQ_BUTTON_IDLE_TEXT)
+        self.ui_seq_send_buttons[seq_idx].setStyleSheet(f"{ui_defs.DEFAULT_FONT_STYLE} background-color: None")
         self._seq_threads[seq_idx] = None
 
         logging.debug(f"\tEvent: sequence {seq_idx + 1} finished")
@@ -640,9 +641,9 @@ class Gui(QtWidgets.QMainWindow):
         assert data is not None
         data_str = self._convert_data(data, self.data_cache.output_data_representation)
 
-        self.data_cache.all_rx_tx_data.append(f"{defs.SEQ_TAG}{seq_idx+1}_CH{ch_idx+1}{defs.EXPORT_TX_TAG}{data}")
+        self.data_cache.all_rx_tx_data.append(f"{ui_defs.SEQ_TAG}{seq_idx+1}_CH{ch_idx+1}{ui_defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
-            msg = f"{defs.SEQ_TAG}{seq_idx+1}_CH{ch_idx+1}: {data_str}"
+            msg = f"{ui_defs.SEQ_TAG}{seq_idx+1}_CH{ch_idx+1}: {data_str}"
 
             self.log_text(msg, colors.LOG_TX_DATA)
 
@@ -746,7 +747,7 @@ class Gui(QtWidgets.QMainWindow):
         assert data is not None
         data_str = self._convert_data(data, self.data_cache.output_data_representation)
 
-        self.data_cache.all_rx_tx_data.append(f"CH{ch_idx}{defs.EXPORT_TX_TAG}{data}")
+        self.data_cache.all_rx_tx_data.append(f"CH{ch_idx}{ui_defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
             self.log_text(data_str, colors.LOG_TX_DATA)
 
@@ -755,10 +756,10 @@ class Gui(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(int)
     def on_send_stop_seq_button(self, seq_idx: int) -> None:
         """Start sending data sequence."""
-        if self.ui_seq_send_buttons[seq_idx].text() == defs.SEQ_BUTTON_START_TEXT:
-            self.ui_seq_send_buttons[seq_idx].setText(defs.SEQ_BUTTON_STOP_TEXT)
+        if self.ui_seq_send_buttons[seq_idx].text() == ui_defs.SEQ_BUTTON_IDLE_TEXT:
+            self.ui_seq_send_buttons[seq_idx].setText(ui_defs.SEQ_BUTTON_STOP_TEXT)
             self.ui_seq_send_buttons[seq_idx].setStyleSheet(
-                f"{defs.DEFAULT_FONT_STYLE} background-color: {colors.SEQ_ACTIVE}"
+                f"{ui_defs.DEFAULT_FONT_STYLE} background-color: {colors.SEQ_ACTIVE}"
             )
 
             seq_data = self.data_cache.parsed_seq_fields[seq_idx]
@@ -802,10 +803,8 @@ class Gui(QtWidgets.QMainWindow):
         Save (export) content of a current log window to a file.
         Pick destination with default OS pop-up window.
         """
-        default_path = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_LOG_EXPORT_FILENAME)
-        path = self.ask_for_save_file_path(
-            "Save log window content...", default_path, defs.LOG_EXPORT_FILE_EXTENSION_FILTER
-        )
+        default_path = os.path.join(paths.get_default_log_dir(), base.DEFAULT_LOG_EXPORT_FILENAME)
+        path = self.ask_for_save_file_path("Save log window content...", default_path, base.LOG_EXPORT_FILE_EXT_FILTER)
         if path is not None:
             with open(path, "w+", encoding="utf-8") as fileHandler:
                 lines = self.ui.TE_log.toPlainText()
@@ -821,10 +820,8 @@ class Gui(QtWidgets.QMainWindow):
         Save (export) content of all RX/TX data to a file.
         Pick destination with default OS pop-up window.
         """
-        default_path = os.path.join(paths.get_default_log_dir(), defs.DEFAULT_DATA_EXPORT_FILENAME)
-        path = self.ask_for_save_file_path(
-            "Save raw RX/TX data...", default_path, defs.DATA_EXPORT_FILE_EXTENSION_FILTER
-        )
+        default_path = os.path.join(paths.get_default_log_dir(), base.DEFAULT_DATA_EXPORT_FILENAME)
+        path = self.ask_for_save_file_path("Save raw RX/TX data...", default_path, base.DATA_EXPORT_FILE_EXT_FILTER)
         if path is not None:
             with open(path, "w+", encoding="utf-8") as fileHandler:
                 for data in self.data_cache.all_rx_tx_data:
@@ -906,14 +903,14 @@ class Gui(QtWidgets.QMainWindow):
     ################################################################################################
     def _parse_data_field(self, ch_idx: int) -> models.ChannelTextFieldParserResult:
         """Get string from a data field and return parsed data"""
-        assert 0 <= ch_idx < defs.NUM_OF_DATA_CHANNELS
+        assert 0 <= ch_idx < ui_defs.NUM_OF_DATA_CHANNELS
 
         text = self.ui_data_fields[ch_idx].text()
         return validators.parse_channel_data(text)
 
     def _parse_seq_data_field(self, seq_idx: int) -> models.SequenceTextFieldParserResult:
         """Get data from a sequence field and return parsed data"""
-        assert 0 <= seq_idx < defs.NUM_OF_SEQ_CHANNELS
+        assert 0 <= seq_idx < ui_defs.NUM_OF_SEQ_CHANNELS
         seq = self.ui_seq_fields[seq_idx]
         text = seq.text()
 
@@ -927,15 +924,15 @@ class Gui(QtWidgets.QMainWindow):
         elif new_format == models.OutputRepresentation.INT_LIST:
             # Convert list of integers to a string of integer values.
             int_data = [str(num) for num in data]
-            output_data = defs.RX_DATA_LIST_SEPARATOR.join(int_data) + defs.RX_DATA_LIST_SEPARATOR
+            output_data = ui_defs.RX_DATA_SEPARATOR.join(int_data) + ui_defs.RX_DATA_SEPARATOR
         elif new_format == models.OutputRepresentation.HEX_LIST:
             # Convert list of integers to a string of hex values.
             # format always as 0x** (two fields for data value)
             hex_data = ["{0:#0{1}x}".format(num, 4) for num in data]
-            output_data = defs.RX_DATA_LIST_SEPARATOR.join(hex_data) + defs.RX_DATA_LIST_SEPARATOR
+            output_data = ui_defs.RX_DATA_SEPARATOR.join(hex_data) + ui_defs.RX_DATA_SEPARATOR
         else:
             ascii_data = [f"'{chr(num)}'" for num in data]
-            output_data = defs.RX_DATA_LIST_SEPARATOR.join(ascii_data) + defs.RX_DATA_LIST_SEPARATOR
+            output_data = ui_defs.RX_DATA_SEPARATOR.join(ascii_data) + ui_defs.RX_DATA_SEPARATOR
 
         return output_data
 
@@ -1044,9 +1041,9 @@ class Gui(QtWidgets.QMainWindow):
 def init_logger() -> None:
     log_dir = paths.get_default_log_dir()
     os.makedirs(log_dir, exist_ok=True)
-    file_path = os.path.join(log_dir, defs.SERIAL_TOOL_LOG_FILENAME)
+    file_path = os.path.join(log_dir, base.LOG_FILENAME)
 
-    fmt = logging.Formatter(defs.LOG_FORMAT, datefmt=defs.LOG_DATETIME_FORMAT)
+    fmt = logging.Formatter(base.LOG_FORMAT, datefmt=base.LOG_DATETIME_FORMAT)
 
     logger = logging.getLogger()
     logger.setLevel(logging.DEBUG)

@@ -3,17 +3,14 @@ import os
 from functools import lru_cache
 from typing import List, Optional
 
-import serial_tool.defines as defs
-from serial_tool.base import user_cfg_defs
+from serial_tool.defines import base
+from serial_tool.defines import ui_defs
 
 
 @lru_cache
 def get_default_log_dir() -> str:
-    """
-    Return path to a default Serial Tool log directory in Appdata:
-        %APPDATA%/<SERIAL_TOOL_APPDATA_FOLDER_NAME>
-    """
-    return os.path.join(os.environ["APPDATA"], defs.SERIAL_TOOL_APPDATA_FOLDER_NAME)
+    """Return path to a default Serial Tool log directory in Appdata."""
+    return os.path.join(os.environ["APPDATA"], base.APPDATA_DIR_NAME)
 
 
 @lru_cache
@@ -21,7 +18,7 @@ def get_log_file_path() -> str:
     """
     Return path to a default Serial Tool log file.
     """
-    return os.path.join(get_default_log_dir(), defs.SERIAL_TOOL_LOG_FILENAME)
+    return os.path.join(get_default_log_dir(), base.LOG_FILENAME)
 
 
 @lru_cache
@@ -29,7 +26,7 @@ def get_recently_used_cfg_cache_file() -> str:
     """
     Return path to a file where recently used cfgs are stored (log folder).
     """
-    return os.path.join(get_default_log_dir(), user_cfg_defs.RECENTLY_USED_CFG_FILE_NAME)
+    return os.path.join(get_default_log_dir(), base.RECENTLY_USED_CFG_FILE_NAME)
 
 
 def get_most_recently_used_cfg_file() -> Optional[str]:
@@ -65,7 +62,7 @@ def add_cfg_to_recently_used_cfgs(file_path: str) -> None:
 
                 lines.insert(0, f"{file_path}\n")
                 lines = list(dict.fromkeys(lines))  # remove duplicates
-                lines = lines[: user_cfg_defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI]  # shorten number of entries
+                lines = lines[: ui_defs.NUM_OF_MAX_RECENTLY_USED_CFG_GUI]  # shorten number of entries
 
                 f.seek(0)  # strange \x00 appeared without this
                 f.truncate(0)

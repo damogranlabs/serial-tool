@@ -1,11 +1,5 @@
 CFG_FORMAT_VERSION = 2.0  # configuration file format version (not main software version)
 
-NUM_OF_MAX_RECENTLY_USED_CFG_GUI = 8  # how many entries GUI will show.
-
-CFG_FILE_EXT_FILTER = "*.json"
-DEFAULT_CFG_FILE_NAME = "SerialToolCfg.json"
-RECENTLY_USED_CFG_FILE_NAME = "_recentlyUsedConfigurations.txt"
-
 # Configuration data JSON keys
 # TODO: switch to pydantic models one day
 KEY_FILE_VER = "version"

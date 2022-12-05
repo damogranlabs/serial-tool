@@ -1,8 +1,8 @@
 import sys
 from typing import List
 
+from serial_tool.defines import ui_defs
 from serial_tool import models
-from serial_tool import defines as defs
 
 
 def parse_channel_data(text: str) -> models.ChannelTextFieldParserResult:
@@ -21,7 +21,7 @@ def parse_channel_data(text: str) -> models.ChannelTextFieldParserResult:
     data = []
 
     try:
-        parts = text.strip(defs.DATA_BYTES_SEPARATOR).split(defs.DATA_BYTES_SEPARATOR)
+        parts = text.strip(ui_defs.DATA_BYTES_SEPARATOR).split(ui_defs.DATA_BYTES_SEPARATOR)
         for part in parts:
             part = part.strip()
 
@@ -91,20 +91,20 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
         return models.SequenceTextFieldParserResult(models.TextFieldStatus.EMPTY)
 
     parsed_blocks_data: List[models.SequenceInfo] = []
-    blocks = text.strip(defs.SEQ_BLOCK_SEPARATOR).split(defs.SEQ_BLOCK_SEPARATOR)
+    blocks = text.strip(ui_defs.SEQ_BLOCK_SEPARATOR).split(ui_defs.SEQ_BLOCK_SEPARATOR)
     for block in blocks:
         block = block.strip()
 
         try:
-            if not (block.startswith(defs.SEQ_BLOCK_START_CHAR) and block.endswith(defs.SEQ_BLOCK_END_CHAR)):
+            if not (block.startswith(ui_defs.SEQ_BLOCK_START_CHAR) and block.endswith(ui_defs.SEQ_BLOCK_END_CHAR)):
                 return models.SequenceTextFieldParserResult(
                     models.TextFieldStatus.BAD,
-                    f"Invalid format, expecting '{defs.SEQ_BLOCK_START_CHAR}' and '{defs.SEQ_BLOCK_END_CHAR}' "
+                    f"Invalid format, expecting '{ui_defs.SEQ_BLOCK_START_CHAR}' and '{ui_defs.SEQ_BLOCK_END_CHAR}' "
                     f"separators in block: {block}",
                 )
 
-            block = block.strip(defs.SEQ_BLOCK_START_CHAR).strip(defs.SEQ_BLOCK_END_CHAR)
-            data = block.split(defs.SEQ_BLOCK_DATA_SEPARATOR)
+            block = block.strip(ui_defs.SEQ_BLOCK_START_CHAR).strip(ui_defs.SEQ_BLOCK_END_CHAR)
+            data = block.split(ui_defs.SEQ_BLOCK_DATA_SEPARATOR)
             data = [d for d in data if d.strip() != ""]
             # repeat number is not mandatory
             if len(data) not in [2, 3]:
@@ -116,7 +116,7 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
 
             channel_idx = int(data[0].strip())
             # user must enter a number as seen in GUI, starts with 1
-            if not (1 <= channel_idx <= defs.NUM_OF_DATA_CHANNELS):
+            if not (1 <= channel_idx <= ui_defs.NUM_OF_DATA_CHANNELS):
                 return models.SequenceTextFieldParserResult(
                     models.TextFieldStatus.BAD,
                     f"Invalid data channel index in sequence: {channel_idx}, block: {block}",
