@@ -1024,18 +1024,19 @@ class Gui(QtWidgets.QMainWindow):
         msg += f"\n\tExc. value: {exc_value}"
         msg += f"\n\tExc. traceback: {traceback.format_tb(traceback_obj)}"
         msg += "\n\n"
+        logging.error(f"{msg}")
 
         try:
             self.sig_error.emit(msg, colors.LOG_ERROR)
         except Exception as err:
             # at least, log to file if log over signal fails
-            logging.error(f"{msg}\n{err}")
+            logging.error(f"Error emitting `error signal` from system exception handler:\n{err}")
 
         try:
             self.stop_all_seq_tx_threads()
             self.port_hdlr.deinit_port()
         except Exception as err:
-            logging.error(f"Error in exception handling function.\n{err}")
+            logging.error(f"Error in final exception handler:\n{err}")
             self.sig_close.emit()
 
 
