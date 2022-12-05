@@ -454,7 +454,8 @@ class Gui(QtWidgets.QMainWindow):
         lines.append(f"<br>************ Serial Tool v{serial_tool.__version__} ************")
         # add extra new line
         lines.append(f'Domen Jurkovic @ <a href="{base.LINK_DAMGORANLABS}">Damogran Labs</a><br>')
-        lines.append(f'GitHub (docs, releases): <a href="{base.LINK_REPOSITORY}">{base.LINK_REPOSITORY}</a>')
+        lines.append(f'Repository: <a href="{base.LINK_REPOSITORY}">{base.LINK_REPOSITORY}</a>')
+        lines.append(f'Docs: <a href="{base.LINK_DOCS}">{base.LINK_DOCS}</a>')
         lines.append(f'Homepage: <a href="{base.LINK_HOMEPAGE}">{base.LINK_HOMEPAGE}</a>')
 
         self.log_html("<br>".join(lines))
