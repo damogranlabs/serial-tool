@@ -605,7 +605,7 @@ class Gui(QtWidgets.QMainWindow):
     @QtCore.pyqtSlot(list)
     def on_data_received_event(self, data: List[int]) -> None:
         """This function is called once data is received on a serial port."""
-        data_str = self._convert_data(data, self.data_cache.output_data_representation)
+        data_str = self._convert_data(data, self.data_cache.output_data_representation, ui_defs.RX_DATA_SEPARATOR)
 
         self.data_cache.all_rx_tx_data.append(f"{ui_defs.EXPORT_RX_TAG}{data}")
         if self.data_cache.display_rx_data:
@@ -640,7 +640,7 @@ class Gui(QtWidgets.QMainWindow):
         """This function is called once data is send from send sequence thread."""
         data = self.data_cache.parsed_data_fields[ch_idx]
         assert data is not None
-        data_str = self._convert_data(data, self.data_cache.output_data_representation)
+        data_str = self._convert_data(data, self.data_cache.output_data_representation, ui_defs.TX_DATA_SEPARATOR)
 
         self.data_cache.all_rx_tx_data.append(f"{ui_defs.SEQ_TAG}{seq_idx+1}_CH{ch_idx+1}{ui_defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
@@ -746,7 +746,7 @@ class Gui(QtWidgets.QMainWindow):
         """Send data on a selected data channel."""
         data = self.data_cache.parsed_data_fields[ch_idx]
         assert data is not None
-        data_str = self._convert_data(data, self.data_cache.output_data_representation)
+        data_str = self._convert_data(data, self.data_cache.output_data_representation, ui_defs.TX_DATA_SEPARATOR)
 
         self.data_cache.all_rx_tx_data.append(f"CH{ch_idx}{ui_defs.EXPORT_TX_TAG}{data}")
         if self.data_cache.display_tx_data:
@@ -917,7 +917,7 @@ class Gui(QtWidgets.QMainWindow):
 
         return validators.parse_seq_data(text)
 
-    def _convert_data(self, data: List[int], new_format: models.OutputRepresentation) -> str:
+    def _convert_data(self, data: List[int], new_format: models.OutputRepresentation, separator: str) -> str:
         """Convert chosen data to a string with selected format."""
         if new_format == models.OutputRepresentation.STRING:
             # Convert list of integers to a string, without data separator.
@@ -925,17 +925,17 @@ class Gui(QtWidgets.QMainWindow):
         elif new_format == models.OutputRepresentation.INT_LIST:
             # Convert list of integers to a string of integer values.
             int_data = [str(num) for num in data]
-            output_data = ui_defs.RX_DATA_SEPARATOR.join(int_data) + ui_defs.RX_DATA_SEPARATOR
+            output_data = separator.join(int_data) + separator
         elif new_format == models.OutputRepresentation.HEX_LIST:
             # Convert list of integers to a string of hex values.
             # format always as 0x** (two fields for data value)
             hex_data = ["{0:#0{1}x}".format(num, 4) for num in data]
-            output_data = ui_defs.RX_DATA_SEPARATOR.join(hex_data) + ui_defs.RX_DATA_SEPARATOR
+            output_data = separator.join(hex_data) + separator
         else:
             ascii_data = [f"'{chr(num)}'" for num in data]
-            output_data = ui_defs.RX_DATA_SEPARATOR.join(ascii_data) + ui_defs.RX_DATA_SEPARATOR
+            output_data = separator.join(ascii_data) + separator
 
-        return output_data
+        return output_data.strip()
 
     def ask_for_save_file_path(
         self, name: str, dir_path: Optional[str] = None, filter_ext: str = "*.txt"
