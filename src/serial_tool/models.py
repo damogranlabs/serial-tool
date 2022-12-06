@@ -16,19 +16,24 @@ class OutputRepresentation(enum.IntEnum):
 
 
 class SequenceInfo:
-    def __init__(self, channel_idx: int, delay_msec: int = 0, repeat: int = 1):
+    def __init__(self, ch_idx: int, delay_msec: int = 0, repeat: int = 1):
+        """Container of parsed block of sequence data
+
+        Args:
+            ch_idx: index of data channel field (starting with zero).
+            delay_msec: delay after this channel data is sent in milliseconds.
+            repeat: number of times this channel is sent with given data and delay.
         """
-        Each item in sequence field list is of this type and holds
-            @param channel_idx: index of data channel index as described in GUI fields
-            @param delay_msec: delay after this channel data is sent in milliseconds.
-            @param repeat: number of times this channel is sent with given data and delay
-        """
-        self.channel_idx: int = channel_idx
+        self.ch_idx: int = ch_idx
         self.delay_msec: int = delay_msec
         self.repeat: int = repeat
 
     def __str__(self):
-        return f"({self.channel_idx}{ui_defs.SEQ_BLOCK_DATA_SEPARATOR}{self.delay_msec}{ui_defs.SEQ_BLOCK_DATA_SEPARATOR}{self.repeat})"
+        return (
+            f"{ui_defs.SEQ_BLOCK_START_CHAR}{self.ch_idx}{ui_defs.SEQ_BLOCK_DATA_SEPARATOR} "
+            f"{self.delay_msec}{ui_defs.SEQ_BLOCK_DATA_SEPARATOR} "
+            f"{self.repeat}{ui_defs.SEQ_BLOCK_END_CHAR}"
+        )
 
 
 class TextFieldStatus(enum.Enum):

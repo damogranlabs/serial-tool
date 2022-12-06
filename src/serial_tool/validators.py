@@ -114,15 +114,15 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
                     f"Block: {block}",
                 )
 
-            channel_idx = int(data[0].strip())
+            ch_idx = int(data[0].strip())
             # user must enter a number as seen in GUI, starts with 1
-            if not (1 <= channel_idx <= ui_defs.NUM_OF_DATA_CHANNELS):
+            if not (1 <= ch_idx <= ui_defs.NUM_OF_DATA_CHANNELS):
                 return models.SequenceTextFieldParserResult(
                     models.TextFieldStatus.BAD,
-                    f"Invalid data channel index in sequence: {channel_idx}, block: {block}",
+                    f"Invalid data channel index in sequence: {ch_idx}, block: {block}",
                 )
 
-            channel_idx = channel_idx - 1
+            ch_idx = ch_idx - 1
             delay_msec = int(data[1].strip())
             if delay_msec < 0:
                 return models.SequenceTextFieldParserResult(
@@ -130,7 +130,7 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
                     f"Invalid delay, must be a positive number: {delay_msec}, block: {block}",
                 )
 
-            seq_data = models.SequenceInfo(channel_idx, delay_msec)
+            seq_data = models.SequenceInfo(ch_idx, delay_msec)
             if len(data) == 3:  # repeat is specified
                 repeat_num = int(data[2].strip())
                 if repeat_num < 1:

@@ -580,7 +580,7 @@ class Gui(QtWidgets.QMainWindow):
             result = self._parse_seq_data_field(idx)
             if result.status == models.TextFieldStatus.OK:
                 for block in result.data:
-                    if self.data_cache.parsed_data_fields[block.channel_idx] is None:
+                    if self.data_cache.parsed_data_fields[block.ch_idx] is None:
                         self.set_new_button_state(idx, False)
                         break
                 else:
@@ -729,7 +729,7 @@ class Gui(QtWidgets.QMainWindow):
             self.data_cache.parsed_seq_fields[seq_idx] = result.data
             # check if seq button can be enabled (seq field is properly formatted. Are all data fields properly formatted?
             for block in result.data:
-                if self.data_cache.parsed_data_fields[block.channel_idx] is None:
+                if self.data_cache.parsed_data_fields[block.ch_idx] is None:
                     self.set_new_button_state(seq_idx, False)
                     break
             else:

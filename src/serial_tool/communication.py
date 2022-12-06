@@ -124,7 +124,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
                     if self._stop_seq_request:
                         break
 
-                    data = self.parsed_data_fields[seq_info.channel_idx]
+                    data = self.parsed_data_fields[seq_info.ch_idx]
                     assert data is not None
 
                     for _ in range(seq_info.repeat):
@@ -132,7 +132,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
                             break
 
                         self._port_hdlr.write_data(data)
-                        self.sig_data_send_event.emit(self.seq_idx, seq_info.channel_idx)
+                        self.sig_data_send_event.emit(self.seq_idx, seq_info.ch_idx)
 
                         if self._stop_seq_request:
                             break
