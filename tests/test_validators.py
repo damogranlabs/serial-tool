@@ -60,7 +60,7 @@ def test_parse_seq_data_valid(data_in: str, data_out: List[models.SequenceInfo])
     assert len(result.data) == len(data_out)
     for idx, data in enumerate(data_out):
         result_data = result.data[idx]
-        assert result_data.channel_idx == data.channel_idx
+        assert result_data.ch_idx == data.ch_idx
         assert result_data.delay_msec == data.delay_msec
         assert result_data.repeat == data.repeat
 
