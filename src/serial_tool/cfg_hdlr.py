@@ -58,14 +58,14 @@ class ConfigurationHdlr:
         if cfg_defs.KEY_FILE_VER not in data:
             msg = f"Missing `{cfg_defs.KEY_FILE_VER}` key in configuration file. Possibly unknown data format."
             self.signals.warning.emit(msg, colors.LOG_WARNING)
-            logging.debug(f"Trying to load configuration file with missing `{cfg_defs.KEY_FILE_VER}` field...")
+            logging.warning(f"Trying to load configuration file with missing `{cfg_defs.KEY_FILE_VER}` field...")
         elif data[cfg_defs.KEY_FILE_VER] != cfg_defs.CFG_FORMAT_VERSION:
             msg = "Configuration file format has changed - expect invalid/missing configuration data."
             msg += (
                 f"\nCurrent version: {cfg_defs.CFG_FORMAT_VERSION}, config file version: {data[cfg_defs.KEY_FILE_VER]}"
             )
             self.signals.warning.emit(msg, colors.LOG_WARNING)
-            logging.debug("Trying to load configuration file with different format version...")
+            logging.warning("Trying to load configuration file with different format version...")
 
         try:
             settings = serial_hdlr.SerialCommSettings()
@@ -84,7 +84,7 @@ class ConfigurationHdlr:
             self.data_cache.set_serial_settings(settings)
         except KeyError as err:
             msg = f"Unable to set serial settings from a configuration file: {err}"
-            self.signals.warning.emit(msg, colors.LOG_WARNING)
+            self.signals.error.emit(msg, colors.LOG_ERROR)
 
         try:
             for idx, field in data[cfg_defs.KEY_GUI_DATA_FIELDS].items():
@@ -97,7 +97,7 @@ class ConfigurationHdlr:
                 self.data_cache.set_seq_field(int(idx), field)
         except KeyError as err:
             msg = f"Unable to set data/note/sequence settings from a configuration file: {err}"
-            self.signals.warning.emit(msg, colors.LOG_WARNING)
+            self.signals.error.emit(msg, colors.LOG_ERROR)
 
         try:
             self.data_cache.set_rx_display_ode(data[cfg_defs.KEY_GUI_RX_LOG])
@@ -107,7 +107,7 @@ class ConfigurationHdlr:
             self.data_cache.set_new_line_on_rx_timeout(data[cfg_defs.KEY_GUI_RX_NEWLINE_TIMEOUT])
         except KeyError as err:
             msg = f"Unable to set log settings from a configuration file: {err}"
-            self.signals.warning.emit(msg, colors.LOG_WARNING)
+            self.signals.error.emit(msg, colors.LOG_ERROR)
 
     def set_default_cfg(self) -> None:
         """

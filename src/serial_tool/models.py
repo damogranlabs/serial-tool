@@ -86,7 +86,7 @@ class SharedSignalsContainer:
     ) -> None:
         self.write = write
         self.warning = warning
-        self.sigError = error
+        self.error = error
 
 
 class RuntimeDataCache(QtCore.QObject):
