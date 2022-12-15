@@ -49,6 +49,6 @@ setup(
     install_requires=["PyQt5", "aioserial", "pyserial"],
     include_package_data=False,
     entry_points={
-        "console_scripts": ["serial-tool=serial_tool.app:main"],
+        "console_scripts": ["serial_tool=serial_tool.app:main"],
     },
 )
