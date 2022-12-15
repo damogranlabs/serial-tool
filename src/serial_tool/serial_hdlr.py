@@ -21,9 +21,7 @@ class SerialCommSettings:
         self.tx_timeout_ms: int = base.SERIAL_TX_TIMEOUT_MS
 
     def __str__(self) -> str:
-        """
-        Overwrite default __str__method and return a string of all arguments.
-        """
+        """Return a human readable string of all arguments."""
         settings = f"Data size: {self.data_size}, "
         settings += f"Stop bits: {self.stop_bits}, "
         settings += f"Parity: {serial.PARITY_NAMES[self.parity]}, "
@@ -66,7 +64,6 @@ def parity_as_str(parity: int) -> str:
         raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
 
 
-###################################################################################################
 class SerialPort:
     def __init__(self, serial_settings: Optional[SerialCommSettings] = None) -> None:
         """
@@ -79,9 +76,7 @@ class SerialPort:
         self.settings = serial_settings
 
     def get_available_ports(self) -> List[str]:
-        """
-        Get a list of all available  'COMx' or '/dev/ttyX' serial ports.
-        """
+        """Get a list of all available  'COMx' or '/dev/ttyX' serial ports."""
         return [port.name for port in comports()]
 
     def init(self, settings: SerialCommSettings, raise_exc: bool = True) -> bool:
@@ -123,7 +118,7 @@ class SerialPort:
             return False
 
     def close_port(self, raise_exc: bool = False) -> None:
-        """Close port (if open)."""
+        """Close port (if open). Optionally raise exception if port is not closed successfully."""
         if self._port.is_open:
             self._port.close()
 
@@ -150,7 +145,7 @@ class SerialPort:
         if num == len(data):
             return num
         elif raise_exc:
-            raise Exception(f"Serial port write data list unsuccessful. {num} sent while len(data) = {len(data)}")
+            raise Exception(f"Serial port write data list unsuccessful. {num} bytes sent instead of {len(data)}.")
         else:
             return num
 
