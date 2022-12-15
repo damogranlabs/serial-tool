@@ -6,14 +6,6 @@ from serial_tool import models
 
 
 def parse_channel_data(text: str) -> models.ChannelTextFieldParserResult:
-    """
-    Get string from a data field and return a tuple:
-        - on success: True, [<valid data bytes to send>]
-        - on empty string: None, ''
-        - on error: False, <current string>
-
-        @param ch: sequence channel selector: 0 - 7
-    """
     text = text.strip()
     if text == "":
         return models.ChannelTextFieldParserResult(models.TextFieldStatus.EMPTY)
