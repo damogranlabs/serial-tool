@@ -29,9 +29,6 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self._set_ui_values(self.settings)
 
     def _connect_signals_to_slots(self) -> None:
-        """
-        Connect GUI to functions.
-        """
         # round button data size group
         self.ui.RB_dataSizeGroup.setId(self.ui.RB_dataSize_eight, serial.EIGHTBITS)
         self.ui.RB_dataSizeGroup.setId(self.ui.RB_dataSize_seven, serial.SEVENBITS)
@@ -52,17 +49,16 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.ui.PB_cancel.clicked.connect(partial(self.on_exit, False))
 
     def display(self) -> None:
-        """
-        Show dialog and raise it above parent widget.
-        """
+        """Show dialog and raise it above parent widget."""
         self.show()
         self.raise_()
 
     @QtCore.pyqtSlot(bool)
     def on_exit(self, save_if_ok: bool) -> None:
         """
-        On OK, store dialog settings to settings. On Cancel or close, don't do nothing.
-        On exit, close dialog.
+        On OK, store dialog settings to settings.
+        On Cancel or close, don't do nothing.
+        On Exit, close the dialog.
         """
         if save_if_ok:
             self._store_ui_settings()
@@ -71,9 +67,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.close()
 
     def _store_ui_settings(self) -> None:
-        """
-        Store values from a current setup dialog into self.dialogSettings.
-        """
+        """Save current setup dialog values from GUI fields."""
         self.settings.hw_flow_ctrl = self.ui.CB_hwFlowCtrl.isChecked()
         self.settings.sw_flow_ctrl = self.ui.CB_swFlowCtrl.isChecked()
 
@@ -83,9 +77,6 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.settings.parity = serial_hdlr.parity_as_str(parityAsNumber)
 
     def get_settings(self) -> serial_hdlr.SerialCommSettings:
-        """
-        Store and return dialog values.
-        """
         return self.settings
 
     def must_apply_settings(self) -> bool:
@@ -95,21 +86,19 @@ class SerialSetupDialog(QtWidgets.QDialog):
         """
         return self.apply_settings_on_close
 
-    def _set_ui_values(self, serialSettings: serial_hdlr.SerialCommSettings) -> None:
-        """
-        Set current setup dialog settings and refresh internal self.dialogValues state.
-        """
-        self.ui.CB_hwFlowCtrl.setChecked(serialSettings.sw_flow_ctrl)
-        self.ui.CB_swFlowCtrl.setChecked(serialSettings.hw_flow_ctrl)
+    def _set_ui_values(self, settings: serial_hdlr.SerialCommSettings) -> None:
+        """Set dialog values from a given settings values"""
+        self.ui.CB_hwFlowCtrl.setChecked(settings.sw_flow_ctrl)
+        self.ui.CB_swFlowCtrl.setChecked(settings.hw_flow_ctrl)
 
-        roundButton = self.ui.RB_dataSizeGroup.button(serialSettings.data_size)
-        roundButton.click()
+        round_button = self.ui.RB_dataSizeGroup.button(settings.data_size)
+        round_button.click()
 
-        parityAsNumber = serial_hdlr.parity_as_int(serialSettings.parity)
-        roundButton = self.ui.RB_parityGroup.button(parityAsNumber)
-        roundButton.click()
+        parity_as_num = serial_hdlr.parity_as_int(settings.parity)
+        round_button = self.ui.RB_parityGroup.button(parity_as_num)
+        round_button.click()
 
-        roundButton = self.ui.RB_stopBitsGroup.button(serialSettings.stop_bits)
-        roundButton.click()
+        round_button = self.ui.RB_stopBitsGroup.button(settings.stop_bits)
+        round_button.click()
 
         self._store_ui_settings()
