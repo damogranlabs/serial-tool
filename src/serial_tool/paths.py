@@ -15,17 +15,13 @@ def get_default_log_dir() -> str:
 
 @lru_cache
 def get_log_file_path() -> str:
-    """
-    Return path to a default Serial Tool log file.
-    """
+    """Return path to a default Serial Tool log file."""
     return os.path.join(get_default_log_dir(), base.LOG_FILENAME)
 
 
 @lru_cache
 def get_recently_used_cfg_cache_file() -> str:
-    """
-    Return path to a file where recently used cfgs are stored (log folder).
-    """
+    """Return path to a file where recently used cfgs are stored (log folder)."""
     return os.path.join(get_default_log_dir(), base.RECENTLY_USED_CFG_FILE_NAME)
 
 
@@ -84,7 +80,9 @@ def add_cfg_to_recently_used_cfgs(file_path: str) -> None:
 def get_recently_used_cfgs(number: int) -> List[str]:
     """
     Get a list of last 'number' of valid entries (existing files) of recently used configurations.
-        @param number: number of  max recently used configuration file paths to return.
+
+    Args:
+        number: number of max recently used configuration file paths to return.
     """
     ruc_file_path = get_recently_used_cfg_cache_file()
 
