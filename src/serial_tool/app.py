@@ -14,9 +14,9 @@ from PyQt5 import QtWidgets
 
 import serial_tool
 from serial_tool.defines import base
-from serial_tool.defines import cfg_defs
 from serial_tool.defines import colors
 from serial_tool.defines import ui_defs
+from serial_tool import cmd_args
 from serial_tool import models
 from serial_tool import cfg_hdlr
 from serial_tool import serial_hdlr
@@ -36,9 +36,12 @@ class Gui(QtWidgets.QMainWindow):
 
     sig_close = QtCore.pyqtSignal()
 
-    def __init__(self) -> None:
+    def __init__(self, args: cmd_args.SerialToolArgs) -> None:
         """Main Serial Tool application window."""
         QtWidgets.QMainWindow.__init__(self)
+
+        self.args = args
+
         self.ui = Ui_root()
         self.ui.setupUi(self)
         self._set_taskbar_icon()
@@ -220,7 +223,17 @@ class Gui(QtWidgets.QMainWindow):
         baudrate_idx = self.ui.DD_baudrate.findText(str(base.DEFAULT_BAUDRATE))
         self.ui.DD_baudrate.setCurrentIndex(baudrate_idx)
 
-        self.cfg_hdlr.set_default_cfg()
+        if self.args.load_mru_cfg:
+            mru_path = paths.get_most_recently_used_cfg_file()
+            if mru_path is not None:
+                self.cfg_hdlr.load_cfg(mru_path)
+            else:
+                self.log_text(
+                    "`--load-cfg` argument is set, but there is no most recently used configuration path available.",
+                    colors.LOG_WARNING,
+                )
+        else:
+            self.cfg_hdlr.set_default_cfg()
 
         self.clear_log_window()
 
@@ -1040,7 +1053,7 @@ class Gui(QtWidgets.QMainWindow):
             self.sig_close.emit()
 
 
-def init_logger() -> None:
+def init_logger(level: int = logging.DEBUG) -> None:
     log_dir = paths.get_default_log_dir()
     os.makedirs(log_dir, exist_ok=True)
     file_path = os.path.join(log_dir, base.LOG_FILENAME)
@@ -1048,16 +1061,16 @@ def init_logger() -> None:
     fmt = logging.Formatter(base.LOG_FORMAT, datefmt=base.LOG_DATETIME_FORMAT)
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(level)
 
     std_hdlr = logging.StreamHandler()
-    std_hdlr.setLevel(logging.DEBUG)
+    std_hdlr.setLevel(level)
     std_hdlr.setFormatter(fmt)
     logger.addHandler(std_hdlr)
 
     file_hdlr = logging.FileHandler(file_path, encoding="utf-8")
     file_hdlr.setFormatter(fmt)
-    file_hdlr.setLevel(logging.DEBUG)
+    file_hdlr.setLevel(level)
     logger.addHandler(file_hdlr)
 
     asyncio_logger = logging.getLogger("asyncio")
@@ -1067,10 +1080,11 @@ def init_logger() -> None:
 
 
 def main() -> None:
-    init_logger()
+    args = cmd_args.SerialToolArgs.parse()
+    init_logger(args.log_level)
 
     app = QtWidgets.QApplication(sys.argv)
-    gui = Gui()
+    gui = Gui(args)
     gui.show()
 
     ret = app.exec_()
