@@ -5,11 +5,14 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Debug serial_tool.pyw",
+            "name": "Debug app.py",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/src/serial_tool/serialTool.pyw",
-            "console": "integratedTerminal"
+            "program": "${workspaceFolder}/src/serial_tool/app.py",
+            "console": "integratedTerminal",
+            "args": [
+                "--load-mru-cfg"
+            ]
         },
         {
             "name": "Current file",
