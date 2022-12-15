@@ -91,14 +91,14 @@ class SharedSignalsContainer:
 
 class RuntimeDataCache(QtCore.QObject):
     sig_serial_settings_update = QtCore.pyqtSignal()
-    sigDataFieldUpdate = QtCore.pyqtSignal(int)
-    sigNoteFieldUpdate = QtCore.pyqtSignal(int)
-    sigSeqFieldUpdate = QtCore.pyqtSignal(int)
-    sigRxDisplayModeUpdate = QtCore.pyqtSignal()
-    sigTxDisplayModeUpdate = QtCore.pyqtSignal()
-    sigOutputRepresentationModeUpdate = QtCore.pyqtSignal()
-    sigRxNewLineUpdate = QtCore.pyqtSignal()
-    sigRxNewLineTimeoutUpdate = QtCore.pyqtSignal()
+    sig_data_field_update = QtCore.pyqtSignal(int)
+    sig_note_field_update = QtCore.pyqtSignal(int)
+    sig_seq_field_update = QtCore.pyqtSignal(int)
+    sig_rx_display_update = QtCore.pyqtSignal()
+    sig_tx_display_update = QtCore.pyqtSignal()
+    sig_out_representation_update = QtCore.pyqtSignal()
+    sig_new_line_on_rx_update = QtCore.pyqtSignal()
+    sig_new_line_on_rx_timeout_update = QtCore.pyqtSignal()
 
     def __init__(self) -> None:
         """Main shared data object."""
@@ -131,40 +131,40 @@ class RuntimeDataCache(QtCore.QObject):
     def set_data_field(self, channel: int, data: str) -> None:
         """Update data field and emit a signal at the end."""
         self.data_fields[channel] = data
-        self.sigDataFieldUpdate.emit(channel)
+        self.sig_data_field_update.emit(channel)
 
     def set_note_field(self, channel: int, data: str) -> None:
         """Update note field and emit a signal at the end."""
         self.note_fields[channel] = data
-        self.sigNoteFieldUpdate.emit(channel)
+        self.sig_note_field_update.emit(channel)
 
     def set_seq_field(self, channel: int, data: str) -> None:
         """Update sequence field and emit a signal at the end."""
         self.seq_fields[channel] = data
-        self.sigSeqFieldUpdate.emit(channel)
+        self.sig_seq_field_update.emit(channel)
 
     def set_rx_display_ode(self, is_enabled: bool) -> None:
         """Update RX log visibility field and emit a signal at the end."""
         self.display_rx_data = is_enabled
-        self.sigRxDisplayModeUpdate.emit()
+        self.sig_rx_display_update.emit()
 
     def set_tx_display_mode(self, is_enabled: bool) -> None:
         """Update TX log visibility field and emit a signal at the end."""
         self.display_tx_data = is_enabled
-        self.sigTxDisplayModeUpdate.emit()
+        self.sig_tx_display_update.emit()
 
     def set_output_representation_mode(self, mode: OutputRepresentation) -> None:
         """Update output representation field and emit a signal at the end."""
         self.output_data_representation = mode
-        self.sigOutputRepresentationModeUpdate.emit()
+        self.sig_out_representation_update.emit()
 
     def set_new_line_on_rx_mode(self, is_enabled: bool) -> None:
         """Update RX new line field and emit a signal at the end."""
         self.new_line_on_rx = is_enabled
-        self.sigRxNewLineUpdate.emit()
+        self.sig_new_line_on_rx_update.emit()
 
     def set_new_line_on_rx_timeout(self, timeout_msec: int) -> None:
         """Update RX new line timeout field (timeout after \n is appended to next RX data)
         and emit a signal at the end."""
         self.new_line_on_rx_timeout_msec = timeout_msec
-        self.sigRxNewLineTimeoutUpdate.emit()
+        self.sig_new_line_on_rx_timeout_update.emit()

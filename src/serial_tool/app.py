@@ -197,13 +197,13 @@ class Gui(QtWidgets.QMainWindow):
 
     def connect_update_signals_to_slots(self) -> None:
         self.data_cache.sig_serial_settings_update.connect(self.on_serial_settings_update)
-        self.data_cache.sigDataFieldUpdate.connect(self.on_data_field_update)
-        self.data_cache.sigNoteFieldUpdate.connect(self.on_note_field_update)
-        self.data_cache.sigSeqFieldUpdate.connect(self.on_seq_field_update)
-        self.data_cache.sigRxDisplayModeUpdate.connect(self.on_rx_display_mode_update)
-        self.data_cache.sigTxDisplayModeUpdate.connect(self.on_tx_display_mode_update)
-        self.data_cache.sigOutputRepresentationModeUpdate.connect(self.on_out_representation_mode_update)
-        self.data_cache.sigRxNewLineUpdate.connect(self.on_rx_new_line_update)
+        self.data_cache.sig_data_field_update.connect(self.on_data_field_update)
+        self.data_cache.sig_note_field_update.connect(self.on_note_field_update)
+        self.data_cache.sig_seq_field_update.connect(self.on_seq_field_update)
+        self.data_cache.sig_rx_display_update.connect(self.on_rx_display_mode_update)
+        self.data_cache.sig_tx_display_update.connect(self.on_tx_display_mode_update)
+        self.data_cache.sig_out_representation_update.connect(self.on_out_representation_mode_update)
+        self.data_cache.sig_new_line_on_rx_update.connect(self.on_rx_new_line_update)
 
     def init_gui(self) -> None:
         """Init GUI and emit signals to update/check fields"""
