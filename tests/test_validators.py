@@ -1,7 +1,6 @@
 from typing import List
 import pytest
 
-from serial_tool import defines as defs
 from serial_tool import models
 from serial_tool import validators
 
