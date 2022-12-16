@@ -94,3 +94,7 @@ extension-pkg-allow-list = [
 
 
 [tool.mypy]
+files = [
+    "src/**/*.py"
+]
+ignore_missing_imports = true
