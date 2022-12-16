@@ -1,5 +1,79 @@
+[project]
+name = "serial_tool"
+version = "2.4.2"
+description = "Serial Tool is a utility for developing, debugging and validating serial communication with PC."
+readme="README.md"
+license = {file = "LICENSE.txt"}
+keywords = [
+    "serial tool",
+    "UART",
+    "serial",
+    "RS232"
+]
+authors = [
+    {name = "Domen Jurkovic", email = "domen.jurkovic@damogranlabs.com" }
+]
+requires-python = ">=3.7"
+dependencies = [
+    "PyQt5", 
+    "aioserial",
+    "pyserial"
+]
+classifiers=[
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Communications",
+    "Topic :: Terminals :: Serial",
+    "Natural Language :: English",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Environment :: Console"
+]
+
+[project.urls]
+repository = "https://github.com/damogranlabs/serial-tool"
+homepage = "https://damogranlabs.com/2019/11/serial-tool-v2"
+
+[project.gui-scripts]
+# gui window without console and terminal showing log
+serial_tool = "serial_tool.app:main"
+
+[project.scripts]
+# console script - prints logs to the terminal
+serial_tool_cmd = "serial_tool.app:main"
+
+[project.optional-dependencies]
+dev = [
+    "PyQt5Designer",
+    "pyqt5-stubs",
+    "pytest",
+    "mypy",
+    "black",
+    "pylint",
+    "pylint-pytest"
+]
+test = [
+    "pytest"
+]
+analyze = [
+    "pytest",
+    "mypy",
+    "black",
+    "pylint",
+    "pylint-pytest"
+]
+
 [tool.pytest.ini_options]
 addopts = "-ra -q --color=auto --tb=short --durations=5 -v"
+testpaths = [
+    "tests"
+]
 
 [tool.black]
 line-length = 120
