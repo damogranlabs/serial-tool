@@ -50,6 +50,7 @@ serial_tool_cmd = "serial_tool.app:main"
 
 [project.optional-dependencies]
 dev = [
+    "pre-commit",
     "PyQt5Designer",
     "pyqt5-stubs",
     "pytest",
