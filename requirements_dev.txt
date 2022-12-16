@@ -1,8 +1,0 @@
-PyQt5Designer
-pyqt5-stubs
-
-pytest
-mypy
-black
-pylint
-pylint-pytest
