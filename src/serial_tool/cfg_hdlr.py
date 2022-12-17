@@ -1,6 +1,7 @@
 import logging
 
 import json
+from typing import Any, Dict
 
 from serial_tool.defines import base
 from serial_tool.defines import cfg_defs
@@ -8,6 +9,8 @@ from serial_tool.defines import ui_defs
 from serial_tool.defines import colors
 from serial_tool import models
 from serial_tool import serial_hdlr
+
+TYP_IO_DATA = Dict[str, Any]
 
 
 class ConfigurationHdlr:
@@ -18,10 +21,10 @@ class ConfigurationHdlr:
 
     def save_cfg(self, path: str) -> None:
         """Overwrite data with current settings in a json format."""
-        data = {}
+        data: TYP_IO_DATA = {}
         data[cfg_defs.KEY_FILE_VER] = cfg_defs.CFG_FORMAT_VERSION
 
-        ser_cfg_data = {}
+        ser_cfg_data: TYP_IO_DATA = {}
         ser_cfg_data[cfg_defs.KEY_SER_PORT] = self.data_cache.serial_settings.port
         ser_cfg_data[cfg_defs.KEY_SER_BAUDRATE] = self.data_cache.serial_settings.baudrate
         ser_cfg_data[cfg_defs.KEY_SER_DATASIZE] = self.data_cache.serial_settings.data_size

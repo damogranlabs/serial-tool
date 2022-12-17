@@ -10,12 +10,12 @@ from serial_tool import setup_dialog
 def manual_test_widget() -> None:
     app = QtWidgets.QApplication(sys.argv)
 
-    initialSerialDialogSettings = serial_hdlr.SerialCommSettings()
-    initialSerialDialogSettings.sw_flow_ctrl = True
-    initialSerialDialogSettings.stop_bits = serial.STOPBITS_TWO
-    initialSerialDialogSettings.data_size = serial.SIXBITS
+    init_settings = serial_hdlr.SerialCommSettings()
+    init_settings.sw_flow_ctrl = True
+    init_settings.stop_bits = serial.STOPBITS_TWO
+    init_settings.data_size = serial.SIXBITS
 
-    dialog = setup_dialog.SerialSetupDialog(initialSerialDialogSettings)
+    dialog = setup_dialog.SerialSetupDialog(init_settings)
     dialog.display()
 
     app.exec_()

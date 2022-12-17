@@ -45,23 +45,23 @@ class ParityAsNumbers:
 def parity_as_int(parity: str) -> int:
     if parity == serial.PARITY_NONE:
         return ParityAsNumbers.NONE
-    elif parity == serial.PARITY_EVEN:
+    if parity == serial.PARITY_EVEN:
         return ParityAsNumbers.EVEN
-    elif parity == serial.PARITY_ODD:
+    if parity == serial.PARITY_ODD:
         return ParityAsNumbers.ODD
-    else:
-        raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
+
+    raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
 
 
 def parity_as_str(parity: int) -> str:
     if parity == ParityAsNumbers.NONE:
         return serial.PARITY_NONE
-    elif parity == ParityAsNumbers.EVEN:
+    if parity == ParityAsNumbers.EVEN:
         return serial.PARITY_EVEN
-    elif parity == ParityAsNumbers.ODD:
+    if parity == ParityAsNumbers.ODD:
         return serial.PARITY_ODD
-    else:
-        raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
+
+    raise ValueError(f"Unable to convert parity string ({parity}) to a matching number.")
 
 
 class SerialPort:
@@ -104,18 +104,18 @@ class SerialPort:
         except SerialException as err:
             if raise_exc:
                 raise RuntimeError(f"Unable to init serial port with following settings: {settings}") from err
-            else:
-                return False
+
+            return False
 
     def is_connected(self, raise_exc: bool = False) -> bool:
         """Return True if connection to serial port is established, False otherwise."""
         status = self._port.is_open
         if status:
             return True
-        elif raise_exc:
+        if raise_exc:
             raise RuntimeError("Unable to open serial port.")
-        else:
-            return False
+
+        return False
 
     def close_port(self, raise_exc: bool = False) -> None:
         """Close port (if open). Optionally raise exception if port is not closed successfully."""
@@ -144,10 +144,10 @@ class SerialPort:
         num = self._port.write(data)
         if num == len(data):
             return num
-        elif raise_exc:
+        if raise_exc:
             raise Exception(f"Serial port write data list unsuccessful. {num} bytes sent instead of {len(data)}.")
-        else:
-            return num
+
+        return num
 
     async def async_read_data(self) -> bytes:
         """

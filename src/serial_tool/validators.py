@@ -71,7 +71,7 @@ def _check_number_in_range(num: int) -> None:
         - Number is unsigned char (as uint8_t): 0 <= number <= 255
     False otherwise.
     """
-    if not (-128 <= num <= 255):
+    if not -128 <= num <= 255:
         raise ValueError(f"Number {num} is not within allowed range (-128 ... 255){'.'}")
 
 
@@ -108,7 +108,7 @@ def parse_seq_data(text: str) -> models.SequenceTextFieldParserResult:
 
             ch_idx = int(data[0].strip())
             # user must enter a number as seen in GUI, starts with 1
-            if not (1 <= ch_idx <= ui_defs.NUM_OF_DATA_CHANNELS):
+            if not 1 <= ch_idx <= ui_defs.NUM_OF_DATA_CHANNELS:
                 return models.SequenceTextFieldParserResult(
                     models.TextFieldStatus.BAD,
                     f"Invalid data channel index in sequence: {ch_idx}, block: {block}",

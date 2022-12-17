@@ -73,8 +73,7 @@ class SerialSetupDialog(QtWidgets.QDialog):
 
         self.settings.data_size = self.ui.RB_dataSizeGroup.checkedId()
         self.settings.stop_bits = self.ui.RB_stopBitsGroup.checkedId()
-        parityAsNumber = self.ui.RB_parityGroup.checkedId()
-        self.settings.parity = serial_hdlr.parity_as_str(parityAsNumber)
+        self.settings.parity = serial_hdlr.parity_as_str(self.ui.RB_parityGroup.checkedId())
 
     def get_settings(self) -> serial_hdlr.SerialCommSettings:
         return self.settings

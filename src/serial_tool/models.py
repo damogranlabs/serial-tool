@@ -45,12 +45,12 @@ class TextFieldStatus(enum.Enum):
     def get_color(status: "TextFieldStatus") -> str:
         if status == TextFieldStatus.OK:
             return colors.INPUT_VALID
-        elif status == TextFieldStatus.BAD:
+        if status == TextFieldStatus.BAD:
             return colors.INPUT_ERROR
-        elif status == TextFieldStatus.EMPTY:
+        if status == TextFieldStatus.EMPTY:
             return colors.INPUT_NONE
-        else:
-            raise ValueError(f"Unable to determine color for status: {status}")
+
+        raise ValueError(f"Unable to determine color for status: {status}")
 
 
 T_DATA_TYPE = TypeVar("T_DATA_TYPE")

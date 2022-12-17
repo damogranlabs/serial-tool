@@ -33,8 +33,8 @@ def get_most_recently_used_cfg_file() -> Optional[str]:
     file_paths = get_recently_used_cfgs(1)
     if file_paths:
         return file_paths[0]
-    else:
-        return None
+
+    return None
 
 
 def add_cfg_to_recently_used_cfgs(file_path: str) -> None:

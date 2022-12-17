@@ -583,16 +583,16 @@ class Gui(QtWidgets.QMainWindow):
         self.ui.DD_baudrate.setEnabled(False)
 
         for idx, _ in enumerate(self.ui_data_fields):
-            result = self._parse_data_field(idx)
-            if result.status == models.TextFieldStatus.OK:
+            result_ch = self._parse_data_field(idx)
+            if result_ch.status == models.TextFieldStatus.OK:
                 self.set_data_button_state(idx, True)
             else:
                 self.set_data_button_state(idx, False)
 
         for idx, _ in enumerate(self.ui_seq_fields):
-            result = self._parse_seq_data_field(idx)
-            if result.status == models.TextFieldStatus.OK:
-                for block in result.data:
+            result_seq = self._parse_seq_data_field(idx)
+            if result_seq.status == models.TextFieldStatus.OK:
+                for block in result_seq.data:
                     if self.data_cache.parsed_data_fields[block.ch_idx] is None:
                         self.set_new_button_state(idx, False)
                         break
@@ -740,7 +740,8 @@ class Gui(QtWidgets.QMainWindow):
 
         if result.status == models.TextFieldStatus.OK:
             self.data_cache.parsed_seq_fields[seq_idx] = result.data
-            # check if seq button can be enabled (seq field is properly formatted. Are all data fields properly formatted?
+            # check if seq button can be enabled (seq field is properly formatted.
+            # Are all data fields properly formatted?
             for block in result.data:
                 if self.data_cache.parsed_data_fields[block.ch_idx] is None:
                     self.set_new_button_state(seq_idx, False)
@@ -797,9 +798,9 @@ class Gui(QtWidgets.QMainWindow):
 
             thread.start()
         else:
-            worker = self._seq_tx_workers[seq_idx]
-            assert worker is not None
-            worker.sig_seq_stop_request.emit()
+            tx_seq_worker = self._seq_tx_workers[seq_idx]
+            assert tx_seq_worker is not None
+            tx_seq_worker.sig_seq_stop_request.emit()
 
             self.log_text(f"Sequence {seq_idx+1} stop request!", colors.LOG_WARNING)
 
@@ -820,9 +821,9 @@ class Gui(QtWidgets.QMainWindow):
         default_path = os.path.join(paths.get_default_log_dir(), base.DEFAULT_LOG_EXPORT_FILENAME)
         path = self.ask_for_save_file_path("Save log window content...", default_path, base.LOG_EXPORT_FILE_EXT_FILTER)
         if path is not None:
-            with open(path, "w+", encoding="utf-8") as fileHandler:
+            with open(path, "w+", encoding="utf-8") as f:
                 lines = self.ui.TE_log.toPlainText()
-                fileHandler.writelines(lines)
+                f.writelines(lines)
 
             self.log_text(f"Log window content saved to: {path}", colors.LOG_GRAY)
         else:
@@ -837,9 +838,9 @@ class Gui(QtWidgets.QMainWindow):
         default_path = os.path.join(paths.get_default_log_dir(), base.DEFAULT_DATA_EXPORT_FILENAME)
         path = self.ask_for_save_file_path("Save raw RX/TX data...", default_path, base.DATA_EXPORT_FILE_EXT_FILTER)
         if path is not None:
-            with open(path, "w+", encoding="utf-8") as fileHandler:
+            with open(path, "w+", encoding="utf-8") as f:
                 for data in self.data_cache.all_rx_tx_data:
-                    fileHandler.write(data + "\n")
+                    f.write(data + "\n")
 
             self.data_cache.all_rx_tx_data = []
             self.log_text(f"RX/TX data exported: {path}", colors.LOG_GRAY)
@@ -942,7 +943,7 @@ class Gui(QtWidgets.QMainWindow):
         elif new_format == models.OutputRepresentation.HEX_LIST:
             # Convert list of integers to a string of hex values.
             # format always as 0x** (two fields for data value)
-            hex_data = ["{0:#0{1}x}".format(num, 4) for num in data]
+            hex_data = [f"0x{num:02x}" for num in data]
             output_data = separator.join(hex_data) + separator
         else:
             ascii_data = [f"'{chr(num)}'" for num in data]
@@ -996,14 +997,14 @@ class Gui(QtWidgets.QMainWindow):
 
         if name == "":
             return None
-        else:
-            return os.path.normpath(name)
+
+        return os.path.normpath(name)
 
     def confirm_action_dialog(
         self,
         name: str,
         question: str,
-        icon_type: Optional[QtWidgets.QMessageBox.Icon] = QtWidgets.QMessageBox.Icon.Warning,
+        icon_type: Optional[QtWidgets.QMessageBox.Icon] = QtWidgets.QMessageBox.Warning,
     ) -> bool:
         """
         Pop-up system dialog with OK|Cancel options.
