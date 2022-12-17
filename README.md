@@ -1,31 +1,49 @@
 # Serial Tool
-Serial Tool is a utility for developing, debugging and validating serial communication with PC. Great for data verification, custom protocols for embedded systems and other simple projects that include serial communication such as UART or RS232 (with appropriate hardware interface, like USB to UART converter).  
+Serial Tool is a utility for developing, debugging and validating serial communication with PC.  
+Great for data verification, custom protocols for embedded systems and other simple projects that include serial 
+communication such as UART or RS232 (with appropriate hardware, like USB to UART converter and common FTDI chips).  
 
-Original project [website](https://damogranlabs.com/2019/11/serial-tool-v2/): https://damogranlabs.com/2019/11/serial-tool-v2/
+Original project: [https://damogranlabs.com/2019/11/serial-tool-v2/](https://damogranlabs.com/2019/11/serial-tool-v2/)
 
+![Example configuration](screenshots/exampleConfiguration.png)  
 ## Features
-* Data types: integers, HEX numbers, characters, strings.
+* View/rx/tx data types: integers, HEX numbers, ASCII characters, strings.
 * Data/sequence field verification on the fly.
 * User notes for each data channel.
-* Sequence generator: multiple blocks of (data channel, delay, repeat number).
-* Asynchronous read of all available received data.
-* Different data output representation modes: strings, integers, HEX, ASCII.
+* Sequence generator: create multiple blocks of (data channel, delay, repeat number) sequence.
+* Asynchronous read of any received data.
 * Log window display customization.
 * Log window/raw data export capability.
 * Save/load current settings to a configuration file.
   
-## Windows build
-See [releases page](https://github.com/damogranlabs/serial-tool/releases) for a windows executable (zip ~ 50MB)  
+# Installation And Usage
+Use isolated virtual environment for these commands. If you are not sure what this is, see [here](https://docs.python.org/3/library/venv.html#:~:text=A%20virtual%20environment%20is%20created,the%20virtual%20environment%20are%20available.).
+## Directly from GitHub
+```
+$ python -m pip install 'serial_tool @ git+https://github.com/damogranlabs/serial-tool'
+```
+Run the tool with:
+```
+python -m serial_tool
+```
 
-## VS Code workspace
-For those who wish to take a look under the hood and/or contribute, VS Code workspace is available. Use tasks to speed up common actions like: build `.exe`, convert `.ui` to `.py`, run `.exe`, ...  
+## Via `pipx`
+```
+pipx install git+https://github.com/damogranlabs/serial-tool
+```
+Run the tool with just:
+```
+serial_tool
+```
 
+### Usage FAQ:
+1. Explore options with `-h` command line switch.
+2. `serial_tool` vs `serial_tool_cmd`?  
+    `serial_tool_cmd` is the same as `serial_tool`, but it prints std out/err to console.
 
-## Screenshots
+# Screenshots
 New, default blank configuration:  
 ![Blank (initial) configuration](screenshots/blankConfiguration.png)  
-Example configuration with user notes:  
-![Example configuration](screenshots/exampleConfiguration.png)  
 Example configuration and explanation of data/sequence field validator:  
 ![Data and sequence validator](screenshots/dataAndSeqExplanation.png)  
 Serial port settings, which are also a part of configuration file settings:  
