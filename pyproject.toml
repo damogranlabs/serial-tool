@@ -110,7 +110,8 @@ ignore-paths = [
     'tests/todo'
 ]
 good-names = [
-    "f"
+    "f",
+    "ui"
 ]
 
 
