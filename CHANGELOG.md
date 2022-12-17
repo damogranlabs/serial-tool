@@ -1,4 +1,13 @@
 # Changelog:  
+**v3.0 (nov-dec 2022):**
+- REWRITE: v3
+- package: now installable via `pip` and `pipx`
+- PEP8 compliance (snake_case)
+- type hinting
+- static analysis
+- more separation of logic
+- more object/files responsibility separation
+
 **v2.4 (21.12.2019):**
 - improv: Removed verbose display mode (color-separated), implemented '\n' on RX data with timeout
 

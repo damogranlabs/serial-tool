@@ -53,3 +53,5 @@ Log/save/export window settings:
 Configurations can be stored and recalled:  
 ![List of recently used configurations](screenshots/recenlyUsedConfigurations.png)  
 
+
+Want to contribute? See [CONTRIBUTE.md](https://github.com/damogranlabs/serial-tool/blob/master/CONTRIBUTE.md).
