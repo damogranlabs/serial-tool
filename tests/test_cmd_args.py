@@ -22,22 +22,22 @@ def test_cmd_args():
     with TempCmdArgs([]):
         args = cmd_args.SerialToolArgs.parse()
         assert args.log_level == logging.DEBUG
-        assert args.load_mru_cfg == False
+        assert args.load_mru_cfg is False
 
     with TempCmdArgs(["--load-mru-cfg"]):
         args = cmd_args.SerialToolArgs.parse()
         assert args.log_level == logging.DEBUG
-        assert args.load_mru_cfg == True
+        assert args.load_mru_cfg is True
 
     with TempCmdArgs(["--log-level=ERROR"]):
         args = cmd_args.SerialToolArgs.parse()
         assert args.log_level == logging.ERROR
-        assert args.load_mru_cfg == False
+        assert args.load_mru_cfg is False
 
     with TempCmdArgs(["--load-mru-cfg", "--log-level=ERROR"]):
         args = cmd_args.SerialToolArgs.parse()
         assert args.log_level == logging.ERROR
-        assert args.load_mru_cfg == True
+        assert args.load_mru_cfg is True
 
 
 def test_cmd_args_invalid():
