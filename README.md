@@ -3,7 +3,7 @@ Serial Tool is a utility for developing, debugging and validating serial communi
 Great for data verification, custom protocols for embedded systems and other simple projects that include serial 
 communication such as UART or RS232 (with appropriate hardware, like USB to UART converter and common FTDI chips).  
 
-Original project: [https://damogranlabs.com/2019/11/serial-tool-v2/](https://damogranlabs.com/2019/11/serial-tool-v2/)
+Original project: [https://damogranlabs.com/2022/12/serial-tool-v3/](https://damogranlabs.com/2022/12/serial-tool-v3/)
 
 ![Example configuration](screenshots/exampleConfiguration.png)  
 ## Features
