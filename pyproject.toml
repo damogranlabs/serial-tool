@@ -1,6 +1,6 @@
 [project]
 name = "serial_tool"
-version = "2.4.2"
+version = "3.0.0"
 description = "Serial Tool is a utility for developing, debugging and validating serial communication with PC."
 readme="README.md"
 license = {file = "LICENSE.txt"}
