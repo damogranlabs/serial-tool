@@ -78,23 +78,49 @@ testpaths = [
 
 [tool.black]
 line-length = 120
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  | src/serial_tool/gui
+  | tests/todo
+)/
+'''
 
 [tool.pylint]
 max-line-length = 120
 load-plugins = [
     "pylint_pytest"
 ]
-disable = [
-    "logging-fstring-interpolation",
-    "missing-class-docstring"    
-]
+disable = """
+    logging-fstring-interpolation,
+    missing-function-docstring,
+    missing-class-docstring,
+    missing-module-docstring,
+    line-too-long,
+    too-many-lines,
+    too-few-public-methods,
+    invalid-name,
+    broad-except
+"""
 extension-pkg-allow-list = [
     "PyQt5"
+]
+ignore-paths = [
+    'src/serial_tool/gui',
+    'tests/todo'
+]
+good-names = [
+    "f"
 ]
 
 
 [tool.mypy]
 files = [
-    "src/**/*.py"
+    "src",
+    "tests"
+]
+exclude = [
+    'src/serial_tool/gui',
+    'tests/todo'
 ]
 ignore_missing_imports = true
