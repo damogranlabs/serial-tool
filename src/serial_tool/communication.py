@@ -44,18 +44,18 @@ class _RxDataHdlr(QtCore.QObject):
                     byte = asyncio.run(self._port_hdlr.async_read_data())  # asynchronously receive 1 byte
                     if byte == b"":
                         continue  # nothing received
-                    else:
-                        if not self._rx_thread_stop_flag:
-                            return
-                        # receive data available, read all
-                        rx_data = self._port_hdlr.read_data()
-                        with self._rx_data_lock:
-                            self.rx_data.append(ord(byte))  # first received byte (async)
-                            self.rx_data.extend(rx_data)  # other data
+                    if not self._rx_thread_stop_flag:
+                        return
 
-                        if not self._rx_not_empty_notified:
-                            self._rx_not_empty_notified = True  # prevent notifying multiple times for new data
-                            self.sig_rx_not_empty.emit()
+                    # receive data available, read all
+                    rx_data = self._port_hdlr.read_data()
+                    with self._rx_data_lock:
+                        self.rx_data.append(ord(byte))  # first received byte (async)
+                        self.rx_data.extend(rx_data)  # other data
+
+                    if not self._rx_not_empty_notified:
+                        self._rx_not_empty_notified = True  # prevent notifying multiple times for new data
+                        self.sig_rx_not_empty.emit()
                 except Exception as err:
                     raise Exception(f"Exception caught in receive thread read_data() function:\n{err}") from err
 
@@ -107,8 +107,7 @@ class TxDataSequenceHdlr(QtCore.QObject):
 
         self._stop_seq_request = False
 
-        # https://doc.qt.io/qt-5/qt.html#ConnectionType-enum
-        self.sig_seq_stop_request.connect(self.on_stop_seq_request, type=QtCore.Qt.DirectConnection)
+        self.sig_seq_stop_request.connect(self.on_stop_seq_request)
 
     @QtCore.pyqtSlot()
     def on_stop_seq_request(self) -> None:
