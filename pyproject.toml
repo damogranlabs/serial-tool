@@ -27,8 +27,7 @@ classifiers=[
     "Topic :: Communications",
     "Topic :: Terminals :: Serial",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.11",
-    "Environment :: Console"
+    "Programming Language :: Python :: 3.11"
 ]
 
 [project.urls]
