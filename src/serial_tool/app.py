@@ -544,7 +544,7 @@ class Gui(QtWidgets.QMainWindow):
 
         ports = serial_hdlr.SerialPort().get_available_ports()
         self.ui.DD_commPortSelector.clear()
-        self.ui.DD_commPortSelector.addItems(list(reversed(ports)))
+        self.ui.DD_commPortSelector.addItems(list(sorted(ports, reverse=True)))
 
     @QtCore.pyqtSlot()
     def on_port_hdlr_button(self) -> None:
