@@ -20,7 +20,7 @@ Original project: [https://damogranlabs.com/2022/12/serial-tool-v3/](https://dam
 Use isolated virtual environment for these commands. If you are not sure what this is, see [here](https://docs.python.org/3/library/venv.html#:~:text=A%20virtual%20environment%20is%20created,the%20virtual%20environment%20are%20available.).
 ## Directly from GitHub
 ```
-$ python -m pip install 'serial_tool @ git+https://github.com/damogranlabs/serial-tool'
+$ python -m pip install serial_tool@git+https://github.com/damogranlabs/serial-tool
 ```
 Run the tool with:
 ```
