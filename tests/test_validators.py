@@ -77,7 +77,6 @@ def test_parse_seq_data_valid(data_in: str, data_out: List[models.SequenceInfo])
         ("(1,a)", "'a' is not an int"),
         ('(1,"a")', "'a' is not an int"),
         ("(1,'a')", "'a' is not an int"),
-        ('(1,"a")', "'a' is not an int"),
     ],
 )
 def test_parse_seq_data_invalid_format(data_in: str, msg: str) -> None:
