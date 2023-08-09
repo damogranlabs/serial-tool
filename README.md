@@ -18,22 +18,25 @@ Original project: [https://damogranlabs.com/2022/12/serial-tool-v3/](https://dam
   
 # Installation And Usage
 Use isolated virtual environment for these commands. If you are not sure what this is, see [here](https://docs.python.org/3/library/venv.html#:~:text=A%20virtual%20environment%20is%20created,the%20virtual%20environment%20are%20available.).
-## Directly from GitHub
+
+Install:
 ```
 $ python -m pip install serial_tool@git+https://github.com/damogranlabs/serial-tool
 ```
-Run the tool with:
+Run:
 ```
-python -m serial_tool
+$ serial_tool
+``` 
+
+Alternatively, run via `-m`:
+```
+$ python -m serial_tool
 ```
 
-## Via `pipx`
+... or with `pipx`
 ```
-pipx install git+https://github.com/damogranlabs/serial-tool
-```
-Run the tool with just:
-```
-serial_tool
+$ pipx install git+https://github.com/damogranlabs/serial-tool
+$ serial_tool
 ```
 
 ### Usage FAQ:

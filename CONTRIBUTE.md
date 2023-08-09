@@ -9,11 +9,11 @@
 6. Update `pip`: `python -m pip install -U pip`.
 7. Install package in editable mode, while supplying `[dev]` argument:
    ```
-    python -m pip install -e .[dev] 
+    $ python -m pip install -e .[dev] 
     ```
 8. Install `pre-commit` hook:
     ```
-    pre-commit install
+    $ pre-commit install
     ```
 
 **Notes:**
