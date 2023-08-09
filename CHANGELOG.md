@@ -1,4 +1,8 @@
 # Changelog:  
+
+**v3.0.1 (9.8.2023):**
+- fix: Add missing *\_\_main\_\_.py* file, making `$python -m serial_tool` working properly
+
 **v3.0 (nov-dec 2022):**
 - REWRITE: v3
 - package: now installable via `pip` and `pipx`
