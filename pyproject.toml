@@ -1,25 +1,16 @@
 [project]
 name = "serial_tool"
-version = "3.0.0"
+version = "3.0.1"
 description = "Serial Tool is a utility for developing, debugging and validating serial communication with PC."
-readme="README.md"
-license = {file = "LICENSE.txt"}
-keywords = [
-    "serial tool",
-    "UART",
-    "serial",
-    "RS232"
-]
+readme = "README.md"
+license = { file = "LICENSE.txt" }
+keywords = ["serial tool", "UART", "serial", "RS232"]
 authors = [
-    {name = "Domen Jurkovic", email = "domen.jurkovic@damogranlabs.com" }
+    { name = "Domen Jurkovic", email = "domen.jurkovic@damogranlabs.com" },
 ]
 requires-python = ">=3.11"
-dependencies = [
-    "PyQt5", 
-    "aioserial",
-    "pyserial"
-]
-classifiers=[
+dependencies = ["PyQt5", "aioserial", "pyserial"]
+classifiers = [
     "License :: OSI Approved :: MIT License",
     "Intended Audience :: Developers",
     "Development Status :: 2 - Pre-Alpha",
@@ -27,7 +18,7 @@ classifiers=[
     "Topic :: Communications",
     "Topic :: Terminals :: Serial",
     "Natural Language :: English",
-    "Programming Language :: Python :: 3.11"
+    "Programming Language :: Python :: 3.11",
 ]
 
 [project.urls]
@@ -51,24 +42,14 @@ dev = [
     "mypy",
     "black",
     "pylint",
-    "pylint-pytest"
+    "pylint-pytest",
 ]
-test = [
-    "pytest"
-]
-analyze = [
-    "pytest",
-    "mypy",
-    "black",
-    "pylint",
-    "pylint-pytest"
-]
+test = ["pytest"]
+analyze = ["pytest", "mypy", "black", "pylint", "pylint-pytest"]
 
 [tool.pytest.ini_options]
 addopts = "-ra -q --color=auto --tb=short --durations=5 -v"
-testpaths = [
-    "tests"
-]
+testpaths = ["tests"]
 
 [tool.black]
 line-length = 120
@@ -82,9 +63,7 @@ extend-exclude = '''
 
 [tool.pylint]
 max-line-length = 120
-load-plugins = [
-    "pylint_pytest"
-]
+load-plugins = ["pylint_pytest"]
 disable = """
     logging-fstring-interpolation,
     missing-function-docstring,
@@ -96,26 +75,12 @@ disable = """
     invalid-name,
     broad-except
 """
-extension-pkg-allow-list = [
-    "PyQt5"
-]
-ignore-paths = [
-    'src/serial_tool/gui',
-    'tests/todo'
-]
-good-names = [
-    "f",
-    "ui"
-]
+extension-pkg-allow-list = ["PyQt5"]
+ignore-paths = ['src/serial_tool/gui', 'tests/todo']
+good-names = ["f", "ui"]
 
 
 [tool.mypy]
-files = [
-    "src",
-    "tests"
-]
-exclude = [
-    'src/serial_tool/gui',
-    'tests/todo'
-]
+files = ["src", "tests"]
+exclude = ['src/serial_tool/gui', 'tests/todo']
 ignore_missing_imports = true
