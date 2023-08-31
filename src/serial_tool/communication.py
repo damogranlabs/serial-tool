@@ -44,7 +44,7 @@ class _RxDataHdlr(QtCore.QObject):
                     byte = asyncio.run(self._port_hdlr.async_read_data())  # asynchronously receive 1 byte
                     if byte == b"":
                         continue  # nothing received
-                    if not self._rx_thread_stop_flag:
+                    if self._rx_thread_stop_flag:
                         return
 
                     # receive data available, read all
