@@ -16,9 +16,9 @@
         {
             "label": "ui -> py",
             "type": "process",
-            "command": "generatePyFromUi.bat",
+            "command": "pyqt5_ui_to_py.bat",
             "options": {
-                "cwd": "${workspaceFolder}/src/gui"
+                "cwd": "${workspaceFolder}/scripts"
             },
             "problemMatcher": []
         },
