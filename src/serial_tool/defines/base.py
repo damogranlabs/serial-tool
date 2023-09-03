@@ -9,7 +9,7 @@ LINK_DOCS = "https://github.com/damogranlabs/serial-tool/blob/master/README.md"
 
 # default serial settings
 DEFAULT_BAUDRATE = 115200
-SERIAL_RX_TIMEOUT_MS = 5000
+SERIAL_RX_TIMEOUT_MS = 1000
 SERIAL_TX_TIMEOUT_MS = 300
 
 # extensions
