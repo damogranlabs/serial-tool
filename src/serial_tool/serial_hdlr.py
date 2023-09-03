@@ -7,6 +7,8 @@ from serial.serialutil import SerialException
 
 from serial_tool.defines import base
 
+# import debugpy
+
 
 class SerialCommSettings:
     def __init__(self) -> None:
@@ -148,15 +150,6 @@ class SerialPort:
             raise Exception(f"Serial port write data list unsuccessful. {num} bytes sent instead of {len(data)}.")
 
         return num
-
-    async def async_read_data(self) -> bytes:
-        """
-        Asynchronously read data from a serial port and return one byte.
-        Might be an empty byte (b''), which indicates no new received data.
-        Raise exception on error.
-        """
-        byte = await self._port.read_async()  # will wait until one byte will not be received.
-        return byte
 
     def read_data(self) -> List[int]:
         """Read data from a serial port and return a list of received data (unsigned integers 0 - 255)."""

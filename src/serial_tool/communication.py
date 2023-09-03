@@ -2,6 +2,7 @@ import asyncio
 import logging
 import time
 import threading
+import traceback
 from typing import List, Optional
 
 from PyQt5 import QtCore
@@ -16,7 +17,7 @@ class _RxDataHdlr(QtCore.QObject):
     def __init__(self, port_hdlr: serial_hdlr.SerialPort) -> None:
         """
         This class initialize thread that read available data with asyncio read and store receive data in a list.
-        On data readout, sigRxNotEmpty signal is emitted to notify parent that new data is available.
+        On data readout, sig_rx_not_empty signal is emitted to notify parent that new data is available.
         """
         super().__init__()
 
@@ -28,24 +29,24 @@ class _RxDataHdlr(QtCore.QObject):
 
         self._rx_thread_stop_flag = False
 
+        self._async_read_byte_task: Optional[asyncio.Task] = None
+
     def run(self) -> None:
         """Wait and receive data in async mode. It is run as a thread."""
         try:
             self._port_hdlr.is_connected(True)
 
-            # clear RX data list
             with self._rx_data_lock:
                 self.rx_data.clear()
 
-            # start actual thread
             self._rx_thread_stop_flag = False
             while not self._rx_thread_stop_flag:
                 try:
-                    byte = asyncio.run(self._port_hdlr.async_read_data())  # asynchronously receive 1 byte
-                    if byte == b"":
-                        continue  # nothing received
+                    byte = asyncio.run(self._async_read_data())  # asynchronously receive 1 byte
                     if self._rx_thread_stop_flag:
                         return
+                    if byte == b"":
+                        continue  # nothing received
 
                     # receive data available, read all
                     rx_data = self._port_hdlr.read_data()
@@ -56,7 +57,12 @@ class _RxDataHdlr(QtCore.QObject):
                     if not self._rx_not_empty_notified:
                         self._rx_not_empty_notified = True  # prevent notifying multiple times for new data
                         self.sig_rx_not_empty.emit()
+                except asyncio.CancelledError:
+                    # Asyncio task cancel request by user.
+                    assert self._async_read_byte_task is not None
+
                 except Exception as err:
+                    logging.error(f"inner exc:\n{err}\n{traceback.format_exc()}")
                     raise Exception(f"Exception caught in receive thread read_data() function:\n{err}") from err
 
         except Exception as err:
@@ -67,6 +73,11 @@ class _RxDataHdlr(QtCore.QObject):
         """Request to stop RX thread. On exit, thread might still be running."""
         self._rx_thread_stop_flag = True
 
+        if self._async_read_byte_task:
+            self._async_read_byte_task.cancel()
+
+        self._port_hdlr._port.cancel_read()
+
     def get_rx_data(self) -> List[int]:
         """Return all currently received data as a copy."""
         with self._rx_data_lock:
@@ -75,6 +86,16 @@ class _RxDataHdlr(QtCore.QObject):
 
         self._rx_not_empty_notified = False  # data is read, new "notify" callback can be generated on next data
         return rx_data
+
+    async def _async_read_data(self) -> bytes:
+        """
+        Asynchronously read data from a serial port and return one byte.
+        Might be an empty byte (b''), which indicates no new received data.
+        Raise exception on error.
+        """
+        self._async_read_byte_task = asyncio.create_task(self._port_hdlr._port.read_async())
+
+        return await self._async_read_byte_task
 
 
 class TxDataSequenceHdlr(QtCore.QObject):
@@ -193,6 +214,8 @@ class PortHdlr(QtCore.QObject):
         if self._rx_watcher_thread is not None:
             if self._rx_data_hdlr is not None:
                 self._rx_data_hdlr.request_stop()
+                self._wait_until_rx_thread_is_finished()
+
             self._rx_watcher_thread.quit()
             self._rx_watcher_thread.wait()
 
@@ -202,6 +225,18 @@ class PortHdlr(QtCore.QObject):
         self.ser_port.close_port()
 
         self.sig_connection_closed.emit()
+
+    def _wait_until_rx_thread_is_finished(self, timeout_ms: int = 5000) -> bool:
+        """Return True if thread is finished once this function exits, False otherwise."""
+        if not self._rx_watcher_thread:
+            return True
+
+        end_time = time.perf_counter() + timeout_ms / 1000
+        while time.perf_counter() < end_time:
+            if self._rx_watcher_thread.isFinished():
+                return True
+
+        return False
 
     def write_data(self, data: List[int]) -> None:
         self.ser_port.write_data(data)
