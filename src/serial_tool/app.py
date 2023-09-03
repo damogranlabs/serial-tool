@@ -34,8 +34,6 @@ class Gui(QtWidgets.QMainWindow):
     sig_warning = QtCore.pyqtSignal(str, str)
     sig_error = QtCore.pyqtSignal(str, str)
 
-    sig_close = QtCore.pyqtSignal()
-
     def __init__(self, args: cmd_args.SerialToolArgs) -> None:
         """Main Serial Tool application window."""
         QtWidgets.QMainWindow.__init__(self)
@@ -191,8 +189,6 @@ class Gui(QtWidgets.QMainWindow):
         self.sig_write.connect(self.log_text)
         self.sig_warning.connect(self.log_text)
         self.sig_error.connect(self.log_text)
-
-        self.sig_close.connect(self.on_quit_app_event)
 
         self.port_hdlr.sig_connection_successful.connect(self.on_connect_event)
         self.port_hdlr.sig_connection_closed.connect(self.on_disconnect_event)
@@ -673,10 +669,10 @@ class Gui(QtWidgets.QMainWindow):
         logging.debug(f"\tEvent: sequence {ch_idx + 1} stop request")
 
     @QtCore.pyqtSlot()
-    def on_quit_app_event(self) -> None:
-        """Deinit serial port, close GUI."""
-        self.port_hdlr.deinit_port()
+    def closeEvent(self, event: QtGui.QCloseEvent) -> None:
+        self.port_hdlr.sig_deinit_request.emit()
 
+        event.accept()
         self.close()
 
     ################################################################################################
@@ -1051,7 +1047,7 @@ class Gui(QtWidgets.QMainWindow):
             self.port_hdlr.deinit_port()
         except Exception as err:
             logging.error(f"Error in final exception handler:\n{err}")
-            self.sig_close.emit()
+            self.closeEvent()
 
 
 def init_logger(level: int = logging.DEBUG) -> None:
