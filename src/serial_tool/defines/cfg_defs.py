@@ -13,7 +13,7 @@ KEY_SER_PARITY = "parity"
 KEY_SER_SWFLOWCTRL = "swFlowControl"
 KEY_SER_HWFLOWCTRL = "hwFlowControl"
 KEY_SER_RX_TIMEOUT_MS = "readTimeoutMs"
-KEY_SER_TX_TIMEOUT = "writeTimeoutMs"
+KEY_SER_TX_TIMEOUT_MS = "writeTimeoutMs"
 
 KEY_GUI_DATA_FIELDS = "dataFields"
 KEY_GUI_NOTE_FIELDS = "noteFields"

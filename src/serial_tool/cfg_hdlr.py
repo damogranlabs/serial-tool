@@ -32,6 +32,8 @@ class ConfigurationHdlr:
         ser_cfg_data[cfg_defs.KEY_SER_PARITY] = self.data_cache.serial_settings.parity
         ser_cfg_data[cfg_defs.KEY_SER_SWFLOWCTRL] = self.data_cache.serial_settings.sw_flow_ctrl
         ser_cfg_data[cfg_defs.KEY_SER_HWFLOWCTRL] = self.data_cache.serial_settings.hw_flow_ctrl
+        ser_cfg_data[cfg_defs.KEY_SER_RX_TIMEOUT_MS] = self.data_cache.serial_settings.rx_timeout_ms
+        ser_cfg_data[cfg_defs.KEY_SER_TX_TIMEOUT_MS] = self.data_cache.serial_settings.tx_timeout_ms
         data[cfg_defs.KEY_SER_CFG] = ser_cfg_data
 
         data[cfg_defs.KEY_GUI_DATA_FIELDS] = {}
@@ -84,6 +86,8 @@ class ConfigurationHdlr:
             settings.parity = ser_cfg_data[cfg_defs.KEY_SER_PARITY]
             settings.sw_flow_ctrl = ser_cfg_data[cfg_defs.KEY_SER_SWFLOWCTRL]
             settings.hw_flow_ctrl = ser_cfg_data[cfg_defs.KEY_SER_HWFLOWCTRL]
+            settings.rx_timeout_ms = ser_cfg_data[cfg_defs.KEY_SER_RX_TIMEOUT_MS]
+            settings.tx_timeout_ms = ser_cfg_data[cfg_defs.KEY_SER_TX_TIMEOUT_MS]
             self.data_cache.set_serial_settings(settings)
         except KeyError as err:
             msg = f"Unable to set serial settings from a configuration file: {err}"

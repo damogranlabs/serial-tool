@@ -75,6 +75,9 @@ class SerialSetupDialog(QtWidgets.QDialog):
         self.settings.stop_bits = self.ui.RB_stopBitsGroup.checkedId()
         self.settings.parity = serial_hdlr.parity_as_str(self.ui.RB_parityGroup.checkedId())
 
+        self.settings.rx_timeout_ms = self.ui.SB_readTimeout.value()
+        self.settings.tx_timeout_ms = self.ui.SB_writeTimeout.value()
+
     def get_settings(self) -> serial_hdlr.SerialCommSettings:
         return self.settings
 
@@ -99,5 +102,8 @@ class SerialSetupDialog(QtWidgets.QDialog):
 
         round_button = self.ui.RB_stopBitsGroup.button(settings.stop_bits)
         round_button.click()
+
+        self.ui.SB_readTimeout.setValue(settings.rx_timeout_ms)
+        self.ui.SB_writeTimeout.setValue(settings.tx_timeout_ms)
 
         self._store_ui_settings()
