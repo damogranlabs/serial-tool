@@ -1,5 +1,11 @@
 # Changelog:  
 
+**v3.1.1 (3.9.2023):**
+- fix: RX data not displayed.
+- fix: On-close event handler not called. 
+- improv: Add support for setting RX/TX timeout
+Note: on-close event blocked by issue on low level library `aioserial`: https://github.com/johannchangpro/aioserial.py/issues/21
+
 **v3.0.1 (9.8.2023):**
 - fix: Add missing *\_\_main\_\_.py* file, making `$python -m serial_tool` working properly
 
